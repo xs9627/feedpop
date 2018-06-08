@@ -1,0 +1,19 @@
+.Feed-content-panel.Active {
+    position: absolute;
+    top: 0;
+    background: white;
+}
+
+.Feed-content-panel.Inactive {
+    display: none;
+}
+
+
+.Feed-content-container {
+    width: 100%;
+    
+}
+
+.Feed-content-container img {
+    max-width: 100%;
+}
