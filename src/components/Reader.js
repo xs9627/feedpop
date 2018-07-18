@@ -1,13 +1,11 @@
+/* global chrome */
 import React, { Component } from 'react';
 import logo from '../logo.svg';
-//import Parser from 'rss-parser';
-/* global RSSParser */
-import 'rss-parser/dist/rss-parser.min.js'
 import './Reader.css';
 import ChannelSelector from './ChannelSelector';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
-
+import FeedUtil from '../utils/FeedUtil';
 
 class Reader extends Component {
   constructor(props) {
@@ -29,16 +27,23 @@ class Reader extends Component {
       currentFeedItem: {},
       showContent: false
     };
-    this.fetchFeed(this.state.channel[0].url);
+    //this.fetchFeed(this.state.channel[0].url);
+    chrome.storage.local.get('feeds', (data) => {
+      let feeds = data.feeds;
+      this.setState({currentFeeds: feeds[feeds.length - 1].feed});
+    });
   }
 
   fetchFeed = url => {
-    let parser = new RSSParser();
-    const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
-    parser.parseURL(CORS_PROXY + url, (err, feed) => {
+    FeedUtil.fetchFeed(url, (err, feed) => {
       if (err) {
         alert(err.message);
       } else {
+        chrome.storage.local.get('feeds', (data) => {
+          let feeds = data.feeds;
+          feeds.push({time: Date.now(), feed: feed});
+          chrome.storage.local.set({'feeds': feeds});
+        });
         this.setState({currentFeeds: feed});
       }
     });
