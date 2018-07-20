@@ -11,22 +11,17 @@ class Reader extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      channel: [
-        {
-          name: 'CN - 1',
-          url: 'https://www.feng.com/rss.xml'
-        },
-        {
-          name: 'CN - 2',
-          url: 'http://zhihurss.miantiao.me/dailyrss'
-        }
-      ],
+      channel: [],
       currentFeeds: {
         items: []
       },
       currentFeedItem: {},
       showContent: false
     };
+
+    FeedUtil.getAllChannels((channels) => {
+      this.setState({channel: channels});
+    })
     //this.fetchFeed(this.state.channel[0].url);
     chrome.storage.local.get('feeds', (data) => {
       let feeds = data.feeds;
