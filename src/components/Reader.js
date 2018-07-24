@@ -1,4 +1,3 @@
-/* global chrome */
 import React, { Component } from 'react';
 import logo from '../logo.svg';
 import './Reader.css';
@@ -19,28 +18,25 @@ class Reader extends Component {
       showContent: false
     };
 
-    FeedUtil.getAllChannels((channels) => {
+    FeedUtil.getAllChannels().then(channels => {
       this.setState({channel: channels});
-    })
-    //this.fetchFeed(this.state.channel[0].url);
-    chrome.storage.local.get('feeds', (data) => {
-      let feeds = data.feeds;
-      this.setState({currentFeeds: feeds[feeds.length - 1].feed});
+      this.setState({currentChannelId: channels[0].id});
+      this.fetchFeed(channels[0].id);
     });
   }
 
-  fetchFeed = url => {
-    FeedUtil.fetchFeed(url, (err, feed) => {
-      if (err) {
-        alert(err.message);
-      } else {
-        chrome.storage.local.get('feeds', (data) => {
-          let feeds = data.feeds;
-          feeds.push({time: Date.now(), feed: feed});
-          chrome.storage.local.set({'feeds': feeds});
-        });
-        this.setState({currentFeeds: feed});
-      }
+  fetchFeed = id => {
+    this.setState({currentChannelId: id});
+    FeedUtil.getChannelFeed(id).then(feedObj => {
+      this.setState({currentFeeds: feedObj.feed});
+    });
+  }
+
+  updateCurrentChannel = () => {
+    this.setState({ updating: true });
+    FeedUtil.updateChannelFeed(this.state.currentChannelId).then((feedObj) => {
+      this.setState({currentFeeds: feedObj.feed});
+      this.setState({ updating: false });
     });
   }
 
@@ -69,6 +65,8 @@ class Reader extends Component {
         <header className="Reader-header">
           <img src={logo} className="App-logo" alt="logo" />
           <ChannelSelector channel={this.state.channel} onChange={this.fetchFeed} />
+          <button onClick={this.updateCurrentChannel}>Update</button>
+          { this.state.updating ? <div>Updating</div> : null }
         </header>
         <div className="Reader-content">
           <div className="Reader-list">
