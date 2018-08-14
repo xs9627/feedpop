@@ -22,8 +22,25 @@
   font-size: large;
 }
 
-.Reader-content {
-  position: relative;
+.Reader {
+  height: 600px;
+  overflow: auto;
+}
+
+.Reader.Model-open {
+  overflow: hidden;
+}
+
+.Reader-item {
+  position: fixed;
+  overflow: auto;
+  height: 100%;
+  top: 0;
+  background: white;
+}
+
+.Reader-item.Inactive {
+  display: none;
 }
 
 @keyframes App-logo-spin {

@@ -61,7 +61,7 @@ class Reader extends Component {
 
   render() {
     return (
-      <div className="Reader">
+      <div className={"Reader " + (this.state.showContent ? 'Model-open' : '')}>
         <header className="Reader-header">
           <img src={logo} className="App-logo" alt="logo" />
           <ChannelSelector channel={this.state.channel} onChange={this.fetchFeed} />
@@ -69,11 +69,11 @@ class Reader extends Component {
           { this.state.updating ? <div>Updating</div> : null }
         </header>
         <div className="Reader-content">
-          <div className="Reader-list">
+          <div className='Reader-list'>
             <FeedList feeds={this.state.currentFeeds.items} onListClick={this.handleListClick} />
           </div>
-          <div className="Reader-item">
-            <FeedContent feed={this.state.currentFeedItem} showContent={this.state.showContent} onCloseClick={this.handleContentCloseClick} />
+          <div className={'Reader-item ' + (this.state.showContent ? 'Active' : 'Inactive')}>
+            <FeedContent feed={this.state.currentFeedItem} onCloseClick={this.handleContentCloseClick} />
           </div>
         </div>
       </div>

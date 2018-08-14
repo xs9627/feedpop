@@ -7,7 +7,7 @@ class FeedContent extends Component {
     };
     render() {
         return (
-            <div className={'Feed-content-panel ' + (this.props.showContent ? 'Active' : 'Inactive')}>
+            <div className='Feed-content-panel'>
                 <div>
                     <p>{this.props.feed.title}</p>
                     <button onClick={() => this.props.onCloseClick()}>Close</button>
