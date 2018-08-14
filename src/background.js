@@ -6,12 +6,28 @@ chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.clear();
   FeedUtil.addChannel('CN - 1', 'https://www.feng.com/rss.xml').then(
     (channel) => {
-      FeedUtil.updateChannelFeed(channel.id);
       FeedUtil.addChannel('CN - 2', 'http://zhihurss.miantiao.me/dailyrss').then(channel => {
-        FeedUtil.updateChannelFeed(channel.id).then(() => {
-          console.log("Init feeds");
-        });
+        console.log("Init feeds");
       });
     }
   );
+  chrome.alarms.create("refreshAll", {
+    delayInMinutes: 0.1,
+    periodInMinutes: 30
+  });
+});
+
+chrome.alarms.onAlarm.addListener(alarm => {
+  if (alarm.name === "refreshAll") {
+    console.log('Starting update all channels - ' + Date());
+    FeedUtil.getAllChannels().then(channels => {
+      if (channels) {
+        channels.forEach(channel => {
+          FeedUtil.updateChannelFeed(channel.id).then(() => {
+            console.log(channel.name + ' updated');
+          })
+        });
+      }
+    });
+  }
 });
