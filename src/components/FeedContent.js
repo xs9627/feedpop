@@ -1,5 +1,5 @@
 import React, { Component }  from 'react'
-import './FeedContent.css'
+import './FeedContent.scss'
 
 class FeedContent extends Component {
     createMarkup(htmlString) { 
