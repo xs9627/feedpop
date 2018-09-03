@@ -11,6 +11,7 @@
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-scripts-chrome-extension": "^1.1.5",
+    "react-transition-group": "^1.2.1",
     "rss-parser": "^3.4.3",
     "uuid": "^3.3.2"
   },

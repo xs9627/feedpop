@@ -28,16 +28,18 @@
   &.Model-open {
     overflow: hidden;
   }
-}
-
-.Reader-item {
-  position: fixed;
-  overflow: auto;
-  height: 100%;
-  top: 0;
-  background: white;
-  &.Inactive {
-    display: none;
+  .Reader-content {
+    margin-top: 30px;
+  }
+  .Reader-item {
+    position: fixed;
+    overflow: auto;
+    height: 100%;
+    top: 0;
+    background: white;
+    &.Inactive {
+      display: none;
+    }
   }
 }
 

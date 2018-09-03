@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { CSSTransitionGroup } from 'react-transition-group'
 import './ReaderHeader.scss';
 import ChannelSelector from './ChannelSelector';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -17,11 +18,15 @@ class ReaderHeader extends Component {
                         <ChannelSelector
                             selectedId={this.props.currentChannelId}
                             channel={this.props.channel}
-                            onChange={this.props.fetchFeed} />
+                            onChange={channelId => {
+                                    this.props.fetchFeed(channelId);
+                                    this.setState({ showContent: false });
+                                }
+                            } />
                     );
                     break;
                 case 'Update': 
-                    this.headerContent = <div>Updating</div>;
+                    this.headerContent = <div className='Menu-item'>Updating</div>;
                     this.props.updateCurrentChannel().then(() => {
                         if (this.currentContentName == 'Update') {
                             this.setState({ showContent: false });
@@ -37,9 +42,20 @@ class ReaderHeader extends Component {
         }
         this.currentContentName = contentName;
     }
+    renderMenuPanel = () => {
+        if (this.state.showContent) {
+            return (
+                <div key='Menu-background' className='Menu-background' onClick={() => this.setState({ showContent: false })}>
+                    {this.headerContent}
+                </div>
+            );
+        } else {
+            return null;
+        }
+    }
     render () {
         return (
-            <div className='ReaderHeader'>
+            <div className='Reader-header'>
                 <div className={'Action-panel' + (this.state.showContent ? ' Show-content' : '')}>
                     <div className={'Action List' + (this.currentContentName == 'List' ? ' Active' : '')} onClick={() => this.setHeaderContent('List')}>
                         <FontAwesomeIcon className='Icon' icon={faList} />
@@ -58,9 +74,12 @@ class ReaderHeader extends Component {
                         <label>Settings</label>
                     </div>
                 </div>
-                <div>
-                    {this.state.showContent ? this.headerContent : ''}
-                </div>
+                <CSSTransitionGroup className='Menu-panel'
+                    transitionName="Menu"
+                    transitionEnterTimeout={500}
+                    transitionLeaveTimeout={300}>
+                    {this.renderMenuPanel()}
+                </CSSTransitionGroup>
             </div>
         );
     }

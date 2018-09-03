@@ -1,5 +1,10 @@
-.ReaderHeader {
+.Reader-header {
+    position: absolute;
+    width: 100%;
     .Action-panel {
+        background: white;
+        border-style: solid;
+        border-width: 0px 1px 0px 0px;
         .Action {
             display: inline-block;
             width: 25%;
@@ -9,7 +14,7 @@
                 display: none;
             }
             border-style: solid;
-            border-width: 0px 1px 1px 0px;
+            border-width: 0px 0px 1px 1px;
             margin-right: -1px;
             padding-bottom: 1px;
         }
@@ -26,6 +31,39 @@
                         display: inline;
                     }
                 }
+            }
+        }
+    }
+    .Menu-panel {
+        .Menu-background {
+            height: 600px;
+            background: rgba(0, 0, 0, 0.1);
+            .Menu-item {
+                background: white;
+                height: 20px;
+                line-height: 20px;
+                border-style: solid;
+                border-width: 0px 1px 1px 1px;
+                &:last-child {
+                    border-bottom-left-radius: 10px;
+                    border-bottom-right-radius: 10px;
+                }
+            }
+        }
+        .Menu-enter {
+            max-height: 0;
+            overflow: hidden;
+            &.Menu-enter-active {
+                max-height: 600px;
+                transition: max-height 500ms ease;
+            }
+        }
+        .Menu-leave {
+            max-height: 600px;
+            &.Menu-leave-active {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 300ms ease;
             }
         }
     }
