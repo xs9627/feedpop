@@ -11,7 +11,7 @@ let ChromeUtil = {
                     item.id = uuidv4();
                 }
                 if (isReplace) {
-                    array = array.filter(arrayItem => arrayItem.id != item.id);
+                    array = array.filter(arrayItem => arrayItem.id !== item.id);
                 }
                 array.push(item);
                 let newArrayObj = {};

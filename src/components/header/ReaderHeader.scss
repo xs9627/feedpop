@@ -1,0 +1,32 @@
+.ReaderHeader {
+    .Action-panel {
+        .Action {
+            display: inline-block;
+            width: 25%;
+            text-align: center;
+            label {
+                margin-left: 15px;
+                display: none;
+            }
+            border-style: solid;
+            border-width: 0px 1px 1px 0px;
+            margin-right: -1px;
+            padding-bottom: 1px;
+        }
+        &.Show-content {
+            .Action {
+                width: 20%;
+                &.Active {
+                    width: 40%;
+                    text-align: left;
+                    .Icon {
+                        margin-left: 10px;
+                    }
+                    label {
+                        display: inline;
+                    }
+                }
+            }
+        }
+    }
+}

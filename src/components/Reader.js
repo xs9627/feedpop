@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import logo from '../logo.svg';
 import './Reader.scss';
-import ChannelSelector from './ChannelSelector';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
 import FeedUtil from '../utils/FeedUtil';
+import ReaderHeader from './header/ReaderHeader'
 
 class Reader extends Component {
   constructor(props) {
@@ -33,10 +33,8 @@ class Reader extends Component {
   }
 
   updateCurrentChannel = () => {
-    this.setState({ updating: true });
-    FeedUtil.updateChannelFeed(this.state.currentChannelId).then((feedObj) => {
+    return FeedUtil.updateChannelFeed(this.state.currentChannelId).then((feedObj) => {
       this.setState({currentFeeds: feedObj.feed});
-      this.setState({ updating: false });
     });
   }
 
@@ -62,12 +60,11 @@ class Reader extends Component {
   render() {
     return (
       <div className={"Reader " + (this.state.showContent ? 'Model-open' : '')}>
-        <header className="Reader-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <ChannelSelector channel={this.state.channel} onChange={this.fetchFeed} />
-          <button onClick={this.updateCurrentChannel}>Update</button>
-          { this.state.updating ? <div>Updating</div> : null }
-        </header>
+        <ReaderHeader 
+          currentChannelId={this.state.currentChannelId}
+          channel={this.state.channel} 
+          fetchFeed={this.fetchFeed} 
+          updateCurrentChannel={this.updateCurrentChannel} />
         <div className="Reader-content">
           <div className='Reader-list'>
             <FeedList feeds={this.state.currentFeeds.items} onListClick={this.handleListClick} />
