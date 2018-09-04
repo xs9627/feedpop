@@ -4,11 +4,20 @@
     .Action-panel {
         background: white;
         border-style: solid;
+        height: 22px;
         border-width: 0px 1px 0px 0px;
         .Action {
+            overflow: hidden;
+            white-space: nowrap;
             display: inline-block;
+            height: 20px;
+            line-height: 20px;
             width: 25%;
-            text-align: center;
+            transition: width 300ms;
+            .Icon {
+                margin-left: calc((300px * .25 - 12px) / 2);
+                transition: margin-left 300ms;
+            }
             label {
                 margin-left: 15px;
                 display: none;
@@ -21,9 +30,11 @@
         &.Show-content {
             .Action {
                 width: 20%;
+                .Icon {
+                    margin-left: calc((300px * .2 - 12px) / 2);
+                }
                 &.Active {
                     width: 40%;
-                    text-align: left;
                     .Icon {
                         margin-left: 10px;
                     }
@@ -45,8 +56,8 @@
                 border-style: solid;
                 border-width: 0px 1px 1px 1px;
                 &:last-child {
-                    border-bottom-left-radius: 10px;
-                    border-bottom-right-radius: 10px;
+                    border-bottom-left-radius: 3px;
+                    border-bottom-right-radius: 3px;
                 }
             }
         }
@@ -55,7 +66,7 @@
             overflow: hidden;
             &.Menu-enter-active {
                 max-height: 600px;
-                transition: max-height 500ms ease;
+                transition: max-height 300ms ease;
             }
         }
         .Menu-leave {
