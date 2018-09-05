@@ -24,12 +24,17 @@
 
 .Reader {
   height: 600px;
-  overflow: auto;
+  display: flex;
+  flex-flow: column;
   &.Model-open {
     overflow: hidden;
   }
+  .Reader-header {
+    flex: 0 1 auto;
+  }
   .Reader-content {
-    margin-top: 30px;
+    flex: 1 1 auto;
+    overflow: auto;
   }
   .Reader-item {
     position: fixed;

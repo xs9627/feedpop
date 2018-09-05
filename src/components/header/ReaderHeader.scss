@@ -1,5 +1,4 @@
 .Reader-header {
-    position: absolute;
     width: 100%;
     .Action-panel {
         background: white;
@@ -47,6 +46,8 @@
     }
     .Menu-panel {
         .Menu-background {
+            position: absolute;
+            width: 100%;
             height: 600px;
             background: rgba(0, 0, 0, 0.1);
             .Menu-item {
