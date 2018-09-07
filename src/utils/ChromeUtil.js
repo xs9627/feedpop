@@ -2,7 +2,7 @@
 let ChromeUtil = {
     putIntoArray: (arrayName, item, isReplace) => {
         return new Promise((resolve, reject) => {
-            ChromeUtil.getArray(arrayName).then(array => {
+            ChromeUtil.get(arrayName).then(array => {
                 if (!array) {
                     array = [];
                 }
@@ -23,16 +23,23 @@ let ChromeUtil = {
         });
     },
     findArrayById: (arrayName, id) => {
-        return ChromeUtil.getArray(arrayName).then(array => {
+        return ChromeUtil.get(arrayName).then(array => {
             if(array) {
                 return array.filter(arrayItem => arrayItem.id === id)[0];
             }
         });
     },
-    getArray: arrayName => {
+    get: key => {
         return new Promise((resolve, reject) => {
-            chrome.storage.local.get(arrayName, data => {
-                resolve(data[arrayName]);
+            chrome.storage.local.get(key, data => {
+                resolve(data[key]);
+            });
+        });
+    },
+    set: (key, value) => {
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.set({[key]: value}, () => {
+                resolve(value);
             });
         });
     }

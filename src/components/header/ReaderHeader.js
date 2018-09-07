@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ChannelSelector from './ChannelSelector';
+import ReaderSettings from './ReaderSettings';
 
 import { withStyles } from '@material-ui/core/styles';
 import Collapse from '@material-ui/core/Collapse';
@@ -55,6 +56,13 @@ class ReaderHeader extends Component {
                             this.setState({ showContent: false });
                         }
                     });
+                    break;
+                case 'Settings':
+                    this.headerContent = (
+                        <ReaderSettings 
+                            config={this.props.settings} 
+                            changeTheme={this.props.changeTheme}/>
+                    );
                     break;
                 default:
                     this.headerContent = null;

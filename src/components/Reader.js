@@ -7,31 +7,6 @@ import ReaderHeader from './header/ReaderHeader';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import 'typeface-roboto';
 
-const theme = createMuiTheme({
-  palette: {
-    type: 'dark', // Switching the dark mode on is a single property value change.
-  },
-  overrides: {
-    MuiBottomNavigation: {
-      root: {
-        height: 46,
-      }
-    },
-    MuiBottomNavigationAction: {
-      root: {
-        height: 46,
-        '& $svg': {
-          fontSize: 16,
-        }
-      },
-      label: {
-        '&$selected': {
-          fontSize: 12
-        }
-      },
-    },
-  },
-});
 class Reader extends Component {
   constructor(props) {
     super(props);
@@ -41,13 +16,46 @@ class Reader extends Component {
         items: []
       },
       currentFeedItem: {},
-      showContent: false
+      showContent: false,
+      settings: {},
     };
 
     FeedUtil.getAllChannels().then(channels => {
       this.setState({channel: channels});
       this.setState({currentChannelId: channels[0].id});
       this.fetchFeed(channels[0].id);
+    });
+
+    FeedUtil.getSettings().then(settings => {
+      this.setState({ settings: settings});
+    });
+  }
+
+  getTheme = () => {
+    return createMuiTheme({
+      palette: {
+        type: !this.state.settings.darkTheme ? 'light' : 'dark',
+      },
+      overrides: {
+        MuiBottomNavigation: {
+          root: {
+            height: 46,
+          }
+        },
+        MuiBottomNavigationAction: {
+          root: {
+            height: 46,
+            '& $svg': {
+              fontSize: 16,
+            }
+          },
+          label: {
+            '&$selected': {
+              fontSize: 12
+            }
+          },
+        },
+      },
     });
   }
 
@@ -62,6 +70,12 @@ class Reader extends Component {
     return FeedUtil.updateChannelFeed(this.state.currentChannelId).then((feedObj) => {
       this.setState({currentFeeds: feedObj.feed});
     });
+  }
+
+  changeTheme = darkTheme => {
+    let settings = {darkTheme: darkTheme};
+    this.setState({settings: settings});
+    FeedUtil.setSettings(settings);
   }
 
   handleChannelChange = url => {
@@ -85,13 +99,15 @@ class Reader extends Component {
 
   render() {
     return (
-      <MuiThemeProvider theme={theme}>
+      <MuiThemeProvider theme={this.getTheme()}>
         <div className={"Reader " + (this.state.showContent ? 'Model-open' : '')}>
           <ReaderHeader 
             currentChannelId={this.state.currentChannelId}
             channel={this.state.channel} 
             fetchFeed={this.fetchFeed} 
-            updateCurrentChannel={this.updateCurrentChannel} />
+            updateCurrentChannel={this.updateCurrentChannel}
+            changeTheme={this.changeTheme}
+            settings={this.state.settings} />
           <div className="Reader-content">
             <div className='Reader-list'>
               <FeedList feeds={this.state.currentFeeds.items} onListClick={this.handleListClick} />

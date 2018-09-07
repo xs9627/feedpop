@@ -4,6 +4,7 @@ import ChromeUtil from './ChromeUtil';
 
 const CHANNELS_ARRAY_NAME = 'channels';
 const FEEDS_ARRAY_NAME = 'feeds';
+const SETTINGS_NAME = 'settings';
 const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
 
 const fetchFeed = url => {
@@ -49,10 +50,16 @@ let FeedUtil =  {
         });
     },
     getAllChannels: () => {
-        return ChromeUtil.getArray(CHANNELS_ARRAY_NAME);
+        return ChromeUtil.get(CHANNELS_ARRAY_NAME);
     },
     getChannelFeed: (id) => {
         return ChromeUtil.findArrayById(FEEDS_ARRAY_NAME, id);
+    },
+    setSettings: settings => {
+        return ChromeUtil.set(SETTINGS_NAME, settings);
+    },
+    getSettings: () => {
+        return ChromeUtil.get(SETTINGS_NAME);
     }
 };
 

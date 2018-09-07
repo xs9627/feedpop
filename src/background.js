@@ -4,6 +4,7 @@ import FeedUtil from './utils/FeedUtil';
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.clear();
   chrome.storage.local.clear();
+  FeedUtil.setSettings({ darkTheme: false });
   FeedUtil.addChannel('CN - 1', 'https://www.feng.com/rss.xml').then(
     (channel) => {
       FeedUtil.addChannel('CN - 2', 'http://zhihurss.miantiao.me/dailyrss').then(channel => {
