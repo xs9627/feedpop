@@ -1,7 +1,15 @@
 import React, { Component } from 'react';
-import './ChannelSelector.scss';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheck } from '@fortawesome/free-solid-svg-icons'
+import { withStyles } from '@material-ui/core/styles';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+
+const styles = theme => ({
+    root: {
+      backgroundColor: theme.palette.background.paper,
+    },
+});
 
 class ChannelSelector extends Component {
     constructor(props) {
@@ -16,22 +24,25 @@ class ChannelSelector extends Component {
         let channels = [];
         for (let i = 0; i < this.props.channel.length; i++) {
             channels.push(
-            <div className={'Channel Menu-item' + (this.state.value == this.props.channel[i].id ? ' Selected' : '')} 
+            <ListItem button
+                selected={this.state.value == this.props.channel[i].id}
                 onClick={() => this.changeChannel(this.props.channel[i].id)}>
-                <FontAwesomeIcon className='Check-icon' icon={faCheck} />
-                <span>{this.props.channel[i].name}</span>
-            </div>
+                <ListItemText primary={this.props.channel[i].name} />
+            </ListItem>
             );
         }
         return channels;
     }
     render () {
+        const { classes } = this.props;
         return (
-            <div className='Channel-selector'>
-                {this.renderChannels()}
+            <div className={classes.root}>
+                <List component="nav">
+                    {this.renderChannels()}
+                </List>
             </div>
         );
     }
 }
 
-export default ChannelSelector;
+export default withStyles(styles)(ChannelSelector);

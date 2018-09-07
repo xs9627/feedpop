@@ -1,11 +1,37 @@
 import React, { Component } from 'react';
-import logo from '../logo.svg';
 import './Reader.scss';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
 import FeedUtil from '../utils/FeedUtil';
-import ReaderHeader from './header/ReaderHeader'
+import ReaderHeader from './header/ReaderHeader';
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import 'typeface-roboto';
 
+const theme = createMuiTheme({
+  palette: {
+    type: 'dark', // Switching the dark mode on is a single property value change.
+  },
+  overrides: {
+    MuiBottomNavigation: {
+      root: {
+        height: 46,
+      }
+    },
+    MuiBottomNavigationAction: {
+      root: {
+        height: 46,
+        '& $svg': {
+          fontSize: 16,
+        }
+      },
+      label: {
+        '&$selected': {
+          fontSize: 12
+        }
+      },
+    },
+  },
+});
 class Reader extends Component {
   constructor(props) {
     super(props);
@@ -59,21 +85,23 @@ class Reader extends Component {
 
   render() {
     return (
-      <div className={"Reader " + (this.state.showContent ? 'Model-open' : '')}>
-        <ReaderHeader 
-          currentChannelId={this.state.currentChannelId}
-          channel={this.state.channel} 
-          fetchFeed={this.fetchFeed} 
-          updateCurrentChannel={this.updateCurrentChannel} />
-        <div className="Reader-content">
-          <div className='Reader-list'>
-            <FeedList feeds={this.state.currentFeeds.items} onListClick={this.handleListClick} />
-          </div>
-          <div className={'Reader-item ' + (this.state.showContent ? 'Active' : 'Inactive')}>
-            <FeedContent feed={this.state.currentFeedItem} onCloseClick={this.handleContentCloseClick} />
+      <MuiThemeProvider theme={theme}>
+        <div className={"Reader " + (this.state.showContent ? 'Model-open' : '')}>
+          <ReaderHeader 
+            currentChannelId={this.state.currentChannelId}
+            channel={this.state.channel} 
+            fetchFeed={this.fetchFeed} 
+            updateCurrentChannel={this.updateCurrentChannel} />
+          <div className="Reader-content">
+            <div className='Reader-list'>
+              <FeedList feeds={this.state.currentFeeds.items} onListClick={this.handleListClick} />
+            </div>
+            <div className={'Reader-item ' + (this.state.showContent ? 'Active' : 'Inactive')}>
+              <FeedContent feed={this.state.currentFeedItem} onCloseClick={this.handleContentCloseClick} />
+            </div>
           </div>
         </div>
-      </div>
+      </MuiThemeProvider>
     );
   }
 }
