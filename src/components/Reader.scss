@@ -31,17 +31,26 @@
   }
   .Reader-header {
     flex: 0 1 auto;
+    z-index: 2;
   }
   .Reader-content {
     flex: 1 1 auto;
     overflow: auto;
   }
   .Reader-item {
+    * {
+      color: inherit !important;
+    }
+    padding: 0 16px;
+    z-index: 3;
     position: fixed;
     overflow: auto;
     height: 100%;
     top: 0;
-    background: white;
+    background: inherit;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 400;
     &.Inactive {
       display: none;
     }

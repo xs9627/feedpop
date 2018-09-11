@@ -31,12 +31,12 @@ class Settings extends Component {
                     <ListItem>
                         <ListItemText primary="Dark Theme"></ListItemText>
                         <ListItemSecondaryAction>
-                        <Switch
-                            checked={this.state.darkTheme}
-                            onChange={this.handleChangeTheme}
-                            value="checkedB"
-                            color="primary"
-                        />
+                            <Switch
+                                checked={this.state.darkTheme}
+                                onChange={this.handleChangeTheme}
+                                value="checkedB"
+                                color="primary"
+                            />
                         </ListItemSecondaryAction>
                     </ListItem>
                 </List>

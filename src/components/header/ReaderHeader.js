@@ -11,7 +11,7 @@ import Sync from '@material-ui/icons/Sync';
 import Edit from '@material-ui/icons/Edit';
 import Settings from '@material-ui/icons/Settings';
 
-const styles = {
+const styles = theme => ({
     readerHeader: {
         width: '100%',
     },
@@ -26,9 +26,10 @@ const styles = {
         position: 'absolute',
         width: '100%',
         height: 600,
-        background: 'rgba(0, 0, 0, 0.3)'
+        background: theme.palette.common.black,
+        opacity: 0.3,
     },
-};
+});
 class ReaderHeader extends Component {
     state = {
         contentName: null,

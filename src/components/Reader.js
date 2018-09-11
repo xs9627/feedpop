@@ -13,7 +13,9 @@ class Reader extends Component {
     this.state = {
       channel: [],
       currentFeeds: {
-        items: []
+        feed: {
+          items: []
+        }
       },
       currentFeedItem: {},
       showContent: false,
@@ -36,39 +38,43 @@ class Reader extends Component {
       palette: {
         type: !this.state.settings.darkTheme ? 'light' : 'dark',
       },
-      overrides: {
-        MuiBottomNavigation: {
-          root: {
-            height: 46,
-          }
-        },
-        MuiBottomNavigationAction: {
-          root: {
-            height: 46,
-            '& $svg': {
-              fontSize: 16,
-            }
-          },
-          label: {
-            '&$selected': {
-              fontSize: 12
-            }
-          },
-        },
-      },
+      // overrides: {
+      //   MuiBottomNavigation: {
+      //     root: {
+      //       height: 46,
+      //     }
+      //   },
+      //   MuiBottomNavigationAction: {
+      //     root: {
+      //       height: 46,
+      //       '& $svg': {
+      //         fontSize: 16,
+      //       }
+      //     },
+      //     label: {
+      //       '&$selected': {
+      //         fontSize: 12
+      //       }
+      //     },
+      //   },
+      // },
     });
   }
 
   fetchFeed = id => {
     this.setState({currentChannelId: id});
     FeedUtil.getChannelFeed(id).then(feedObj => {
-      this.setState({currentFeeds: feedObj.feed});
+      if (feedObj) {
+        this.setState({currentFeeds: feedObj});
+      }
     });
   }
 
   updateCurrentChannel = () => {
     return FeedUtil.updateChannelFeed(this.state.currentChannelId).then((feedObj) => {
-      this.setState({currentFeeds: feedObj.feed});
+      if (feedObj) {
+        this.setState({currentFeeds: feedObj});
+      }
     });
   }
 
@@ -98,21 +104,26 @@ class Reader extends Component {
   }
 
   render() {
+    const { classes } = this.props;
+    const theme = this.getTheme();
     return (
-      <MuiThemeProvider theme={this.getTheme()}>
+      <MuiThemeProvider theme={theme}>
         <div className={"Reader " + (this.state.showContent ? 'Model-open' : '')}>
-          <ReaderHeader 
-            currentChannelId={this.state.currentChannelId}
-            channel={this.state.channel} 
-            fetchFeed={this.fetchFeed} 
-            updateCurrentChannel={this.updateCurrentChannel}
-            changeTheme={this.changeTheme}
-            settings={this.state.settings} />
-          <div className="Reader-content">
+          <div className="Reader-header">
+            <ReaderHeader
+              currentChannelId={this.state.currentChannelId}
+              channel={this.state.channel} 
+              fetchFeed={this.fetchFeed} 
+              updateCurrentChannel={this.updateCurrentChannel}
+              changeTheme={this.changeTheme}
+              settings={this.state.settings} />
+          </div>
+          <div className="Reader-content " style={{backgroundColor: theme.palette.background.paper}}>
             <div className='Reader-list'>
-              <FeedList feeds={this.state.currentFeeds.items} onListClick={this.handleListClick} />
+              <FeedList feedObj={this.state.currentFeeds} onListClick={this.handleListClick} />
             </div>
-            <div className={'Reader-item ' + (this.state.showContent ? 'Active' : 'Inactive')}>
+            <div className={'Reader-item ' + (this.state.showContent ? 'Active' : 'Inactive')}
+                style={{color: theme.palette.text.primary}}>
               <FeedContent feed={this.state.currentFeedItem} onCloseClick={this.handleContentCloseClick} />
             </div>
           </div>
