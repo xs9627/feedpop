@@ -11,6 +11,7 @@ import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import Divider from '@material-ui/core/Divider';        <Divider light />
 
 const styles = theme => ({
   root: {
@@ -101,6 +102,7 @@ class FeedList extends Component {
                 </ListItem>
               ))}
             </Collapse>
+            <Divider light />
           </ul>
         </li>
       ))}

@@ -10,6 +10,7 @@ import List from '@material-ui/icons/List';
 import Sync from '@material-ui/icons/Sync';
 import Edit from '@material-ui/icons/Edit';
 import Settings from '@material-ui/icons/Settings';
+import Paper from '@material-ui/core/Paper';
 
 const styles = theme => ({
     readerHeader: {
@@ -81,7 +82,7 @@ class ReaderHeader extends Component {
         const { classes } = this.props;
         const { contentName, showContent } = this.state;
         return (
-            <div className={classes.readerHeader}>
+            <Paper className={classes.readerHeader}>
                 <BottomNavigation value={contentName} onChange={this.setHeaderContent} className={classes.actionPanel}>
                     <BottomNavigationAction label="List" value="List" icon={<List />} />
                     <BottomNavigationAction label="Update" value="Update" icon={<Sync />} />
@@ -93,7 +94,7 @@ class ReaderHeader extends Component {
                 <Collapse in={showContent} className={classes.menuCollapse}>
                     {this.headerContent}
                 </Collapse>
-            </div>
+            </Paper>
         );
     }
 }
