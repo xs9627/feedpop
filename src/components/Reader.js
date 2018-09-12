@@ -5,7 +5,6 @@ import FeedContent from './FeedContent';
 import FeedUtil from '../utils/FeedUtil';
 import ReaderHeader from './header/ReaderHeader';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import 'typeface-roboto';
 
 class Reader extends Component {
   constructor(props) {
@@ -18,6 +17,7 @@ class Reader extends Component {
         }
       },
       currentFeedItem: {},
+      openStatus: {},
       showContent: false,
       settings: {},
     };
@@ -65,7 +65,9 @@ class Reader extends Component {
     this.setState({currentChannelId: id});
     FeedUtil.getChannelFeed(id).then(feedObj => {
       if (feedObj) {
-        this.setState({currentFeeds: feedObj});
+        FeedUtil.getFeedOpenStatus(feedObj.id).then(openStatus => {
+          this.setState({ currentFeeds: feedObj, openStatus: openStatus });
+        });
       }
     });
   }
@@ -120,7 +122,7 @@ class Reader extends Component {
           </div>
           <div className="Reader-content " style={{backgroundColor: theme.palette.background.paper}}>
             <div className='Reader-list'>
-              <FeedList feedObj={this.state.currentFeeds} onListClick={this.handleListClick} />
+              <FeedList feedObj={this.state.currentFeeds} openStatus={this.state.openStatus} onListClick={this.handleListClick} />
             </div>
             <div className={'Reader-item ' + (this.state.showContent ? 'Active' : 'Inactive')}
                 style={{color: theme.palette.text.primary}}>

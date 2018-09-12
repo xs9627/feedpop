@@ -1,4 +1,6 @@
 import React, { Component }  from 'react';
+import FeedUtil from '../utils/FeedUtil';
+import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -20,6 +22,13 @@ const styles = theme => ({
   ul: {
     backgroundColor: 'inherit',
     padding: 0,
+  },
+  unRead: {
+    color: theme.palette.primary.main,
+    fontWeight: 'bold',
+    '&::before': {
+      content: '"● "',
+    },
   },
 });
 
@@ -49,6 +58,16 @@ class FeedList extends Component {
     collapseStatus[dateStr] = !collapseStatus[dateStr];
     this.setState({ collapseStatus: collapseStatus });
   }
+  isUnRead = readerId => {
+    if (this.props.openStatus) {
+      return !this.props.openStatus.some(id => id === readerId);
+    } else {
+      return false;
+    }
+  }
+  getTime = isoDate => {
+    return new Date(isoDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  }
   render() {
     const { classes, feedObj, onListClick } = this.props;
     const arranged = this.arrangeFeeds(feedObj);
@@ -68,8 +87,17 @@ class FeedList extends Component {
               </ListItem>
             <Collapse in={!this.state.collapseStatus[dateStr]} timeout="auto" unmountOnExit>
               {arranged[dateStr].map(feed => (
-                <ListItem button dense={true} key={`item-${feed.isoDate}`} onClick={() => onListClick(feed)}>
-                  <ListItemText primary={feed.title} />
+                <ListItem 
+                  button 
+                  dense={true} 
+                  key={`item-${feed.isoDate}`} 
+                  onClick={() => {
+                    this.props.openStatus.push(feed.readerId);
+                    FeedUtil.setFeedOpenStatus(feedObj.id, feed.readerId);
+                    onListClick(feed);
+                  }}
+                >
+                  <ListItemText classes={{ primary: classNames({[classes.unRead]: this.isUnRead(feed.readerId)}) }} primary={feed.title} secondary={this.getTime(feed.isoDate)} />
                 </ListItem>
               ))}
             </Collapse>

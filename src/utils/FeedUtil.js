@@ -5,6 +5,7 @@ import ChromeUtil from './ChromeUtil';
 const CHANNELS_ARRAY_NAME = 'channels';
 const FEEDS_ARRAY_NAME = 'feeds';
 const SETTINGS_NAME = 'settings';
+const FEED_OPEN_STATUS = 'feedOpenStatus';
 const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
 
 const fetchFeed = url => {
@@ -24,8 +25,10 @@ const mergeFeed = (oldFeed, newFeed) => {
     for(let i = 0; i < merged.length; ++i) {
         for(let j = i+1; j < merged.length; ++j) {
             if((merged[i].isoDate && merged[i].isoDate === merged[j].isoDate) ||
-                (merged[i].pubDate && merged[i].pubDate === merged[j].pubDate))
-                merged.splice(j--, 1);
+                (merged[i].pubDate && merged[i].pubDate === merged[j].pubDate)) {
+                    merged[i].readerId = merged[j].readerId;
+                    merged.splice(j--, 1);
+                }
         }
     }
     return merged;
@@ -43,6 +46,12 @@ let FeedUtil =  {
                         let mergedItems = mergeFeed(oldFeedObj.feed.items, feed.items);
                         feed.items = mergedItems;
                     }
+                    const uuidv4 = require('uuid/v4');
+                    feed.items.forEach(item => {
+                        if (!item.readerId) {
+                            item.readerId = uuidv4();
+                        }
+                    });
                     let feedObj = {id: id, feed: feed};
                     return ChromeUtil.putIntoArray(FEEDS_ARRAY_NAME, feedObj, true);
                 });
@@ -60,6 +69,27 @@ let FeedUtil =  {
     },
     getSettings: () => {
         return ChromeUtil.get(SETTINGS_NAME);
+    },
+    setFeedOpenStatus: (channedId, feedId) => {
+        return ChromeUtil.findArrayById(FEED_OPEN_STATUS, channedId).then(feedOpenStatus => {
+            if (!feedOpenStatus) {
+                feedOpenStatus = {
+                    id: channedId,
+                    status: []
+                };
+            }
+            feedOpenStatus.status.push(feedId);
+            return ChromeUtil.putIntoArray(FEED_OPEN_STATUS, feedOpenStatus, true);
+        });
+    },
+    getFeedOpenStatus: channedId => {
+        return ChromeUtil.findArrayById(FEED_OPEN_STATUS, channedId).then(statusObj => {
+            if (statusObj) {
+                return statusObj.status;
+            } else {
+                return [];
+            }
+        });
     }
 };
 
