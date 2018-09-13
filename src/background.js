@@ -4,7 +4,11 @@ import FeedUtil from './utils/FeedUtil';
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.clear();
   chrome.storage.local.clear();
-  FeedUtil.setSettings({ darkTheme: false });
+  FeedUtil.setSettings({ 
+    darkTheme: false, 
+    version: chrome.runtime.getManifest().version, 
+    source: 'https://github.com/xs9627/rss-reader'
+  });
   // For testing
   FeedUtil.addChannel('CN - 1', 'https://www.feng.com/rss.xml').then(
     (channel1) => {

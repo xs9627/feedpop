@@ -42,6 +42,9 @@ let ChromeUtil = {
                 resolve(value);
             });
         });
+    },
+    openTab: url => {
+        chrome.tabs.create({url:url});
     }
 };
 

@@ -84,9 +84,9 @@ class Reader extends Component {
   }
 
   changeTheme = darkTheme => {
-    let settings = {darkTheme: darkTheme};
-    this.setState({settings: settings});
-    FeedUtil.setSettings(settings);
+    this.setState({ settings: { ...this.state.settings, darkTheme: darkTheme} }, () => {
+      FeedUtil.setSettings(this.state.settings);
+    });
   }
 
   handleChannelChange = url => {
