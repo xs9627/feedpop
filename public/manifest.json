@@ -2,7 +2,7 @@
   "short_name": "Reader",
   "name": "Reader React Extension",
   "manifest_version": 2,
-  "permissions": ["storage", "alarms"],
+  "permissions": ["storage", "alarms", "<all_urls>"],
   "background": {
     "scripts": ["background.js"],
     "persistent": false

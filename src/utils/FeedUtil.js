@@ -6,12 +6,11 @@ const CHANNELS_ARRAY_NAME = 'channels';
 const FEEDS_ARRAY_NAME = 'feeds';
 const SETTINGS_NAME = 'settings';
 const FEED_OPEN_STATUS = 'feedOpenStatus';
-const CORS_PROXY = "https://cors-anywhere.herokuapp.com/";
 
 const fetchFeed = url => {
     return new Promise((resolve, reject) => {
         let parser = new RSSParser();
-        parser.parseURL(CORS_PROXY + url, (err, feed) => {
+        parser.parseURL(url, (err, feed) => {
             if(err) {
                 reject(err);
             }
