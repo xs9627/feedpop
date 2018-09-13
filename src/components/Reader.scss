@@ -26,9 +26,6 @@
   height: 600px;
   display: flex;
   flex-flow: column;
-  &.Model-open {
-    overflow: hidden;
-  }
   .Reader-header {
     flex: 0 1 auto;
     z-index: 2;
@@ -37,24 +34,16 @@
     flex: 1 1 auto;
     overflow: auto;
   }
-  .Reader-item {
-    * {
-      color: inherit !important;
-    }
-    padding: 0 16px;
-    z-index: 3;
-    position: fixed;
-    overflow: auto;
-    height: 100%;
-    top: 0;
-    background: inherit;
-    font-family: Roboto;
-    font-size: 13px;
-    font-weight: 400;
-    &.Inactive {
-      display: none;
-    }
+}
+
+.Reader-item {
+  * {
+    color: inherit !important;
   }
+  padding: 0 16px;
+  background: inherit;
+  font-family: Roboto;
+  font-size: 13px;
 }
 
 @keyframes App-logo-spin {

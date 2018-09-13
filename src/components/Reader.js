@@ -5,8 +5,14 @@ import FeedContent from './FeedContent';
 import FeedUtil from '../utils/FeedUtil';
 import ReaderHeader from './header/ReaderHeader';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import Dialog from '@material-ui/core/Dialog';
+import Slide from '@material-ui/core/Slide';
 import blue from '@material-ui/core/colors/blue';
 import yellow from '@material-ui/core/colors/yellow';
+
+function Transition(props) {
+  return <Slide direction="up" {...props} />;
+}
 
 class Reader extends Component {
   constructor(props) {
@@ -108,12 +114,18 @@ class Reader extends Component {
     });
   }
 
+  handleReaderItemClose = () => {
+    this.setState({ showContent: false });
+  }
+
+
+
   render() {
     const { classes } = this.props;
     const theme = this.getTheme();
     return (
       <MuiThemeProvider theme={theme}>
-        <div className={"Reader " + (this.state.showContent ? 'Model-open' : '')}>
+        <div className='Reader'>
           <div className="Reader-header">
             <ReaderHeader
               currentChannelId={this.state.currentChannelId}
@@ -127,10 +139,17 @@ class Reader extends Component {
             <div className='Reader-list'>
               <FeedList feedObj={this.state.currentFeeds} openStatus={this.state.openStatus} onListClick={this.handleListClick} />
             </div>
-            <div className={'Reader-item ' + (this.state.showContent ? 'Active' : 'Inactive')}
-                style={{color: theme.palette.text.primary}}>
-              <FeedContent feed={this.state.currentFeedItem} onCloseClick={this.handleContentCloseClick} />
-            </div>
+            <Dialog
+              fullScreen
+              open={this.state.showContent}
+              onClose={this.handleReaderItemClose}
+              //TransitionComponent={Transition}
+            >
+              <div className={'Reader-item ' + (this.state.showContent ? 'Active' : 'Inactive')}
+                  style={{color: theme.palette.text.primary}}>
+                <FeedContent feed={this.state.currentFeedItem} onCloseClick={this.handleContentCloseClick} />
+              </div>
+            </Dialog>
           </div>
         </div>
       </MuiThemeProvider>
