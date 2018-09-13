@@ -1,13 +1,25 @@
 import React, { Component }  from 'react'
 import './FeedContent.scss'
+import ChromeUtil from '../utils/ChromeUtil';
 
 class FeedContent extends Component {
-    createMarkup(htmlString) { 
+    createMarkup = htmlString => { 
         return {__html: htmlString}; 
-    };
+    }
+    handleClick = e => {
+        if (this.node.contains(e.target) && e.target.href !== undefined) {
+            ChromeUtil.openTab(e.target.href);
+        }
+    }
+    componentDidMount = () => {
+        document.addEventListener('click', this.handleClick);
+    }
+    componentWillUnmount = () => {
+        document.removeEventListener('click', this.handleClick);
+    }
     render() {
         return (
-            <div className='Feed-content-panel'>
+            <div className='Feed-content-panel' ref={node => this.node = node}>
                 <div>
                     <p>{this.props.feed.title}</p>
                     <button onClick={() => this.props.onCloseClick()}>Close</button>
