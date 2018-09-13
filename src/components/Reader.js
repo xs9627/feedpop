@@ -5,6 +5,8 @@ import FeedContent from './FeedContent';
 import FeedUtil from '../utils/FeedUtil';
 import ReaderHeader from './header/ReaderHeader';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import blue from '@material-ui/core/colors/blue';
+import yellow from '@material-ui/core/colors/yellow';
 
 class Reader extends Component {
   constructor(props) {
@@ -36,6 +38,7 @@ class Reader extends Component {
   getTheme = () => {
     return createMuiTheme({
       palette: {
+        primary: !this.state.settings.darkTheme ? blue : yellow,
         type: !this.state.settings.darkTheme ? 'light' : 'dark',
       },
       // overrides: {
