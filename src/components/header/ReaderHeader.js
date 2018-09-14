@@ -95,7 +95,7 @@ class ReaderHeader extends Component {
                 <BottomNavigation value={contentName} onChange={this.setHeaderContent} className={classes.actionPanel}>
                     <BottomNavigationAction label="List" value="List" icon={
                         !showContent && allUnreadCount > 0 ? (
-                            <Badge badgeContent={allUnreadCount} color="primary">
+                            <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : '...'} color="primary">
                                 <List />
                             </Badge>
                         ) : <List />

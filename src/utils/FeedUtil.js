@@ -72,19 +72,27 @@ let FeedUtil =  {
     getAllUnreadCount: () => {
         return Promise.all([ChromeUtil.get(FEEDS_ARRAY_NAME), ChromeUtil.get(FEED_OPEN_STATUS)])
             .then(values => {
-                let count = 0;
+                let allCount = 0;
+                let feedsCount = {};
                 const feeds = values[0];
                 const readStatus = values[1];
                 feeds.forEach(feedObj => {
+                    let count = 0;
                     const statusObj = readStatus.find(t => t.id === feedObj.id);
-                    feedObj.feed.items.forEach(f => {
-                        if (!statusObj.status.some(status => status === f.readerId)) {
-                            count++;
-                        }
-                    })
-                    
+                    if (statusObj) {
+                        feedObj.feed.items.forEach(f => {
+                            if (!statusObj.status.some(status => status === f.readerId)) {
+                                count++;
+                            }
+                        });
+                    } else {
+                        count = feedObj.feed.items.length;
+                    }
+
+                    feedsCount[feedObj.id] = count;
+                    allCount += count;
                 });
-                return count;
+                return { allCount: allCount, feedsCount: feedsCount };
             });
     },
     setSettings: settings => {

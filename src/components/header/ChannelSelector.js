@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -7,6 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Add from '@material-ui/icons/Add';
+import Edit from '@material-ui/icons/Edit';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -17,6 +19,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import MoreVert from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import Badge from '@material-ui/core/Badge';
 
 const styles = theme => ({
     root: {
@@ -40,8 +43,14 @@ const styles = theme => ({
     },
     actionButtonIcon: {
         transform: 'scale(0.6)',
+        
+    },
+    actionButtonIconActive: {
         color: theme.palette.primary.main,
     },
+    itemBadge: {
+        marginRight: 12
+    }
 });
 
 class ChannelSelector extends Component {
@@ -65,19 +74,24 @@ class ChannelSelector extends Component {
             const channel = this.props.channel[i];
             channels.push(
             <ListItem button
-                selected={this.state.value == channel.id}
+                selected={!this.state.editMode && this.state.value == channel.id}
                 onClick={() => this.changeChannel(channel.id)}
             >
                 <ListItemText primary={channel.name} />
-                <ListItemSecondaryAction>
-                    <IconButton 
-                        aria-owns={anchorEl ? 'simple-menu' : null}
-                        aria-haspopup="true"
-                        onClick={event => this.handleItemMenulick(event, channel)}
-                    >
-                        <MoreVert />
-                    </IconButton>
-                </ListItemSecondaryAction>
+                {this.state.editMode ?
+                (
+                    <ListItemSecondaryAction>
+                        <IconButton 
+                            aria-owns={anchorEl ? 'simple-menu' : null}
+                            aria-haspopup="true"
+                            onClick={event => this.handleItemMenulick(event, channel)}
+                        >
+                            <MoreVert />
+                        </IconButton>
+                    </ListItemSecondaryAction>
+                ) : (
+                    channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : '...'} color="primary" /> : null
+                )}
             </ListItem>
             );
         }
@@ -110,6 +124,9 @@ class ChannelSelector extends Component {
             editUrl: '',
         }));
     }
+    handleEditModeClick = () => {
+        this.setState(state => ({ editMode: !state.editMode }));
+    };
     handleEditClose = () => {
         this.setState({ editOpen: false });
     }
@@ -140,6 +157,9 @@ class ChannelSelector extends Component {
                     <div className={classes.actionRight}>
                         <IconButton className={classes.actionButton} onClick={this.handleAddClick}>
                             <Add className={classes.actionButtonIcon} />
+                        </IconButton>
+                        <IconButton className={classes.actionButton} onClick={this.handleEditModeClick}>
+                            <Edit className={classNames({ [classes.actionButtonIcon]: true, [classes.actionButtonIconActive]: this.state.editMode })} />
                         </IconButton>
                     </div>
                 </div>

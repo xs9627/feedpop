@@ -77,6 +77,7 @@ class Reader extends Component {
     FeedUtil.getChannelFeed(id).then(feedObj => {
       if (feedObj) {
         FeedUtil.getFeedOpenStatus(feedObj.id).then(openStatus => {
+          this.readerContent.scrollTop = 0;
           this.setState({ currentFeeds: feedObj, openStatus: openStatus });
         });
       }
@@ -84,13 +85,21 @@ class Reader extends Component {
   }
 
   updateUnreadCount = () => {
-    FeedUtil.getAllUnreadCount().then(count => this.setState({ allUnreadCount: count }));
+    FeedUtil.getAllUnreadCount().then(result => {
+      const channel = this.state.channel;
+      channel.forEach(c => c.unreadCount = result.feedsCount[c.id])
+      this.setState({ 
+        allUnreadCount: result.allCount,
+        channel: channel,
+      });
+    });
   };
   addChannel = (name, url) => {
     FeedUtil.addChannel(name, url).then(
     (added) => {
       FeedUtil.getAllChannels().then(channels => {
-        this.setState({channel: channels});
+        this.state.channel = channels;
+        this.updateUnreadCount();
       });
       FeedUtil.updateChannelFeed(added.id).then(this.updateUnreadCount);
     });
@@ -165,7 +174,7 @@ class Reader extends Component {
               settings={this.state.settings}
               allUnreadCount={this.state.allUnreadCount} />
           </div>
-          <div className="Reader-content " style={{backgroundColor: theme.palette.background.paper}}>
+          <div className="Reader-content " style={{backgroundColor: theme.palette.background.paper}} ref={node => this.readerContent = node}>
             <div className='Reader-list'>
               <FeedList feedObj={this.state.currentFeeds} openStatus={this.state.openStatus} onListClick={this.handleListClick} />
             </div>
