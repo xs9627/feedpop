@@ -3,8 +3,9 @@ import './FeedContent.scss'
 import ChromeUtil from '../utils/ChromeUtil';
 
 class FeedContent extends Component {
-    createMarkup = htmlString => { 
-        return {__html: htmlString}; 
+    createMarkup = feed => {
+        const content = feed.content ? feed.content : feed['content:encoded']; 
+        return {__html: content}; 
     }
     handleClick = e => {
         if (this.node.contains(e.target) && e.target.href !== undefined) {
@@ -24,7 +25,7 @@ class FeedContent extends Component {
                     <p>{this.props.feed.title}</p>
                     <button onClick={() => this.props.onCloseClick()}>Close</button>
                 </div>
-                <div className="Feed-content-container" dangerouslySetInnerHTML={this.createMarkup(this.props.feed.content)} />
+                <div className="Feed-content-container" dangerouslySetInnerHTML={this.createMarkup(this.props.feed)} />
             </div>
         );
     }

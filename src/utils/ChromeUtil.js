@@ -29,6 +29,18 @@ let ChromeUtil = {
             }
         });
     },
+    deleteArrayById: (arrayName, id) => {
+        return ChromeUtil.get(arrayName).then(array => {
+            if(array) {
+                array = array.filter(arrayItem => arrayItem.id !== id);
+                return new Promise((resolve, reject) => {
+                    chrome.storage.local.set({[arrayName]: array}, () => {
+                        resolve(array);
+                    });
+                });
+            }
+        });
+    },
     get: key => {
         return new Promise((resolve, reject) => {
             chrome.storage.local.get(key, data => {

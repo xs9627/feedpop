@@ -37,6 +37,12 @@ let FeedUtil =  {
     addChannel: (name, url) => {
         return ChromeUtil.putIntoArray(CHANNELS_ARRAY_NAME, {name: name, url: url});
     },
+    deleteChannel: id => {
+        return Promise.all([ChromeUtil.deleteArrayById(CHANNELS_ARRAY_NAME, id),
+            ChromeUtil.deleteArrayById(FEEDS_ARRAY_NAME, id),
+            ChromeUtil.deleteArrayById(FEED_OPEN_STATUS, id),
+        ]);
+    },
     updateChannelFeed: id => {
         return ChromeUtil.findArrayById(CHANNELS_ARRAY_NAME, id).then(channel => {
             return fetchFeed(channel.url).then(feed => {
@@ -62,6 +68,24 @@ let FeedUtil =  {
     },
     getChannelFeed: (id) => {
         return ChromeUtil.findArrayById(FEEDS_ARRAY_NAME, id);
+    },
+    getAllUnreadCount: () => {
+        return Promise.all([ChromeUtil.get(FEEDS_ARRAY_NAME), ChromeUtil.get(FEED_OPEN_STATUS)])
+            .then(values => {
+                let count = 0;
+                const feeds = values[0];
+                const readStatus = values[1];
+                feeds.forEach(feedObj => {
+                    const statusObj = readStatus.find(t => t.id === feedObj.id);
+                    feedObj.feed.items.forEach(f => {
+                        if (!statusObj.status.some(status => status === f.readerId)) {
+                            count++;
+                        }
+                    })
+                    
+                });
+                return count;
+            });
     },
     setSettings: settings => {
         return ChromeUtil.set(SETTINGS_NAME, settings);

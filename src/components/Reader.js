@@ -39,6 +39,8 @@ class Reader extends Component {
     FeedUtil.getSettings().then(settings => {
       this.setState({ settings: settings});
     });
+
+    this.updateUnreadCount();
   }
 
   getTheme = () => {
@@ -81,11 +83,34 @@ class Reader extends Component {
     });
   }
 
+  updateUnreadCount = () => {
+    FeedUtil.getAllUnreadCount().then(count => this.setState({ allUnreadCount: count }));
+  };
+  addChannel = (name, url) => {
+    FeedUtil.addChannel(name, url).then(
+    (added) => {
+      FeedUtil.getAllChannels().then(channels => {
+        this.setState({channel: channels});
+      });
+      FeedUtil.updateChannelFeed(added.id).then(this.updateUnreadCount);
+    });
+  }
+
+  deleteChannel = channelId => {
+    FeedUtil.deleteChannel(channelId).then(() => {
+      FeedUtil.getAllChannels().then(channels => {
+        this.setState({channel: channels});
+      });
+      this.updateUnreadCount();
+    });
+  }
+
   updateCurrentChannel = () => {
     return FeedUtil.updateChannelFeed(this.state.currentChannelId).then((feedObj) => {
       if (feedObj) {
         this.setState({currentFeeds: feedObj});
       }
+      this.updateUnreadCount();
     });
   }
 
@@ -102,9 +127,13 @@ class Reader extends Component {
   }
 
   handleListClick = feedItem => {
-    this.setState({
-      currentFeedItem: feedItem,
-      showContent: true
+    this.state.openStatus.push(feedItem.readerId);
+    FeedUtil.setFeedOpenStatus(this.state.currentChannelId, feedItem.readerId).then(() => {
+      this.setState({
+        currentFeedItem: feedItem,
+        showContent: true
+      });
+      this.updateUnreadCount();
     });
   }
 
@@ -118,8 +147,6 @@ class Reader extends Component {
     this.setState({ showContent: false });
   }
 
-
-
   render() {
     const { classes } = this.props;
     const theme = this.getTheme();
@@ -130,10 +157,13 @@ class Reader extends Component {
             <ReaderHeader
               currentChannelId={this.state.currentChannelId}
               channel={this.state.channel} 
-              fetchFeed={this.fetchFeed} 
+              fetchFeed={this.fetchFeed}
+              addChannel={this.addChannel}
+              deleteChannel={this.deleteChannel}
               updateCurrentChannel={this.updateCurrentChannel}
               changeTheme={this.changeTheme}
-              settings={this.state.settings} />
+              settings={this.state.settings}
+              allUnreadCount={this.state.allUnreadCount} />
           </div>
           <div className="Reader-content " style={{backgroundColor: theme.palette.background.paper}}>
             <div className='Reader-list'>

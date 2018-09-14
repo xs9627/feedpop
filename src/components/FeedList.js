@@ -1,5 +1,4 @@
 import React, { Component }  from 'react';
-import FeedUtil from '../utils/FeedUtil';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -93,8 +92,6 @@ class FeedList extends Component {
                   dense={true} 
                   key={`item-${feed.isoDate}`} 
                   onClick={() => {
-                    this.props.openStatus.push(feed.readerId);
-                    FeedUtil.setFeedOpenStatus(feedObj.id, feed.readerId);
                     onListClick(feed);
                   }}
                 >
