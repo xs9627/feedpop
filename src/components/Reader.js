@@ -32,8 +32,10 @@ class Reader extends Component {
 
     FeedUtil.getAllChannels().then(channels => {
       this.setState({channel: channels});
-      this.setState({currentChannelId: channels[0].id});
-      this.fetchFeed(channels[0].id);
+      if (channels.length > 0) {
+        this.setState({currentChannelId: channels[0].id});
+        this.fetchFeed(channels[0].id);
+      }
     });
 
     FeedUtil.getSettings().then(settings => {

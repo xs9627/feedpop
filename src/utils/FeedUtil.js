@@ -77,16 +77,16 @@ let FeedUtil =  {
                 const feeds = values[0];
                 const readStatus = values[1];
                 feeds.forEach(feedObj => {
-                    let count = 0;
-                    const statusObj = readStatus.find(t => t.id === feedObj.id);
-                    if (statusObj) {
-                        feedObj.feed.items.forEach(f => {
-                            if (!statusObj.status.some(status => status === f.readerId)) {
-                                count++;
-                            }
-                        });
-                    } else {
-                        count = feedObj.feed.items.length;
+                    let count = feedObj.feed.items.length;
+                    if (readStatus) {
+                        const statusObj = readStatus.find(t => t.id === feedObj.id);
+                        if (statusObj) {
+                            feedObj.feed.items.forEach(f => {
+                                if (statusObj.status.some(status => status === f.readerId)) {
+                                    count--;
+                                }
+                            });
+                        }
                     }
 
                     feedsCount[feedObj.id] = count;
