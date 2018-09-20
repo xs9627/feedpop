@@ -26,7 +26,7 @@ const styles = theme => ({
       backgroundColor: theme.palette.background.paper,
     },
     list: {
-        maxHeight: 490,
+        maxHeight: 470,
         overflow: 'auto',
     },
     actionPanel: {
@@ -35,15 +35,11 @@ const styles = theme => ({
     },
     actionRight: {
         marginLeft: 'auto',
+        padding: 5,
     },
     actionButton: {
-        margin: 5,
-        width: 24,
-        height: 24,
-    },
-    actionButtonIcon: {
-        transform: 'scale(0.6)',
-        
+        padding: 6,
+        marginRight: 5,
     },
     actionButtonIconActive: {
         color: theme.palette.primary.main,
@@ -86,7 +82,7 @@ class ChannelSelector extends Component {
                             aria-haspopup="true"
                             onClick={event => this.handleItemMenulick(event, channel)}
                         >
-                            <MoreVert />
+                            <MoreVert fontSize="small" />
                         </IconButton>
                     </ListItemSecondaryAction>
                 ) : (
@@ -156,10 +152,10 @@ class ChannelSelector extends Component {
                 <div className={classes.actionPanel}>
                     <div className={classes.actionRight}>
                         <IconButton className={classes.actionButton} onClick={this.handleAddClick}>
-                            <Add className={classes.actionButtonIcon} />
+                            <Add fontSize="small" />
                         </IconButton>
                         <IconButton className={classes.actionButton} onClick={this.handleEditModeClick}>
-                            <Edit className={classNames({ [classes.actionButtonIcon]: true, [classes.actionButtonIconActive]: this.state.editMode })} />
+                            <Edit fontSize="small" className={classNames({ [classes.actionButtonIconActive]: this.state.editMode })} />
                         </IconButton>
                     </div>
                 </div>

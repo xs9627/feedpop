@@ -58,7 +58,7 @@ class ReaderHeader extends Component {
         this.headerContent = null;
     }
     getHeaderContent = () => {
-        switch(this.state.contentName){
+        switch(this.currentContentName){
             case 'List': 
                 return (
                     <ChannelSelector
@@ -94,7 +94,7 @@ class ReaderHeader extends Component {
             <Paper className={classes.readerHeader}>
                 <BottomNavigation value={contentName} onChange={this.setHeaderContent} className={classes.actionPanel}>
                     <BottomNavigationAction label="List" value="List" icon={
-                        !showContent && allUnreadCount > 0 ? (
+                        !(showContent && contentName === "List") && allUnreadCount > 0 ? (
                             <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : '...'} color="primary">
                                 <List />
                             </Badge>
