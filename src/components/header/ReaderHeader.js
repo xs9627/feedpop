@@ -55,7 +55,6 @@ class ReaderHeader extends Component {
     }
     closeActionMenu = () => {
         this.setState({ contentName: null, showContent: false });
-        this.headerContent = null;
     }
     getHeaderContent = () => {
         switch(this.currentContentName){
@@ -70,7 +69,8 @@ class ReaderHeader extends Component {
                                 this.props.fetchFeed(channelId);
                                 this.closeActionMenu();
                             }
-                        } />
+                        }
+                    />
                 );
             case 'Update': 
                 return <div className='Menu-item'>Updating</div>;
@@ -83,9 +83,6 @@ class ReaderHeader extends Component {
             default:
                 return null;
         };
-    }
-    getUnreadCount = () => {
-
     }
     render () {
         const { classes, allUnreadCount } = this.props;

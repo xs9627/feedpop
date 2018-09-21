@@ -54,11 +54,6 @@ class ChannelSelector extends Component {
         super(props);
         this.state = {value: this.props.selectedId, editOpen: false};
     }
-    componentDidMount = () => {
-    }
-    componentWillUnmount = () => {
-        this.setState({ editOpen: false });
-    }
     changeChannel = channelId => {
         this.props.onChange(channelId);
         this.setState({'value': channelId});
