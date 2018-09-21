@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from "react-redux";
+import { addChannel, setChannels, deleteChannel } from "../actions/index"
 import './Reader.scss';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
@@ -9,6 +12,18 @@ import Dialog from '@material-ui/core/Dialog';
 import Slide from '@material-ui/core/Slide';
 import blue from '@material-ui/core/colors/blue';
 import yellow from '@material-ui/core/colors/yellow';
+
+const mapStateToProps = state => {
+  return { channels: state.channels };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    addChannel: channel => dispatch(addChannel(channel)),
+    setChannels: channels => dispatch(setChannels(channels)),
+    deleteChannel: id => dispatch(deleteChannel(id)),
+  };
+};
 
 function Transition(props) {
   return <Slide direction="up" {...props} />;
@@ -31,7 +46,8 @@ class Reader extends Component {
     };
 
     FeedUtil.getAllChannels().then(channels => {
-      this.setState({channel: channels});
+      //this.setState({channel: channels});
+      this.props.setChannels(channels);
       if (channels.length > 0) {
         this.setState({currentChannelId: channels[0].id});
         this.fetchFeed(channels[0].id);
@@ -88,7 +104,7 @@ class Reader extends Component {
 
   updateUnreadCount = () => {
     FeedUtil.getAllUnreadCount().then(result => {
-      const channel = this.state.channel;
+      const channel = this.props.channels;
       channel.forEach(c => c.unreadCount = result.feedsCount[c.id])
       this.setState({ 
         allUnreadCount: result.allCount,
@@ -99,19 +115,15 @@ class Reader extends Component {
   addChannel = (name, url) => {
     FeedUtil.addChannel(name, url).then(
     (added) => {
-      FeedUtil.getAllChannels().then(channels => {
-        this.state.channel = channels;
-        this.updateUnreadCount();
-      });
+      this.props.addChannel(added);
+      this.updateUnreadCount();
       FeedUtil.updateChannelFeed(added.id).then(this.updateUnreadCount);
     });
   }
 
   deleteChannel = channelId => {
     FeedUtil.deleteChannel(channelId).then(() => {
-      FeedUtil.getAllChannels().then(channels => {
-        this.setState({channel: channels});
-      });
+      this.props.deleteChannel(channelId);
       this.updateUnreadCount();
     });
   }
@@ -167,7 +179,7 @@ class Reader extends Component {
           <div className="Reader-header">
             <ReaderHeader
               currentChannelId={this.state.currentChannelId}
-              channel={this.state.channel} 
+              channel={this.props.channels} 
               fetchFeed={this.fetchFeed}
               addChannel={this.addChannel}
               deleteChannel={this.deleteChannel}
@@ -198,4 +210,10 @@ class Reader extends Component {
   }
 }
 
-export default Reader;
+Reader.propTypes = {
+  channels: PropTypes.array,
+  addChannel: PropTypes.func,
+  setChannels: PropTypes.func,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Reader);

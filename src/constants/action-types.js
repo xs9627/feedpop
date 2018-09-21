@@ -1,0 +1,3 @@
+export const ADD_CHANNEL = "ADD_CHANNEL";
+export const SET_CHANNELS = "SET_CHANNELS";
+export const DELETE_CHANNELS = "DELETE_CHANNELS";
