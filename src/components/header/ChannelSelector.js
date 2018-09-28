@@ -21,6 +21,19 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Badge from '@material-ui/core/Badge';
 
+import { connect } from "react-redux";
+import { toggleChannelSelectorEditMode } from "../../actions/index"
+
+const mapStateToProps = state => {
+    return { editMode: state.channelSelectorEditMode };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+      toggleEditMode: () => dispatch(toggleChannelSelectorEditMode()),
+    };
+};
+
 const styles = theme => ({
     root: {
       backgroundColor: theme.palette.background.paper,
@@ -65,11 +78,11 @@ class ChannelSelector extends Component {
             const channel = this.props.channel[i];
             channels.push(
             <ListItem button
-                selected={!this.state.editMode && this.state.value == channel.id}
+                selected={!this.props.editMode && this.state.value == channel.id}
                 onClick={() => this.changeChannel(channel.id)}
             >
                 <ListItemText primary={channel.name} />
-                {this.state.editMode ?
+                {this.props.editMode ?
                 (
                     <ListItemSecondaryAction>
                         <IconButton 
@@ -115,9 +128,6 @@ class ChannelSelector extends Component {
             editUrl: '',
         }));
     }
-    handleEditModeClick = () => {
-        this.setState(state => ({ editMode: !state.editMode }));
-    };
     handleEditClose = () => {
         this.setState({ editOpen: false });
     }
@@ -149,8 +159,8 @@ class ChannelSelector extends Component {
                         <IconButton className={classes.actionButton} onClick={this.handleAddClick}>
                             <Add fontSize="small" />
                         </IconButton>
-                        <IconButton className={classes.actionButton} onClick={this.handleEditModeClick}>
-                            <Edit fontSize="small" className={classNames({ [classes.actionButtonIconActive]: this.state.editMode })} />
+                        <IconButton className={classes.actionButton} onClick={this.props.toggleEditMode}>
+                            <Edit fontSize="small" className={classNames({ [classes.actionButtonIconActive]: this.props.editMode })} />
                         </IconButton>
                     </div>
                 </div>
@@ -192,4 +202,4 @@ class ChannelSelector extends Component {
     }
 }
 
-export default withStyles(styles)(ChannelSelector);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ChannelSelector));

@@ -14,6 +14,15 @@ import Edit from '@material-ui/icons/Edit';
 import Settings from '@material-ui/icons/Settings';
 import Paper from '@material-ui/core/Paper';
 
+import { connect } from "react-redux";
+import { setChannelSelectorEditMode } from "../../actions/index"
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setChannelSelectorEditMode: () => dispatch(setChannelSelectorEditMode()),
+    };
+};
+
 const styles = theme => ({
     readerHeader: {
         width: '100%',
@@ -46,6 +55,8 @@ class ReaderHeader extends Component {
                         this.setState({ showContent: false });
                     }
                 });
+            } else if (this.currentContentName === 'List') {
+                this.props.setChannelSelectorEditMode(false);
             }
             this.setState({ showContent: true });
         } else {
@@ -111,4 +122,4 @@ class ReaderHeader extends Component {
     }
 }
 
-export default withStyles(styles)(ReaderHeader);
+export default connect(null, mapDispatchToProps)(withStyles(styles)(ReaderHeader));
