@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import FeedUtil from '../../utils/FeedUtil';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -22,7 +23,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Badge from '@material-ui/core/Badge';
 
 import { connect } from "react-redux";
-import { toggleChannelSelectorEditMode } from "../../actions/index"
+import { toggleChannelSelectorEditMode, deleteChannel, updateUnreadCount } from "../../actions/index"
 
 const mapStateToProps = state => {
     return { editMode: state.channelSelectorEditMode };
@@ -31,6 +32,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
       toggleEditMode: () => dispatch(toggleChannelSelectorEditMode()),
+      deleteChannel: () => dispatch(deleteChannel),
+      updateUnreadCount: unread => dispatch(updateUnreadCount(unread)),
     };
 };
 
@@ -114,8 +117,14 @@ class ChannelSelector extends Component {
         }));
     };
     handleDeleteChannel = () => {
-        this.props.deleteChannel(this.state.currentEditChannel.id);
-        this.setState({ anchorEl: null });
+        const channelId = this.state.currentEditChannel.id;
+        FeedUtil.deleteChannel(channelId).then(() => {
+            this.props.deleteChannel(channelId);
+            FeedUtil.getAllUnreadCount().then(result => {
+                this.props.updateUnreadCount(result);
+            });
+        });
+        this.setState({ anchorEl: null });    
     };
     handleItemMenuClose = () => {
         this.setState({ anchorEl: null });

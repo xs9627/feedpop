@@ -13,6 +13,10 @@ const rootReducer = (state = initialState, action) => {
             return { ...state, channels: state.channels.filter(c => c.id !== action.payload) };
         case types.SET_CHANNEL_SELECTOR_EDITMODE:
             return { ...state, channelSelectorEditMode: action.payload };
+        case types.UPDATE_UNREAD_COUNT:
+            return { ...state, 
+                channels: state.channels.map(channel => ({ ...channel, unreadCount: action.payload.feedsCount[channel.id] })), 
+                allUnreadCount: action.payload.allCount };
         case types.TOGGLE_CHANNEL_SELECTOR_EDITMODE:
             return { ...state, channelSelectorEditMode: !state.channelSelectorEditMode };
         default:

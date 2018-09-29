@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import { addChannel, setChannels, deleteChannel } from "../actions/index"
+import { addChannel, setChannels, updateUnreadCount } from "../actions/index"
 import './Reader.scss';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
@@ -21,7 +21,7 @@ const mapDispatchToProps = dispatch => {
   return {
     addChannel: channel => dispatch(addChannel(channel)),
     setChannels: channels => dispatch(setChannels(channels)),
-    deleteChannel: id => dispatch(deleteChannel(id)),
+    updateUnreadCount: unread => dispatch(updateUnreadCount(unread)),
   };
 };
 
@@ -103,13 +103,16 @@ class Reader extends Component {
   }
 
   updateUnreadCount = () => {
+    // FeedUtil.getAllUnreadCount().then(result => {
+    //   const channel = this.props.channels;
+    //   channel.forEach(c => c.unreadCount = result.feedsCount[c.id])
+    //   this.setState({ 
+    //     allUnreadCount: result.allCount,
+    //     channel: channel,
+    //   });
+    // });
     FeedUtil.getAllUnreadCount().then(result => {
-      const channel = this.props.channels;
-      channel.forEach(c => c.unreadCount = result.feedsCount[c.id])
-      this.setState({ 
-        allUnreadCount: result.allCount,
-        channel: channel,
-      });
+      this.props.updateUnreadCount(result);
     });
   };
   addChannel = (name, url) => {
@@ -121,12 +124,7 @@ class Reader extends Component {
     });
   }
 
-  deleteChannel = channelId => {
-    FeedUtil.deleteChannel(channelId).then(() => {
-      this.props.deleteChannel(channelId);
-      this.updateUnreadCount();
-    });
-  }
+  
 
   updateCurrentChannel = () => {
     return FeedUtil.updateChannelFeed(this.state.currentChannelId).then((feedObj) => {
@@ -182,11 +180,9 @@ class Reader extends Component {
               channel={this.props.channels} 
               fetchFeed={this.fetchFeed}
               addChannel={this.addChannel}
-              deleteChannel={this.deleteChannel}
               updateCurrentChannel={this.updateCurrentChannel}
               changeTheme={this.changeTheme}
-              settings={this.state.settings}
-              allUnreadCount={this.state.allUnreadCount} />
+              settings={this.state.settings} />
           </div>
           <div className="Reader-content " style={{backgroundColor: theme.palette.background.paper}} ref={node => this.readerContent = node}>
             <div className='Reader-list'>

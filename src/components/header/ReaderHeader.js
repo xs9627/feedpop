@@ -17,6 +17,10 @@ import Paper from '@material-ui/core/Paper';
 import { connect } from "react-redux";
 import { setChannelSelectorEditMode } from "../../actions/index"
 
+const mapStateToProps = state => {
+    return { allUnreadCount: state.allUnreadCount };
+};
+
 const mapDispatchToProps = dispatch => {
     return {
         setChannelSelectorEditMode: () => dispatch(setChannelSelectorEditMode()),
@@ -75,7 +79,6 @@ class ReaderHeader extends Component {
                         selectedId={this.props.currentChannelId}
                         channel={this.props.channel}
                         addChannel={this.props.addChannel}
-                        deleteChannel={this.props.deleteChannel}
                         onChange={channelId => {
                                 this.props.fetchFeed(channelId);
                                 this.closeActionMenu();
@@ -122,4 +125,4 @@ class ReaderHeader extends Component {
     }
 }
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(ReaderHeader));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ReaderHeader));
