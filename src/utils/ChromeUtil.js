@@ -44,7 +44,11 @@ let ChromeUtil = {
     get: key => {
         return new Promise((resolve, reject) => {
             chrome.storage.local.get(key, data => {
-                resolve(data[key]);
+                if (key) {
+                    resolve(data[key]);
+                } else {
+                    resolve(data);
+                }
             });
         });
     },

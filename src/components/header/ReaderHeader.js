@@ -15,7 +15,7 @@ import Settings from '@material-ui/icons/Settings';
 import Paper from '@material-ui/core/Paper';
 
 import { connect } from "react-redux";
-import { setChannelSelectorEditMode } from "../../actions/index"
+import { selectChannel, setChannelSelectorEditMode, updateChannelFeed } from "../../actions/index"
 
 const mapStateToProps = state => {
     return { allUnreadCount: state.allUnreadCount };
@@ -23,6 +23,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
+        selectChannel: id => dispatch(selectChannel(id)),
         setChannelSelectorEditMode: () => dispatch(setChannelSelectorEditMode()),
     };
 };
@@ -54,11 +55,12 @@ class ReaderHeader extends Component {
         if (!this.state.showContent || this.currentContentName != contentName) {
             this.setState({ contentName });
             if (contentName == 'Update') {
-                this.props.updateCurrentChannel().then(() => {
-                    if (this.currentContentName == 'Update') {
-                        this.setState({ showContent: false });
-                    }
-                });
+                this.props.updateCurrentChannel();
+                // .then(() => {
+                //     if (this.currentContentName == 'Update') {
+                //         this.setState({ showContent: false });
+                //     }
+                // });
             } else if (this.currentContentName === 'List') {
                 this.props.setChannelSelectorEditMode(false);
             }
@@ -80,7 +82,7 @@ class ReaderHeader extends Component {
                         channel={this.props.channel}
                         addChannel={this.props.addChannel}
                         onChange={channelId => {
-                                this.props.fetchFeed(channelId);
+                                this.props.selectChannel(channelId);
                                 this.closeActionMenu();
                             }
                         }

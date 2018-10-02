@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import { addChannel, setChannels, updateUnreadCount } from "../actions/index"
+import { initState, selectChannel, addChannel, setChannels, updateUnreadCount, updateChannelFeed, setFeedReadStatus } from "../actions/index"
 import './Reader.scss';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
@@ -14,14 +14,20 @@ import blue from '@material-ui/core/colors/blue';
 import yellow from '@material-ui/core/colors/yellow';
 
 const mapStateToProps = state => {
-  return { channels: state.channels };
+  return {
+    currentChannelId: state.currentChannelId,
+    channels: state.channels };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
+    initState: callback => dispatch(initState(callback)),
+    selectChannel: id => dispatch(selectChannel(id)),
     addChannel: channel => dispatch(addChannel(channel)),
     setChannels: channels => dispatch(setChannels(channels)),
-    updateUnreadCount: unread => dispatch(updateUnreadCount(unread)),
+    updateUnreadCount: () => dispatch(updateUnreadCount()),
+    updateChannelFeed: id => dispatch(updateChannelFeed(id)),
+    setFeedReadStatus: (channelId, feedId) => dispatch(setFeedReadStatus(channelId, feedId)),
   };
 };
 
@@ -40,25 +46,29 @@ class Reader extends Component {
         }
       },
       currentFeedItem: {},
-      openStatus: {},
+      openStatus: [],
       showContent: false,
       settings: {},
     };
 
-    FeedUtil.getAllChannels().then(channels => {
-      //this.setState({channel: channels});
-      this.props.setChannels(channels);
-      if (channels.length > 0) {
-        this.setState({currentChannelId: channels[0].id});
-        this.fetchFeed(channels[0].id);
-      }
+    this.props.initState(() => {
+      this.props.updateUnreadCount();
+      this.props.selectChannel();
     });
+    // FeedUtil.getAllChannels().then(channels => {
+    //   //this.setState({channel: channels});
+    //   this.props.setChannels(channels);
+    //   if (channels.length > 0) {
+    //     this.setState({currentChannelId: channels[0].id});
+    //     this.fetchFeed(channels[0].id);
+    //   }
+    // });
 
-    FeedUtil.getSettings().then(settings => {
-      this.setState({ settings: settings});
-    });
+    // FeedUtil.getSettings().then(settings => {
+    //   this.setState({ settings: settings});
+    // });
 
-    this.updateUnreadCount();
+    //this.props.updateUnreadCount();
   }
 
   getTheme = () => {
@@ -102,37 +112,15 @@ class Reader extends Component {
     });
   }
 
-  updateUnreadCount = () => {
-    // FeedUtil.getAllUnreadCount().then(result => {
-    //   const channel = this.props.channels;
-    //   channel.forEach(c => c.unreadCount = result.feedsCount[c.id])
-    //   this.setState({ 
-    //     allUnreadCount: result.allCount,
-    //     channel: channel,
-    //   });
-    // });
-    FeedUtil.getAllUnreadCount().then(result => {
-      this.props.updateUnreadCount(result);
-    });
-  };
   addChannel = (name, url) => {
-    FeedUtil.addChannel(name, url).then(
-    (added) => {
-      this.props.addChannel(added);
-      this.updateUnreadCount();
-      FeedUtil.updateChannelFeed(added.id).then(this.updateUnreadCount);
-    });
+    const channel = { name: name, url: url };
+    this.props.addChannel(channel);
+    this.props.updateUnreadCount(); // TODO
+    this.props.updateChannelFeed(channel.id);
   }
 
-  
-
   updateCurrentChannel = () => {
-    return FeedUtil.updateChannelFeed(this.state.currentChannelId).then((feedObj) => {
-      if (feedObj) {
-        this.setState({currentFeeds: feedObj});
-      }
-      this.updateUnreadCount();
-    });
+    this.props.updateChannelFeed(this.props.currentChannelId);
   }
 
   changeTheme = darkTheme => {
@@ -148,13 +136,13 @@ class Reader extends Component {
   }
 
   handleListClick = feedItem => {
-    this.state.openStatus.push(feedItem.readerId);
-    FeedUtil.setFeedOpenStatus(this.state.currentChannelId, feedItem.readerId).then(() => {
+    this.props.setFeedReadStatus(this.props.currentChannelId, feedItem.readerId);
+    FeedUtil.setFeedOpenStatus(this.props.currentChannelId, feedItem.readerId).then(() => {
       this.setState({
         currentFeedItem: feedItem,
         showContent: true
       });
-      this.updateUnreadCount();
+      this.props.updateUnreadCount();
     });
   }
 
@@ -176,9 +164,8 @@ class Reader extends Component {
         <div className='Reader'>
           <div className="Reader-header">
             <ReaderHeader
-              currentChannelId={this.state.currentChannelId}
-              channel={this.props.channels} 
-              fetchFeed={this.fetchFeed}
+              currentChannelId={this.props.currentChannelId}
+              channel={this.props.channels}
               addChannel={this.addChannel}
               updateCurrentChannel={this.updateCurrentChannel}
               changeTheme={this.changeTheme}
@@ -186,7 +173,7 @@ class Reader extends Component {
           </div>
           <div className="Reader-content " style={{backgroundColor: theme.palette.background.paper}} ref={node => this.readerContent = node}>
             <div className='Reader-list'>
-              <FeedList feedObj={this.state.currentFeeds} openStatus={this.state.openStatus} onListClick={this.handleListClick} />
+              <FeedList onListClick={this.handleListClick} />
             </div>
             <Dialog
               fullScreen

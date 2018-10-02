@@ -1,4 +1,5 @@
 import React, { Component }  from 'react';
+import { connect } from "react-redux";
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -10,7 +11,20 @@ import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
-import Divider from '@material-ui/core/Divider';        <Divider light />
+import Divider from '@material-ui/core/Divider';
+
+const mapStateToProps = state => {
+  return {
+    currentChannelId: state.currentChannelId,
+    feedObj: state.currentFeeds,
+    feedReadStatus: state.feedReadStatus,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+  };
+};
 
 const styles = theme => ({
   root: {
@@ -59,10 +73,15 @@ class FeedList extends Component {
     this.setState({ collapseStatus: collapseStatus });
   }
   isUnRead = readerId => {
-    if (this.props.openStatus) {
-      return !this.props.openStatus.some(id => id === readerId);
+    if (this.props.feedReadStatus) {
+      const status = this.props.feedReadStatus.find(s => s.channelId = this.props.currentChannelId);
+      if (status) {
+        return !status.feedIds.some(id => id === readerId);
+      } else {
+        return true;
+      }
     } else {
-      return false;
+      return true;
     }
   }
   getTime = isoDate => {
@@ -108,4 +127,4 @@ class FeedList extends Component {
   }
 }
 
-export default withStyles(styles)(FeedList);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(FeedList));

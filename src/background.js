@@ -1,5 +1,8 @@
 /* global chrome */
 import FeedUtil from './utils/FeedUtil';
+import ChromeUtil from './utils/ChromeUtil';
+import store from './store/index';
+import { initState, updateChannelFeed } from './actions/index'
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.sync.clear();
@@ -25,21 +28,28 @@ chrome.runtime.onInstalled.addListener(() => {
   );
   chrome.alarms.create("refreshAll", {
     delayInMinutes: 1,
-    periodInMinutes: 30
+    periodInMinutes: 1,
   });
 });
 
 chrome.alarms.onAlarm.addListener(alarm => {
   if (alarm.name === "refreshAll") {
     console.log('Starting update all channels - ' + Date());
-    FeedUtil.getAllChannels().then(channels => {
-      if (channels) {
-        channels.forEach(channel => {
-          FeedUtil.updateChannelFeed(channel.id).then(() => {
-            console.log(channel.name + ' updated');
-          })
-        });
-      }
-    });
+    store.dispatch(initState(() => {
+      const state = store.getState();
+      state.channels.forEach(channel => {
+        //console.log(channel);
+        store.dispatch(updateChannelFeed(channel.id));
+      });
+    }));
+    // FeedUtil.getAllChannels().then(channels => {
+    //   if (channels) {
+    //     channels.forEach(channel => {
+    //       FeedUtil.updateChannelFeed(channel.id).then(() => {
+    //         console.log(channel.name + ' updated');
+    //       })
+    //     });
+    //   }
+    // });
   }
 });
