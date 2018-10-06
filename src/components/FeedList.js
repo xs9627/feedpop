@@ -13,6 +13,8 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Divider from '@material-ui/core/Divider';
 
+import { setFeedReadStatus, openFeed } from '../actions/index'
+
 const mapStateToProps = state => {
   return {
     currentChannelId: state.currentChannelId,
@@ -23,6 +25,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    setFeedReadStatus: (channelId, feedId) => dispatch(setFeedReadStatus(channelId, feedId)),
+    openFeed: feed => dispatch(openFeed(feed)),
   };
 };
 
@@ -88,7 +92,7 @@ class FeedList extends Component {
     return new Date(isoDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   }
   render() {
-    const { classes, feedObj, onListClick } = this.props;
+    const { classes, feedObj } = this.props;
     const arranged = this.arrangeFeeds(feedObj);
     this.initCollapseStatus(feedObj);
     return (
@@ -111,7 +115,8 @@ class FeedList extends Component {
                   dense={true} 
                   key={`item-${feed.isoDate}`} 
                   onClick={() => {
-                    onListClick(feed);
+                    this.props.setFeedReadStatus(this.props.currentChannelId, feed.readerId);
+                    this.props.openFeed(feed);
                   }}
                 >
                   <ListItemText classes={{ primary: classNames({[classes.unRead]: this.isUnRead(feed.readerId)}) }} primary={feed.title} secondary={this.getTime(feed.isoDate)} />

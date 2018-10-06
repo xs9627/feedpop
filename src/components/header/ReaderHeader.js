@@ -15,16 +15,23 @@ import Settings from '@material-ui/icons/Settings';
 import Paper from '@material-ui/core/Paper';
 
 import { connect } from "react-redux";
-import { selectChannel, setChannelSelectorEditMode, updateChannelFeed } from "../../actions/index"
+import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed } from "../../actions/index"
 
 const mapStateToProps = state => {
-    return { allUnreadCount: state.allUnreadCount };
+    return {
+        allUnreadCount: state.allUnreadCount,
+        showContent: state.isShowActionMenu,
+        contentName: state.actionName,
+        currentChannelId: state.currentChannelId,
+    };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        selectChannel: id => dispatch(selectChannel(id)),
         setChannelSelectorEditMode: () => dispatch(setChannelSelectorEditMode()),
+        openActionMenu: contentName => dispatch(openActionMenu(contentName)),
+        closeActionMenu: () => dispatch(closeActionMenu()),
+        updateChannelFeed: (id, callback) => dispatch(updateChannelFeed(id, callback)),
     };
 };
 
@@ -52,37 +59,33 @@ class ReaderHeader extends Component {
         contentName: null,
     };
     setHeaderContent = (event, contentName) => {
-        if (!this.state.showContent || this.currentContentName != contentName) {
-            this.setState({ contentName });
+        if (!this.props.showContent || this.currentContentName != contentName) {
             if (contentName == 'Update') {
-                this.props.updateCurrentChannel();
-                // .then(() => {
-                //     if (this.currentContentName == 'Update') {
-                //         this.setState({ showContent: false });
-                //     }
-                // });
+                this.props.updateChannelFeed(this.props.currentChannelId, () => {
+                    if (this.currentContentName == 'Update') {
+                        this.props.closeActionMenu();
+                    }
+                });
             } else if (this.currentContentName === 'List') {
                 this.props.setChannelSelectorEditMode(false);
             }
-            this.setState({ showContent: true });
+            this.props.openActionMenu(contentName);
         } else {
             this.closeActionMenu();
         }
         this.currentContentName = contentName;
     }
     closeActionMenu = () => {
-        this.setState({ contentName: null, showContent: false });
+        this.props.closeActionMenu();
+        //this.setState({ contentName: null, showContent: false });
     }
     getHeaderContent = () => {
-        switch(this.currentContentName){
+        switch(this.props.contentName){
             case 'List': 
                 return (
                     <ChannelSelector
-                        selectedId={this.props.currentChannelId}
-                        channel={this.props.channel}
-                        addChannel={this.props.addChannel}
                         onChange={channelId => {
-                                this.props.selectChannel(channelId);
+                                
                                 this.closeActionMenu();
                             }
                         }
@@ -101,8 +104,7 @@ class ReaderHeader extends Component {
         };
     }
     render () {
-        const { classes, allUnreadCount } = this.props;
-        const { contentName, showContent } = this.state;
+        const { classes, allUnreadCount, showContent, contentName } = this.props;
         return (
             <Paper className={classes.readerHeader}>
                 <BottomNavigation value={contentName} onChange={this.setHeaderContent} className={classes.actionPanel}>

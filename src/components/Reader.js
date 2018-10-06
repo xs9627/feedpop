@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import { initState, selectChannel, addChannel, setChannels, updateUnreadCount, updateChannelFeed, setFeedReadStatus } from "../actions/index"
+import { initState, selectChannel, setChannels, updateUnreadCount, updateChannelFeed } from "../actions/index"
 import './Reader.scss';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
@@ -15,19 +15,16 @@ import yellow from '@material-ui/core/colors/yellow';
 
 const mapStateToProps = state => {
   return {
-    currentChannelId: state.currentChannelId,
-    channels: state.channels };
+    channels: state.channels,
+    showContent: state.showContent,
+  };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     initState: callback => dispatch(initState(callback)),
     selectChannel: id => dispatch(selectChannel(id)),
-    addChannel: channel => dispatch(addChannel(channel)),
-    setChannels: channels => dispatch(setChannels(channels)),
     updateUnreadCount: () => dispatch(updateUnreadCount()),
-    updateChannelFeed: id => dispatch(updateChannelFeed(id)),
-    setFeedReadStatus: (channelId, feedId) => dispatch(setFeedReadStatus(channelId, feedId)),
   };
 };
 
@@ -51,9 +48,11 @@ class Reader extends Component {
       settings: {},
     };
 
-    this.props.initState(() => {
+    this.props.initState(state => {
       this.props.updateUnreadCount();
-      this.props.selectChannel();
+      if (!state.currentChannelId) {
+        this.props.selectChannel();
+      }
     });
     // FeedUtil.getAllChannels().then(channels => {
     //   //this.setState({channel: channels});
@@ -100,29 +99,6 @@ class Reader extends Component {
     });
   }
 
-  fetchFeed = id => {
-    this.setState({currentChannelId: id});
-    FeedUtil.getChannelFeed(id).then(feedObj => {
-      if (feedObj) {
-        FeedUtil.getFeedOpenStatus(feedObj.id).then(openStatus => {
-          this.readerContent.scrollTop = 0;
-          this.setState({ currentFeeds: feedObj, openStatus: openStatus });
-        });
-      }
-    });
-  }
-
-  addChannel = (name, url) => {
-    const channel = { name: name, url: url };
-    this.props.addChannel(channel);
-    this.props.updateUnreadCount(); // TODO
-    this.props.updateChannelFeed(channel.id);
-  }
-
-  updateCurrentChannel = () => {
-    this.props.updateChannelFeed(this.props.currentChannelId);
-  }
-
   changeTheme = darkTheme => {
     this.setState({ settings: { ...this.state.settings, darkTheme: darkTheme} }, () => {
       FeedUtil.setSettings(this.state.settings);
@@ -132,17 +108,6 @@ class Reader extends Component {
   handleChannelChange = url => {
     this.setState({
       showContent: false
-    });
-  }
-
-  handleListClick = feedItem => {
-    this.props.setFeedReadStatus(this.props.currentChannelId, feedItem.readerId);
-    FeedUtil.setFeedOpenStatus(this.props.currentChannelId, feedItem.readerId).then(() => {
-      this.setState({
-        currentFeedItem: feedItem,
-        showContent: true
-      });
-      this.props.updateUnreadCount();
     });
   }
 
@@ -164,26 +129,22 @@ class Reader extends Component {
         <div className='Reader'>
           <div className="Reader-header">
             <ReaderHeader
-              currentChannelId={this.props.currentChannelId}
-              channel={this.props.channels}
-              addChannel={this.addChannel}
-              updateCurrentChannel={this.updateCurrentChannel}
               changeTheme={this.changeTheme}
               settings={this.state.settings} />
           </div>
           <div className="Reader-content " style={{backgroundColor: theme.palette.background.paper}} ref={node => this.readerContent = node}>
             <div className='Reader-list'>
-              <FeedList onListClick={this.handleListClick} />
+              <FeedList />
             </div>
             <Dialog
               fullScreen
-              open={this.state.showContent}
+              open={this.props.showContent}
               onClose={this.handleReaderItemClose}
               //TransitionComponent={Transition}
             >
-              <div className={'Reader-item ' + (this.state.showContent ? 'Active' : 'Inactive')}
+              <div className={'Reader-item ' + (this.props.showContent ? 'Active' : 'Inactive')}
                   style={{color: theme.palette.text.primary}}>
-                <FeedContent feed={this.state.currentFeedItem} onCloseClick={this.handleContentCloseClick} />
+                <FeedContent onCloseClick={this.handleContentCloseClick} />
               </div>
             </Dialog>
           </div>

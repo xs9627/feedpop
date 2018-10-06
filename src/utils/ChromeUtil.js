@@ -52,10 +52,10 @@ let ChromeUtil = {
             });
         });
     },
-    set: (key, value) => {
+    set: obj => {
         return new Promise((resolve, reject) => {
-            chrome.storage.local.set({[key]: value}, () => {
-                resolve(value);
+            chrome.storage.local.set(obj, () => {
+                resolve(obj);
             });
         });
     },

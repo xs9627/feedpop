@@ -1,6 +1,20 @@
 import React, { Component }  from 'react'
+import { connect } from "react-redux";
 import './FeedContent.scss'
 import ChromeUtil from '../utils/ChromeUtil';
+import { closeFeed } from '../actions/index'
+
+const mapStateToProps = state => {
+    return {
+        feed: state.currentFeedItem,
+    };
+};
+  
+const mapDispatchToProps = dispatch => {
+    return {
+        closeFeed: () => dispatch(closeFeed()),
+    };
+};
 
 class FeedContent extends Component {
     createMarkup = feed => {
@@ -23,7 +37,7 @@ class FeedContent extends Component {
             <div className='Feed-content-panel' ref={node => this.node = node}>
                 <div>
                     <p>{this.props.feed.title}</p>
-                    <button onClick={() => this.props.onCloseClick()}>Close</button>
+                    <button onClick={ this.props.closeFeed }>Close</button>
                 </div>
                 <div className="Feed-content-container" dangerouslySetInnerHTML={this.createMarkup(this.props.feed)} />
             </div>
@@ -31,4 +45,4 @@ class FeedContent extends Component {
     }
 }
 
-export default FeedContent;
+export default connect(mapStateToProps, mapDispatchToProps)(FeedContent);

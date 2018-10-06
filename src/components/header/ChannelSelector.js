@@ -23,17 +23,25 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Badge from '@material-ui/core/Badge';
 
 import { connect } from "react-redux";
-import { toggleChannelSelectorEditMode, deleteChannel, updateUnreadCount } from "../../actions/index"
+import { addChannel, toggleChannelSelectorEditMode, deleteChannel, updateUnreadCount, selectChannel, closeActionMenu, updateChannelFeed, } from "../../actions/index"
 
 const mapStateToProps = state => {
-    return { editMode: state.channelSelectorEditMode };
+    return {
+        channel: state.channels,
+        editMode: state.channelSelectorEditMode,
+        currentChannelId: state.currentChannelId,
+    };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-      toggleEditMode: () => dispatch(toggleChannelSelectorEditMode()),
-      deleteChannel: () => dispatch(deleteChannel),
-      updateUnreadCount: unread => dispatch(updateUnreadCount(unread)),
+        addChannel: channel => dispatch(addChannel(channel)),
+        toggleEditMode: () => dispatch(toggleChannelSelectorEditMode()),
+        deleteChannel: id => dispatch(deleteChannel(id)),
+        updateUnreadCount: () => dispatch(updateUnreadCount()),
+        selectChannel: id => dispatch(selectChannel(id)),
+        closeActionMenu: () => dispatch(closeActionMenu()),
+        updateChannelFeed: (id, callback) => dispatch(updateChannelFeed(id, callback)),
     };
 };
 
@@ -68,11 +76,11 @@ const styles = theme => ({
 class ChannelSelector extends Component {
     constructor(props) {
         super(props);
-        this.state = {value: this.props.selectedId, editOpen: false};
+        this.state = { editOpen: false };
     }
     changeChannel = channelId => {
-        this.props.onChange(channelId);
-        this.setState({'value': channelId});
+        this.props.selectChannel(channelId);
+        this.props.closeActionMenu();
     }
     renderChannels = () => {
         const { anchorEl } = this.state;
@@ -81,7 +89,7 @@ class ChannelSelector extends Component {
             const channel = this.props.channel[i];
             channels.push(
             <ListItem button
-                selected={!this.props.editMode && this.state.value == channel.id}
+                selected={!this.props.editMode && this.props.currentChannelId == channel.id}
                 onClick={() => this.changeChannel(channel.id)}
             >
                 <ListItemText primary={channel.name} />
@@ -118,12 +126,8 @@ class ChannelSelector extends Component {
     };
     handleDeleteChannel = () => {
         const channelId = this.state.currentEditChannel.id;
-        FeedUtil.deleteChannel(channelId).then(() => {
-            this.props.deleteChannel(channelId);
-            FeedUtil.getAllUnreadCount().then(result => {
-                this.props.updateUnreadCount(result);
-            });
-        });
+        this.props.deleteChannel(channelId);
+        this.props.updateUnreadCount();
         this.setState({ anchorEl: null });    
     };
     handleItemMenuClose = () => {
@@ -142,7 +146,11 @@ class ChannelSelector extends Component {
     }
     handleEditConfirmClose = () => {
         if (this.state.isAdd) {
-            this.props.addChannel(this.state.editName, this.state.editUrl);
+            const channel = { name: this.state.editName, url: this.state.editUrl };
+            this.props.addChannel(channel);
+            this.props.updateChannelFeed(channel.id, () => {
+                this.props.updateUnreadCount();
+            });
         }
         this.setState({ editOpen: false });
     }
