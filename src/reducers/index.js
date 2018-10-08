@@ -1,6 +1,5 @@
 import * as types from "../constants/action-types";
 import ChromeUtil from "../utils/ChromeUtil";
-import { stat } from "fs";
 
 const mergeFeed = (oldFeed, newFeed) => {
     let merged = newFeed.concat(oldFeed);
@@ -109,7 +108,7 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, updated);
         }
         case types.CLOSE_ACTION_MENU: {
-            const updated = { isShowActionMenu: false, actionName: null };
+            const updated = { isShowActionMenu: false };
             return persistence(state, updated);
         }
         case types.UPDATE_UNREAD_COUNT:

@@ -1,6 +1,6 @@
 import React, { Component }  from 'react'
 import { connect } from "react-redux";
-import './FeedContent.scss'
+import { withStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
 import { closeFeed } from '../actions/index'
 
@@ -15,6 +15,28 @@ const mapDispatchToProps = dispatch => {
         closeFeed: () => dispatch(closeFeed()),
     };
 };
+
+const styles = theme => ({
+    root: {
+        '& *': {
+            color: theme.palette.text.primary + ' !important'
+        },
+        padding: '0 16px',
+        background: 'inherit',
+        fontFamily: 'Roboto',
+        fontSize: 13,
+        lineHeight: '20px',
+    },
+    content: {
+        width: '100%',
+        '& img': {
+            maxWidth: '100%'
+        },
+        '& span': {
+            wordBreak: 'break-word'
+        }
+    }
+});
 
 class FeedContent extends Component {
     createMarkup = feed => {
@@ -34,15 +56,15 @@ class FeedContent extends Component {
     }
     render() {
         return (
-            <div className='Feed-content-panel' ref={node => this.node = node}>
+            <div className={this.props.classes.root} ref={node => this.node = node}>
                 <div>
                     <p>{this.props.feed.title}</p>
                     <button onClick={ this.props.closeFeed }>Close</button>
                 </div>
-                <div className="Feed-content-container" dangerouslySetInnerHTML={this.createMarkup(this.props.feed)} />
+                <div className={this.props.classes.content} dangerouslySetInnerHTML={this.createMarkup(this.props.feed)} />
             </div>
         );
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FeedContent);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(FeedContent));

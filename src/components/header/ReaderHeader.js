@@ -54,48 +54,33 @@ const styles = theme => ({
     },
 });
 class ReaderHeader extends Component {
-    state = {
-        contentName: null,
-    };
     setHeaderContent = (event, contentName) => {
-        if (!this.props.showContent || this.currentContentName != contentName) {
+        if (!this.props.showContent || this.props.contentName != contentName) {
             if (contentName == 'Update') {
                 this.props.updateChannelFeed(this.props.currentChannelId, () => {
-                    if (this.currentContentName == 'Update') {
+                    if (this.props.contentName == 'Update') {
                         this.props.closeActionMenu();
                     }
                 });
-            } else if (this.currentContentName === 'List') {
+            } else if (contentName === 'List') {
                 this.props.setChannelSelectorEditMode(false);
             }
             this.props.openActionMenu(contentName);
         } else {
             this.closeActionMenu();
         }
-        this.currentContentName = contentName;
     }
     closeActionMenu = () => {
         this.props.closeActionMenu();
-        //this.setState({ contentName: null, showContent: false });
     }
     getHeaderContent = () => {
         switch(this.props.contentName){
             case 'List': 
-                return (
-                    <ChannelSelector
-                        onChange={channelId => {
-                                
-                                this.closeActionMenu();
-                            }
-                        }
-                    />
-                );
+                return <ChannelSelector onChange={() => { this.closeActionMenu(); }} />;
             case 'Update': 
                 return <div className='Menu-item'>Updating</div>;
             case 'Settings':
-                return (
-                    <ReaderSettings />
-                );
+                return <ReaderSettings />;
             default:
                 return null;
         };
@@ -104,7 +89,7 @@ class ReaderHeader extends Component {
         const { classes, allUnreadCount, showContent, contentName } = this.props;
         return (
             <Paper className={classes.readerHeader}>
-                <BottomNavigation value={contentName} onChange={this.setHeaderContent} className={classes.actionPanel}>
+                <BottomNavigation value={ showContent ? contentName : null } onChange={this.setHeaderContent} className={classes.actionPanel}>
                     <BottomNavigationAction label="List" value="List" icon={
                         !(showContent && contentName === "List") && allUnreadCount > 0 ? (
                             <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : '...'} color="primary">
