@@ -5,7 +5,6 @@ import { initState, selectChannel, setChannels, updateUnreadCount, updateChannel
 import './Reader.scss';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
-import FeedUtil from '../utils/FeedUtil';
 import ReaderHeader from './header/ReaderHeader';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -17,6 +16,7 @@ const mapStateToProps = state => {
   return {
     channels: state.channels,
     showContent: state.showContent,
+    theme: state.settings.theme,
   };
 };
 
@@ -35,18 +35,6 @@ function Transition(props) {
 class Reader extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      channel: [],
-      currentFeeds: {
-        feed: {
-          items: []
-        }
-      },
-      currentFeedItem: {},
-      openStatus: [],
-      showContent: false,
-      settings: {},
-    };
 
     this.props.initState(state => {
       this.props.updateUnreadCount();
@@ -54,27 +42,14 @@ class Reader extends Component {
         this.props.selectChannel();
       }
     });
-    // FeedUtil.getAllChannels().then(channels => {
-    //   //this.setState({channel: channels});
-    //   this.props.setChannels(channels);
-    //   if (channels.length > 0) {
-    //     this.setState({currentChannelId: channels[0].id});
-    //     this.fetchFeed(channels[0].id);
-    //   }
-    // });
-
-    // FeedUtil.getSettings().then(settings => {
-    //   this.setState({ settings: settings});
-    // });
-
-    //this.props.updateUnreadCount();
   }
 
   getTheme = () => {
+    const isDarkTheme = this.props.theme === "dark";
     return createMuiTheme({
       palette: {
-        primary: !this.state.settings.darkTheme ? blue : yellow,
-        type: !this.state.settings.darkTheme ? 'light' : 'dark',
+        primary: !isDarkTheme ? blue : yellow,
+        type: !isDarkTheme ? 'light' : 'dark',
       },
       // overrides: {
       //   MuiBottomNavigation: {
@@ -96,12 +71,6 @@ class Reader extends Component {
       //     },
       //   },
       // },
-    });
-  }
-
-  changeTheme = darkTheme => {
-    this.setState({ settings: { ...this.state.settings, darkTheme: darkTheme} }, () => {
-      FeedUtil.setSettings(this.state.settings);
     });
   }
 
@@ -128,9 +97,7 @@ class Reader extends Component {
       <MuiThemeProvider theme={theme}>
         <div className='Reader'>
           <div className="Reader-header">
-            <ReaderHeader
-              changeTheme={this.changeTheme}
-              settings={this.state.settings} />
+            <ReaderHeader />
           </div>
           <div className="Reader-content " style={{backgroundColor: theme.palette.background.paper}} ref={node => this.readerContent = node}>
             <div className='Reader-list'>

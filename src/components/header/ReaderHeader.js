@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import ChannelSelector from './ChannelSelector';
 import ReaderSettings from './ReaderSettings';
-import FeedUtil from '../../utils/FeedUtil';
 
 import { withStyles } from '@material-ui/core/styles';
 import Badge from '@material-ui/core/Badge';
@@ -15,7 +14,7 @@ import Settings from '@material-ui/icons/Settings';
 import Paper from '@material-ui/core/Paper';
 
 import { connect } from "react-redux";
-import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed } from "../../actions/index"
+import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed } from "../../actions/index";
 
 const mapStateToProps = state => {
     return {
@@ -95,9 +94,7 @@ class ReaderHeader extends Component {
                 return <div className='Menu-item'>Updating</div>;
             case 'Settings':
                 return (
-                    <ReaderSettings 
-                        config={this.props.settings} 
-                        changeTheme={this.props.changeTheme}/>
+                    <ReaderSettings />
                 );
             default:
                 return null;

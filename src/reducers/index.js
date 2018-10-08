@@ -22,13 +22,7 @@ const persistence = (state, updated) => {
 }
 
 const initialState = {
-    channel: [],
-    currentFeeds: {
-      feed: {
-        items: []
-      }
-    },
-    currentFeedItem: {},
+    channels: [],
     showContent: false,
     settings: {},
     feedReadStatus: [],
@@ -93,7 +87,7 @@ const rootReducer = (state = initialState, action) => {
             });
             const feedObj = {id: action.payload.id, feed: feed};
             const updated = { feeds: state.feeds ? [ ...state.feeds.filter(f => f.id !== action.payload.id), feedObj ] : [feedObj]};
-            if (state.channels.length === 1 && state.channels[0].id === action.payload.id) {
+            if (!state.currentFeeds && state.channels.length > 0 && state.channels[0].id === action.payload.id) {
                 updated.currentFeeds = feedObj;
             }
             return persistence(state, updated);
@@ -143,6 +137,10 @@ const rootReducer = (state = initialState, action) => {
                 allUnreadCount: allCount };
         case types.TOGGLE_CHANNEL_SELECTOR_EDITMODE:
             return { ...state, channelSelectorEditMode: !state.channelSelectorEditMode };
+        case types.SET_SETTINGS: {
+            const updated = { settings: { ...state.settings, ...action.payload } };
+            return persistence(state, updated);
+        }
         default:
             return state;
     }

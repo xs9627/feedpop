@@ -14,6 +14,21 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
+import { connect } from "react-redux";
+import { setSettins } from "../../actions/index"
+
+const mapStateToProps = state => {
+    return {
+        config: state.settings,
+    };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setSettins: settings => dispatch(setSettins(settings)),
+    };
+};
+
 const styles = theme => ({
     root: {
       backgroundColor: theme.palette.background.paper,
@@ -24,14 +39,11 @@ const styles = theme => ({
 });
 
 class Settings extends Component {
-    state = {
-        darkTheme: this.props.config.darkTheme,
-    }
+    state = {};
 
     handleChangeTheme = event => {
-        let darkTheme = event.target.checked;
-        this.setState({ darkTheme: darkTheme });
-        this.props.changeTheme(darkTheme);
+        let isdarkTheme = event.target.checked;
+        this.props.setSettins({ theme: isdarkTheme ? 'dark' : 'light' });
     }
 
     doSkr = () => {
@@ -63,7 +75,7 @@ class Settings extends Component {
                         <ListItemText primary="Dark Theme"></ListItemText>
                         <ListItemSecondaryAction>
                             <Switch
-                                checked={this.state.darkTheme}
+                                checked={this.props.config.theme === 'dark'}
                                 onChange={this.handleChangeTheme}
                                 value="checkedB"
                                 color="primary"
@@ -108,4 +120,4 @@ class Settings extends Component {
     }
 }
 
-export default withStyles(styles)(Settings);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Settings));

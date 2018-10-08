@@ -1,4 +1,5 @@
 /* global RSSParser */
+import 'rss-parser/dist/rss-parser.min.js';
 import * as types from "../constants/action-types";
 import ChromeUtil from '../utils/ChromeUtil';
 
@@ -48,3 +49,5 @@ export const openActionMenu = actionName => ({ type: types.OPEN_ACTION_MENU, pay
 export const closeActionMenu = () => ({ type: types.CLOSE_ACTION_MENU });
 export const setChannelSelectorEditMode = isEditMode => ({ type: types.SET_CHANNEL_SELECTOR_EDITMODE, payload: isEditMode });
 export const toggleChannelSelectorEditMode = () => ({ type: types.TOGGLE_CHANNEL_SELECTOR_EDITMODE });
+
+export const setSettins = settings => ({ type: types.SET_SETTINGS, payload: settings });
