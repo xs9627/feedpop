@@ -64,5 +64,6 @@ export const setupBackgroundConnection = () => (dispatch, getState) => {
         }
     }));
 }
+export const cleanCache = () => ({ type: types.CLEAN_CACHE });
 
 export const setComponentState = (componentName, state) => ({ type: types.SET_COMPONENT_STATE, payload: { componentName, state }});

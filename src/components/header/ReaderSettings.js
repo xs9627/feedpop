@@ -15,7 +15,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import { connect } from "react-redux";
-import { setSettins } from "../../actions/index"
+import { setSettins, cleanCache } from "../../actions/index"
 
 const mapStateToProps = state => {
     return {
@@ -26,6 +26,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         setSettins: settings => dispatch(setSettins(settings)),
+        cleanCache: () => dispatch(cleanCache()),
     };
 };
 
@@ -51,6 +52,10 @@ class Settings extends Component {
         if (this.state.skr === 5) {
             this.setState({ skr: 0, openSkr: true });
         }
+    }
+    
+    handleCleanCacheClick = () => {
+        this.props.cleanCache();
     }
 
     handleAboutClick = () => {
@@ -81,6 +86,9 @@ class Settings extends Component {
                                 color="primary"
                             />
                         </ListItemSecondaryAction>
+                    </ListItem>
+                    <ListItem button onClick={this.handleCleanCacheClick}>
+                        <ListItemText primary="Clean Cache"></ListItemText>
                     </ListItem>
                     <ListItem button onClick={this.handleAboutClick}>
                         <ListItemText primary="About" />

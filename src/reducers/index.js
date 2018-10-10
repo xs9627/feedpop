@@ -176,6 +176,17 @@ const rootReducer = (state = initialState, action) => {
             ChromeUtil.connect(state, action.payload);
             return state;
         }
+        case types.CLEAN_CACHE: {
+            const updated = { 
+                logs: [], 
+                showContent: false, 
+                feeds: [], 
+                feedReadStatus: [],
+                allUnreadCount: 0,
+                channels: state.channels.map(c => ({ ...c, unreadCount: 0 }))
+            };
+            return persistence(state, updated);
+        }
         case types.SET_COMPONENT_STATE: {
             let newState;
             if (typeof action.payload.state === "function") {
