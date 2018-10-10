@@ -22,7 +22,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        initState: callback => dispatch(initState(callback)),
+        initState: () => dispatch(initState()),
         selectChannel: id => dispatch(selectChannel(id)),
         setDefaultState: () => dispatch(setDefaultState()),
         setupBackgroundConnection: () => dispatch(setupBackgroundConnection()),
@@ -36,12 +36,13 @@ const mapDispatchToProps = dispatch => {
 class Reader extends Component {
     constructor(props) {
         super(props);
-        this.props.initState(state => {
+        this.props.initState().then(state => {
             const lastActiveSpan = new Date() - new Date(state.lastActiveTime);
             console.log(lastActiveSpan);  
             if (lastActiveSpan > .1 * 60 * 1000) {
                 this.props.setDefaultState();
             }
+            return state;
         });
         this.props.setupBackgroundConnection();
     }

@@ -30,7 +30,7 @@ const mapDispatchToProps = dispatch => {
         setChannelSelectorEditMode: () => dispatch(setChannelSelectorEditMode()),
         openActionMenu: contentName => dispatch(openActionMenu(contentName)),
         closeActionMenu: () => dispatch(closeActionMenu()),
-        updateChannelFeed: (id, callback) => dispatch(updateChannelFeed(id, callback)),
+        updateChannelFeed: id => dispatch(updateChannelFeed(id)),
     };
 };
 
@@ -57,7 +57,7 @@ class ReaderHeader extends Component {
     setHeaderContent = (event, contentName) => {
         if (!this.props.showContent || this.props.contentName != contentName) {
             if (contentName == 'Update') {
-                this.props.updateChannelFeed(this.props.currentChannelId, () => {
+                this.props.updateChannelFeed(this.props.currentChannelId).then(() => {
                     if (this.props.contentName == 'Update') {
                         this.props.closeActionMenu();
                     }

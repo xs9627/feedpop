@@ -46,7 +46,7 @@ const mapDispatchToProps = dispatch => {
         deleteChannel: id => dispatch(deleteChannel(id)),
         selectChannel: id => dispatch(selectChannel(id)),
         closeActionMenu: () => dispatch(closeActionMenu()),
-        updateChannelFeed: (id, callback) => dispatch(updateChannelFeed(id, callback)),
+        updateChannelFeed: id => dispatch(updateChannelFeed(id)),
         setComponentState: state => dispatch(setComponentState(componentStateName, state)),
     };
 };

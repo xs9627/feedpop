@@ -30,18 +30,20 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.alarms.onAlarm.addListener(alarm => {
   if (alarm.name === "refreshAll") {
     console.log('Starting update all channels - ' + Date());
-    store.dispatch(initState(() => {
+    store.dispatch(initState()).then(() => {
       const state = store.getState();
       state.silentPersistent = true;
+      const promises = [];
       state.channels.forEach(channel => {
         //console.log(channel);
-        store.dispatch(updateChannelFeed(channel.id, () => {
-          this.ports.forEach(port => {
-            port.postMessage({ type: BACKGROUND_UPDATE_CHANNEL, channelId: channel.id });
-          });
-        }));
+        promises.push(store.dispatch(updateChannelFeed(channel.id)));
       });
-    }));
+      Promise.all(promises).then(() => {
+        this.ports.forEach(port => {
+          port.postMessage({ type: BACKGROUND_UPDATE_CHANNEL });
+        });
+      });
+    });
   }
 });
 
@@ -50,9 +52,9 @@ chrome.runtime.onConnect.addListener(externalPort => {
   externalPort.onDisconnect.addListener(() => {
     this.ports.splice(this.ports.indexOf(externalPort), 1);
     store.getState().silentPersistent = false;
-    store.dispatch(initState(() => {
+    store.dispatch(initState()).then(() => {
       store.dispatch(log("Disconnect"));
-    }));
+    });
   });
   console.log("onConnect")
 })
