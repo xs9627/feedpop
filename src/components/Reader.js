@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import { initState, selectChannel, setDefaultState, setupBackgroundConnection } from "../actions/index"
+import { syncState, selectChannel, setDefaultState, setupBackgroundConnection } from "../actions/index"
 import './Reader.scss';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
@@ -22,7 +22,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        initState: () => dispatch(initState()),
+        syncState: () => dispatch(syncState()),
         selectChannel: id => dispatch(selectChannel(id)),
         setDefaultState: () => dispatch(setDefaultState()),
         setupBackgroundConnection: () => dispatch(setupBackgroundConnection()),
@@ -36,7 +36,7 @@ const mapDispatchToProps = dispatch => {
 class Reader extends Component {
     constructor(props) {
         super(props);
-        this.props.initState().then(state => {
+        this.props.syncState().then(state => {
             const lastActiveSpan = new Date() - new Date(state.lastActiveTime);
             console.log(lastActiveSpan);  
             if (lastActiveSpan > .1 * 60 * 1000) {

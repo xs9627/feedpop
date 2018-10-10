@@ -16,9 +16,8 @@ const fetchFeed = url => {
 }
 
 export const log = msg => ({ type: types.LOG, payload: msg });
-export const initState = () => dispatch => {
+export const syncState = () => dispatch => {
     return ChromeUtil.get(null).then(state => {
-        console.log(state); // TODO for test
         dispatch(setInitState(state));
         return state;
     });
@@ -31,9 +30,7 @@ export const deleteChannel = id => ({ type: types.DELETE_CHANNELS, payload: id }
 export const receiveFeed = (feed, id) => ({ type: types.RECEIVE_FEED, payload: { feed, id } });
 export const updateChannelFeed = id => (dispatch, getState) => {
     const channel = getState().channels.find(c => c.id === id);
-    dispatch(log("Start update feed: " + channel.url));
     return fetchFeed(channel.url).then(feed => {
-        dispatch(log("Update successed: " + channel.url));
         dispatch(receiveFeed(feed, id));
     });
 }
@@ -53,8 +50,8 @@ export const connectBackground = messageCallback => ({ type: types.CONNECT_BACKG
 export const setupBackgroundConnection = () => (dispatch, getState) => {
     dispatch(connectBackground(msg => {
         if (msg.type === types.BACKGROUND_UPDATE_CHANNEL) {
-            dispatch(initState()).then(() => {
-                dispatch(log('Update from background'));
+            dispatch(syncState()).then(() => {
+                dispatch(log('Update reader by background'));
             });
         }
     }));
