@@ -20,6 +20,7 @@ import { setSettins, cleanCache } from "../../actions/index"
 const mapStateToProps = state => {
     return {
         config: state.settings,
+        logs: state.logs,
     };
 };
 
@@ -51,6 +52,7 @@ class Settings extends Component {
         this.state.skr++;
         if (this.state.skr === 5) {
             this.setState({ skr: 0, openSkr: true });
+            console.log(this.props.logs);
         }
     }
     

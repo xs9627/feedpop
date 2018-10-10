@@ -36,15 +36,14 @@ const mapDispatchToProps = dispatch => {
 class Reader extends Component {
     constructor(props) {
         super(props);
+        this.props.setupBackgroundConnection();
         this.props.syncState().then(state => {
             const lastActiveSpan = new Date() - new Date(state.lastActiveTime);
-            console.log(lastActiveSpan);  
             if (lastActiveSpan > .1 * 60 * 1000) {
                 this.props.setDefaultState();
             }
             return state;
         });
-        this.props.setupBackgroundConnection();
     }
 
     render() {

@@ -44,8 +44,10 @@ chrome.runtime.onConnect.addListener(externalPort => {
         this.ports.splice(this.ports.indexOf(externalPort), 1);
         store.getState().silentPersistent = false;
         store.dispatch(syncState()).then(() => {
-            store.dispatch(log("Disconnect"));
+            store.dispatch(log("Close reader"));
         });
     });
-    console.log("onConnect")
+    store.dispatch(syncState()).then(() => {
+        store.dispatch(log("Open reader"));
+    });
 })

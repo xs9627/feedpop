@@ -31,7 +31,9 @@ export const receiveFeed = (feed, id) => ({ type: types.RECEIVE_FEED, payload: {
 export const updateChannelFeed = id => (dispatch, getState) => {
     const channel = getState().channels.find(c => c.id === id);
     return fetchFeed(channel.url).then(feed => {
-        dispatch(receiveFeed(feed, id));
+        return dispatch(syncState()).then(() => {
+            dispatch(receiveFeed(feed, id));
+        });
     });
 }
 export const setFeedReadStatus = (channelId, feedId) => ({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId } });
