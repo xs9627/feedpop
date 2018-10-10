@@ -22,13 +22,20 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Badge from '@material-ui/core/Badge';
 
 import { connect } from "react-redux";
-import { addChannel, toggleChannelSelectorEditMode, deleteChannel, updateUnreadCount, selectChannel, closeActionMenu, updateChannelFeed, } from "../../actions/index"
+import { addChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, updateChannelFeed, setComponentState} from "../../actions/index"
+
+const componentStateName = 'channelSelector';
 
 const mapStateToProps = state => {
     return {
         channel: state.channels,
         editMode: state.channelSelectorEditMode,
         currentChannelId: state.currentChannelId,
+        editOpen: state.getComponentState(componentStateName, 'editOpen'),
+        isAdd: state.getComponentState(componentStateName, 'isAdd'), 
+        editName: state.getComponentState(componentStateName, 'editName'),
+        editUrl: state.getComponentState(componentStateName, 'editUrl'),
+        currentEditChannel: state.getComponentState(componentStateName, 'currentEditChannel'),
     };
 };
 
@@ -37,10 +44,10 @@ const mapDispatchToProps = dispatch => {
         addChannel: channel => dispatch(addChannel(channel)),
         toggleEditMode: () => dispatch(toggleChannelSelectorEditMode()),
         deleteChannel: id => dispatch(deleteChannel(id)),
-        updateUnreadCount: () => dispatch(updateUnreadCount()),
         selectChannel: id => dispatch(selectChannel(id)),
         closeActionMenu: () => dispatch(closeActionMenu()),
         updateChannelFeed: (id, callback) => dispatch(updateChannelFeed(id, callback)),
+        setComponentState: state => dispatch(setComponentState(componentStateName, state)),
     };
 };
 
@@ -112,28 +119,28 @@ class ChannelSelector extends Component {
         return channels;
     }
     handleItemMenulick = (event, channel) => {
-        this.setState({ anchorEl: event.currentTarget, currentEditChannel: channel });
+        this.props.setComponentState({ currentEditChannel: channel });
+        this.setState({ anchorEl: event.currentTarget });
     };
     handleEditChannel = () => {
-        this.setState(state => ({ 
+        this.props.setComponentState(state => ({ 
             editOpen: true, 
             isAdd: false, 
             editName: state.currentEditChannel.name,
             editUrl: state.currentEditChannel.url,
-            anchorEl: null,
         }));
+        this.setState({ anchorEl: null });
     };
     handleDeleteChannel = () => {
-        const channelId = this.state.currentEditChannel.id;
+        const channelId = this.props.currentEditChannel.id;
         this.props.deleteChannel(channelId);
-        this.props.updateUnreadCount();
-        this.setState({ anchorEl: null });    
+        this.setState({ anchorEl: null });
     };
     handleItemMenuClose = () => {
         this.setState({ anchorEl: null });
       };
     handleAddClick = () => {
-        this.setState(state => ({
+        this.props.setComponentState(state => ({
             isAdd: true,
             editOpen: !state.editOpen,
             editName: '',
@@ -141,17 +148,15 @@ class ChannelSelector extends Component {
         }));
     }
     handleEditClose = () => {
-        this.setState({ editOpen: false });
+        this.props.setComponentState({ editOpen: false });
     }
     handleEditConfirmClose = () => {
-        if (this.state.isAdd) {
-            const channel = { name: this.state.editName, url: this.state.editUrl };
+        if (this.props.isAdd) {
+            const channel = { name: this.props.editName, url: this.props.editUrl };
             this.props.addChannel(channel);
-            this.props.updateChannelFeed(channel.id, () => {
-                this.props.updateUnreadCount();
-            });
+            this.props.updateChannelFeed(channel.id);
         }
-        this.setState({ editOpen: false });
+        this.props.setComponentState({ editOpen: false });
     }
     render () {
         const { classes } = this.props;
@@ -181,27 +186,27 @@ class ChannelSelector extends Component {
                     </div>
                 </div>
                 <Dialog
-                    open={this.state.editOpen}
+                    open={this.props.editOpen}
                     onClose={this.handleEditClose}
                     aria-labelledby="form-dialog-title"
                     >
-                    <DialogTitle id="form-dialog-title">{this.state.isAdd ? 'Add' : 'Edit'}</DialogTitle>
+                    <DialogTitle id="form-dialog-title">{this.props.isAdd ? 'Add' : 'Edit'}</DialogTitle>
                     <DialogContent>
                         <TextField
                         margin="dense"
                         id="chanelName"
                         label="Name"
                         fullWidth
-                        value={this.state.editName}
-                        onChange={e => this.setState({ editName: e.target.value })}
+                        value={this.props.editName}
+                        onChange={e => this.props.setComponentState({ editName: e.target.value })}
                         />
                         <TextField
                         margin="dense"
                         id="channelUrl"
                         label="Url"
                         fullWidth
-                        value={this.state.editUrl}
-                        onChange={e => this.setState({ editUrl: e.target.value })}
+                        value={this.props.editUrl}
+                        onChange={e => this.props.setComponentState({ editUrl: e.target.value })}
                         />
                     </DialogContent>
                     <DialogActions>
@@ -209,7 +214,7 @@ class ChannelSelector extends Component {
                         Cancel
                         </Button>
                         <Button onClick={this.handleEditConfirmClose} color="primary">
-                        {this.state.isAdd ? 'Add' : 'Update'}
+                        {this.props.isAdd ? 'Add' : 'Update'}
                         </Button>
                     </DialogActions>
                 </Dialog>

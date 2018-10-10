@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import { initState, selectChannel, updateUnreadCount } from "../actions/index"
+import { initState, selectChannel, setDefaultState, setupBackgroundConnection } from "../actions/index"
 import './Reader.scss';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
@@ -24,7 +24,8 @@ const mapDispatchToProps = dispatch => {
     return {
         initState: callback => dispatch(initState(callback)),
         selectChannel: id => dispatch(selectChannel(id)),
-        updateUnreadCount: () => dispatch(updateUnreadCount()),
+        setDefaultState: () => dispatch(setDefaultState()),
+        setupBackgroundConnection: () => dispatch(setupBackgroundConnection()),
     };
 };
 
@@ -36,8 +37,13 @@ class Reader extends Component {
     constructor(props) {
         super(props);
         this.props.initState(state => {
-            this.props.updateUnreadCount();
+            const lastActiveSpan = new Date() - new Date(state.lastActiveTime);
+            console.log(lastActiveSpan);  
+            if (lastActiveSpan > .1 * 60 * 1000) {
+                this.props.setDefaultState();
+            }
         });
+        this.props.setupBackgroundConnection();
     }
 
     render() {

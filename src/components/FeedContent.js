@@ -6,7 +6,7 @@ import { closeFeed } from '../actions/index'
 
 const mapStateToProps = state => {
     return {
-        feed: state.currentFeedItem,
+        feed: state.feeds.find(f => f.id === state.currentChannelId).feed.items.find(i => i.readerId === state.currentFeedItemId) || {},
     };
 };
   

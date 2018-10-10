@@ -20,6 +20,14 @@ let ChromeUtil = {
     },
     openTab: url => {
         chrome.tabs.create({url:url});
+    },
+    connect: (state, messageCallback) => {
+        const port = chrome.runtime.connect({name: "reader"});
+        port.state = state;
+        port.onMessage.addListener(msg => {
+            console.log(msg);
+            messageCallback(msg);
+        });
     }
 };
 

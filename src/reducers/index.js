@@ -16,28 +16,75 @@ const mergeFeed = (oldFeed, newFeed) => {
 }
 
 const persistence = (state, updated) => {
+    if (!state.silentPersistent) {
+        updated.lastActiveTime = (new Date()).toISOString();
+    }
     ChromeUtil.set(updated);
     return { ...state,  ...updated };
 }
 
 const initialState = {
     channels: [],
-    showContent: false,
     settings: {},
     feedReadStatus: [],
-};
+    logs: [],
+    ...defaultState,
+    getComponentState(componentName, stateName) {
+        return this[componentName] ? this[componentName][stateName] : null;
+    },
+}
+
+const defaultState = {
+    showContent: false,
+    isShowActionMenu: false,
+    currentFeedItemId: null,
+    channelSelectorEditMode: false,
+    channelSelector: {
+        editOpen: false,
+    }
+}
+
+const updateUnreadCount = (state, updated) => {
+    const { feedReadStatus, feeds, channels } = { ...state, ...updated };
+    let allCount = 0;
+    let feedsCount = {};
+    feeds.forEach(feedObj => {
+        let count = feedObj.feed.items.length;
+        if (feedReadStatus) {
+            const statusObj = feedReadStatus.find(t => t.channelId === feedObj.id);
+            if (statusObj) {
+                feedObj.feed.items.forEach(f => {
+                    if (statusObj.feedIds.some(id => id === f.readerId)) {
+                        count--;
+                    }
+                });
+            }
+        }
+
+        feedsCount[feedObj.id] = count;
+        allCount += count;
+    });
+    return {
+        channels: channels.map(channel => ({ ...channel, unreadCount: feedsCount[channel.id] })),
+        allUnreadCount: allCount
+    };
+}
 
 const rootReducer = (state = initialState, action) => {
     switch (action.type) {
         case types.SET_INIT_STATE: {
             return { ...state, ...action.state };
         }
+        case types.LOG: {
+            const updated = { logs: [...state.logs, { date: (new Date()).toLocaleString(), msg: action.payload }] };
+            return persistence(state, updated)
+        }
         case types.SELECT_CHANNEL: {
             let id = action.id;
             if (!id) {
                 id = state.channels[0].id;
             }
-            const updated = { currentChannelId: id, currentFeeds: state.feeds ? state.feeds.find(f => f.id === id) : { feed: {items: []} }};
+            const updated = { currentChannelId: id };
             return persistence(state, updated);
         }
         case types.ADD_CHANNEL: {
@@ -59,16 +106,16 @@ const rootReducer = (state = initialState, action) => {
             if (state.currentChannelId === action.payload) {
                 if (updated.channels.length > 0) {
                     updated.currentChannelId = updated.channels[0].id;
-                    updated.currentFeeds = updated.feeds.find(f => f.id === updated.currentChannelId);
                 } else {
                     updated.currentChannelId = null;
-                    updated.currentFeeds = null;
                 }
             }
+            return persistence(state, { ...updated, ...updateUnreadCount(state, updated) });
+        }
+        case types.SET_CHANNEL_SELECTOR_EDITMODE: {
+            const updated = { channelSelectorEditMode: action.payload };
             return persistence(state, updated);
         }
-        case types.SET_CHANNEL_SELECTOR_EDITMODE:
-            return { ...state, channelSelectorEditMode: action.payload };
         case types.RECEIVE_FEED: {
             const feed = action.payload.feed;
             if (state.feeds) {
@@ -85,24 +132,19 @@ const rootReducer = (state = initialState, action) => {
                 }
             });
             const feedObj = {id: action.payload.id, feed: feed};
-            const updated = { feeds: state.feeds ? [ ...state.feeds.filter(f => f.id !== action.payload.id), feedObj ] : [feedObj]};
-            if (!state.currentFeeds && state.channels.length > 0 && state.channels[0].id === action.payload.id) {
-                updated.currentFeeds = feedObj;
-            }
-            return persistence(state, updated);
+            const updated = { feeds: state.feeds ? [ ...state.feeds.filter(f => f.id !== action.payload.id), feedObj ] : [feedObj] };
+            return persistence(state, { ...updated, ...updateUnreadCount(state, updated) });
         }
-        case types.SET_FEED_READ_STATUS:
+        case types.SET_FEED_READ_STATUS: {
             const feedReadStatus = state.feedReadStatus.some(s => s.channelId === action.payload.channelId) ?
                 state.feedReadStatus.map(s => s.channelId === action.payload.channelId ? { ...s, feedIds: [...s.feedIds, action.payload.feedId] } : s) :
-                [...state.feedReadStatus, { channelId: action.payload.channelId, feedIds: [action.payload.feedId]}]
-            ChromeUtil.set({ feedReadStatus });
-            return { ...state, feedReadStatus };
+                [...state.feedReadStatus, { channelId: action.payload.channelId, feedIds: [action.payload.feedId]}];
+            return persistence(state, { feedReadStatus, ...updateUnreadCount(state, { feedReadStatus }) });
+        }
         case types.OPEN_FEED:
-            ChromeUtil.set({ currentFeedItem: action.payload, showContent: true });
-            return { ...state, currentFeedItem: action.payload, showContent: true };
+            return persistence(state, { currentFeedItemId: action.payload, showContent: true });
         case types.CLOSE_FEED:
-            ChromeUtil.set({ showContent: false });
-            return { ...state, showContent: false };
+            return persistence(state, { showContent: false });
         case types.OPEN_ACTION_MENU: {
             const updated = { isShowActionMenu: true, actionName: action.payload };
             return persistence(state, updated);
@@ -111,33 +153,37 @@ const rootReducer = (state = initialState, action) => {
             const updated = { isShowActionMenu: false };
             return persistence(state, updated);
         }
-        case types.UPDATE_UNREAD_COUNT:
-            let allCount = 0;
-            let feedsCount = {};
-            const readStatus = state.feedOpenStatus;
-            state.feeds.forEach(feedObj => {
-                let count = feedObj.feed.items.length;
-                if (readStatus) {
-                    const statusObj = readStatus.find(t => t.id === feedObj.id);
-                    if (statusObj) {
-                        feedObj.feed.items.forEach(f => {
-                            if (statusObj.status.some(status => status === f.readerId)) {
-                                count--;
-                            }
-                        });
-                    }
-                }
-
-                feedsCount[feedObj.id] = count;
-                allCount += count;
-            });
-            return { ...state, 
-                channels: state.channels.map(channel => ({ ...channel, unreadCount: feedsCount[channel.id] })), 
-                allUnreadCount: allCount };
-        case types.TOGGLE_CHANNEL_SELECTOR_EDITMODE:
-            return { ...state, channelSelectorEditMode: !state.channelSelectorEditMode };
+        case types.TOGGLE_CHANNEL_SELECTOR_EDITMODE: {
+            const updated = { channelSelectorEditMode: !state.channelSelectorEditMode };
+            return persistence(state, updated);
+        }
         case types.SET_SETTINGS: {
             const updated = { settings: { ...state.settings, ...action.payload } };
+            return persistence(state, updated);
+        }
+        case types.SET_DEFAULT_STATE: {
+            const { currentChannelId, currentFeedItemId, showContent } = state;
+            const updated = { ...defaultState, lastActiveState: { currentChannelId, currentFeedItemId, showContent } };
+            if (state.channels.length > 0) {
+                updated.currentChannelId = state.channels[0].id;
+            } else {
+                updated.currentChannelId = null;
+            }
+
+            return persistence(state, updated);
+        }
+        case types.CONNECT_BACKGROUND: {
+            ChromeUtil.connect(state, action.payload);
+            return state;
+        }
+        case types.SET_COMPONENT_STATE: {
+            let newState;
+            if (typeof action.payload.state === "function") {
+                newState = action.payload.state(state[action.payload.componentName] || {});
+            } else {
+                newState = action.payload.state;
+            }
+            const updated = { [action.payload.componentName]: state[action.payload.componentName] ? { ...state[action.payload.componentName], ...newState } :  { ...newState } };
             return persistence(state, updated);
         }
         default:

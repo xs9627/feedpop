@@ -18,7 +18,7 @@ import { setFeedReadStatus, openFeed } from '../actions/index'
 const mapStateToProps = state => {
   return {
     currentChannelId: state.currentChannelId,
-    feedObj: state.currentFeeds,
+    feedObj: state.feeds ? state.feeds.find(f => f.id === state.currentChannelId) : null,
     feedReadStatus: state.feedReadStatus,
   };
 };
@@ -26,7 +26,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     setFeedReadStatus: (channelId, feedId) => dispatch(setFeedReadStatus(channelId, feedId)),
-    openFeed: feed => dispatch(openFeed(feed)),
+    openFeed: feedItemId => dispatch(openFeed(feedItemId)),
   };
 };
 
@@ -78,7 +78,7 @@ class FeedList extends Component {
   }
   isUnRead = readerId => {
     if (this.props.feedReadStatus) {
-      const status = this.props.feedReadStatus.find(s => s.channelId = this.props.currentChannelId);
+      const status = this.props.feedReadStatus.find(s => s.channelId === this.props.currentChannelId);
       if (status) {
         return !status.feedIds.some(id => id === readerId);
       } else {
@@ -116,7 +116,7 @@ class FeedList extends Component {
                   key={`item-${feed.isoDate}`} 
                   onClick={() => {
                     this.props.setFeedReadStatus(this.props.currentChannelId, feed.readerId);
-                    this.props.openFeed(feed);
+                    this.props.openFeed(feed.readerId);
                   }}
                 >
                   <ListItemText classes={{ primary: classNames({[classes.unRead]: this.isUnRead(feed.readerId)}) }} primary={feed.title} secondary={this.getTime(feed.isoDate)} />
