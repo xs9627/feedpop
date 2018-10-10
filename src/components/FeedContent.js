@@ -39,7 +39,9 @@ const styles = theme => ({
 });
 
 class FeedContent extends Component {
-    createMarkup = feed => {
+    state = {};
+    createMarkup = () => {
+        const { feed } = this.props;
         const content = feed.content ? feed.content : feed['content:encoded']; 
         return {__html: content}; 
     }
@@ -49,6 +51,10 @@ class FeedContent extends Component {
         }
     }
     componentDidMount = () => {
+        setTimeout(() => {
+            this.setState({ contentHtml: this.createMarkup() });
+        }, 0);
+        
         document.addEventListener('click', this.handleClick);
     }
     componentWillUnmount = () => {
@@ -61,7 +67,7 @@ class FeedContent extends Component {
                     <p>{this.props.feed.title}</p>
                     <button onClick={ this.props.closeFeed }>Close</button>
                 </div>
-                <div className={this.props.classes.content} dangerouslySetInnerHTML={this.createMarkup(this.props.feed)} />
+                <div className={this.props.classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
             </div>
         );
     }
