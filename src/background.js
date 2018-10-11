@@ -1,6 +1,6 @@
 /* global chrome */
 import store from './store/index';
-import { syncState, updateChannelFeed, setSettins, log } from './actions/index';
+import { syncState, updateChannelFeed, setSettins, log, updateLastActiveTime } from './actions/index';
 import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
 
 this.ports = [];
@@ -14,7 +14,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
     chrome.alarms.create("refreshAll", {
         delayInMinutes: 1,
-        periodInMinutes: 1,
+        periodInMinutes: 10,
     });
 });
 
@@ -43,11 +43,6 @@ chrome.runtime.onConnect.addListener(externalPort => {
     externalPort.onDisconnect.addListener(() => {
         this.ports.splice(this.ports.indexOf(externalPort), 1);
         store.getState().silentPersistent = false;
-        store.dispatch(syncState()).then(() => {
-            store.dispatch(log("Close reader"));
-        });
-    });
-    store.dispatch(syncState()).then(() => {
-        store.dispatch(log("Open reader"));
+        store.dispatch(updateLastActiveTime());
     });
 })

@@ -37,6 +37,8 @@ const mapDispatchToProps = dispatch => {
 const styles = theme => ({
     readerHeader: {
         width: '100%',
+        flex: '0 1 auto',
+        zIndex: '2'
     },
     actionPanel: {
         width: '100%',

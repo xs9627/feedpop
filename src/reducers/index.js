@@ -187,6 +187,9 @@ const rootReducer = (state = initialState, action) => {
             };
             return persistence(state, updated);
         }
+        case types.UPDATE_LAST_ACTIVE_TIME: {
+            return persistence(state, {});
+        }
         case types.SET_COMPONENT_STATE: {
             let newState;
             if (typeof action.payload.state === "function") {

@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
 import { syncState, selectChannel, setDefaultState, setupBackgroundConnection } from "../actions/index"
-import './Reader.scss';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
 import ReaderHeader from './header/ReaderHeader';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import Slide from '@material-ui/core/Slide';
 import blue from '@material-ui/core/colors/blue';
@@ -29,6 +29,21 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
+const styles = theme => ({
+    '@global': {
+        body: {
+            margin: 0,
+            padding: 0,
+            'font-family': 'Roboto',
+            'min-width': '300px',
+        },
+    },
+    root: {
+        height: '600px',
+        display: 'flex',
+        'flex-flow': 'column',
+    }
+});
 // function Transition(props) {
 //     return <Slide direction="up" {...props} />;
 // }
@@ -75,22 +90,16 @@ class Reader extends Component {
                 //     },
                 // },
             })}>
-                <div className='Reader'>
-                    <div className="Reader-header">
-                        <ReaderHeader />
-                    </div>
-                    <div className="Reader-content ">
-                        <div className='Reader-list'>
-                            <FeedList />
-                        </div>
-                        <Dialog
-                            fullScreen
-                            open={this.props.showContent}
-                            //TransitionComponent={Transition}
-                        >
-                            <FeedContent />
-                        </Dialog>
-                    </div>
+                <div className={this.props.classes.root}>
+                    <ReaderHeader />
+                    <FeedList />
+                    <Dialog
+                        fullScreen
+                        open={this.props.showContent}
+                        //TransitionComponent={Transition}
+                    >
+                        <FeedContent />
+                    </Dialog>
                 </div>
             </MuiThemeProvider>
         );
@@ -101,4 +110,4 @@ Reader.propTypes = {
     render: PropTypes.func,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Reader);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Reader));
