@@ -9,8 +9,9 @@ const fetchFeed = url => {
         parser.parseURL(url, (err, feed) => {
             if(err) {
                 reject(err);
+            } else {
+                resolve(feed);
             }
-            resolve(feed);
         });
     });
 }
@@ -34,6 +35,8 @@ export const updateChannelFeed = id => (dispatch, getState) => {
         return dispatch(syncState()).then(() => {
             dispatch(receiveFeed(feed, id));
         });
+    }, (reason) => {
+        console.log(reason);
     });
 }
 export const setFeedReadStatus = (channelId, feedId) => ({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId } });
