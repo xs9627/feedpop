@@ -19,12 +19,13 @@ const fetchFeed = url => {
 export const log = msg => ({ type: types.LOG, payload: msg });
 export const syncState = () => dispatch => {
     return ChromeUtil.get(null).then(state => {
-        dispatch(setInitState(state));
+        dispatch(setSyncState(state));
         return state;
     });
 }
 export const selectChannel = id => ({ type: types.SELECT_CHANNEL, id: id });
-export const setInitState = state => ({type: types.SET_INIT_STATE, state: state });
+export const setSyncState = state => ({type: types.SET_SYNC_STATE, state: state });
+export const setDefaultState = () => ({ type: types.SET_DEFAULT_STATE });
 export const addChannel = channel => ({ type: types.ADD_CHANNEL, payload: channel });
 export const setChannels = channels => ({ type: types.SET_CHANNELS, payload: channels });
 export const deleteChannel = id => ({ type: types.DELETE_CHANNELS, payload: id });
@@ -49,7 +50,6 @@ export const setChannelSelectorEditMode = isEditMode => ({ type: types.SET_CHANN
 export const toggleChannelSelectorEditMode = () => ({ type: types.TOGGLE_CHANNEL_SELECTOR_EDITMODE });
 
 export const setSettins = settings => ({ type: types.SET_SETTINGS, payload: settings });
-export const setDefaultState = showGoBack => ({ type: types.SET_DEFAULT_STATE, payload: showGoBack });
 
 export const connectBackground = messageCallback => ({ type: types.CONNECT_BACKGROUND, payload: messageCallback });
 export const setupBackgroundConnection = () => (dispatch, getState) => {
@@ -63,7 +63,7 @@ export const setupBackgroundConnection = () => (dispatch, getState) => {
 }
 export const cleanCache = () => ({ type: types.CLEAN_CACHE });
 export const updateLastActiveTime = () => ({ type: types.UPDATE_LAST_ACTIVE_TIME });
-export const goBackLastRead = () => ({ type: types.GO_BACK_LAST_READ });
-export const deleteLastRead = () => ({ type: types.DELETE_LAST_READ });
+export const closeMessageBar = () => ({ type: types.CLOSE_MESSAGE_BAR });
 
+export const triggerAction = type => ({ type: type });
 export const setComponentState = (componentName, state) => ({ type: types.SET_COMPONENT_STATE, payload: { componentName, state }});

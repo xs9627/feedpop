@@ -1,4 +1,4 @@
-export const SET_INIT_STATE = "SET_INIT_STATE";
+export const SET_SYNC_STATE = "SET_SYNC_STATE";
 export const SELECT_CHANNEL = "SELECT_CHANNEL";
 export const ADD_CHANNEL = "ADD_CHANNEL";
 export const SET_CHANNELS = "SET_CHANNELS";
@@ -22,6 +22,7 @@ export const CLEAN_CACHE = "CLEAN_CACHE";
 export const UPDATE_LAST_ACTIVE_TIME = "UPDATE_LAST_ACTIVE_TIME";
 export const GO_BACK_LAST_READ = "GO_BACK_LAST_READ";
 export const DELETE_LAST_READ = "DELETE_LAST_READ";
+export const CLOSE_MESSAGE_BAR = "CLOSE_MESSAGE_BAR";
 
 export const SET_COMPONENT_STATE = "SET_COMPONENT_STATE";
 export const LOG = "LOG";

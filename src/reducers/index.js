@@ -72,12 +72,41 @@ const updateUnreadCount = (state, updated) => {
 
 const rootReducer = (state = initialState, action) => {
     switch (action.type) {
-        case types.SET_INIT_STATE: {
+        case types.SET_SYNC_STATE: {
             return { ...state, ...action.state };
         }
         case types.LOG: {
             const updated = { logs: [...state.logs, { date: (new Date()).toLocaleString(), msg: action.payload }] };
             return persistence(state, updated)
+        }
+        case types.SET_DEFAULT_STATE: {
+            const { lastActiveTime } = state;
+            const lastActiveSpan = new Date() - new Date(lastActiveTime);
+            if (lastActiveSpan > .1 * 60 * 1000) {
+                const { currentChannelId, currentFeedItemId, showContent } = state;
+                const showGoBack = lastActiveSpan <= .5 * 60 * 1000;
+                const updated = { ...defaultState,
+                    lastActiveState: { currentChannelId, currentFeedItemId, showContent },
+                    readerMessageBar: showGoBack ? {
+                        open: true,
+                        mainActionName: 'GO',
+                        mainActionType: types.GO_BACK_LAST_READ,
+                        cloaseActionType: types.DELETE_LAST_READ,
+                        message: 'Continue reading?',
+                        autoHideDuration: 15000,
+                    } : {
+                        open: false,
+                    }
+                };
+                if (state.channels.length > 0) {
+                    updated.currentChannelId = state.channels[0].id;
+                } else {
+                    updated.currentChannelId = null;
+                }
+                return persistence(state, updated);
+            } else {
+                return state;
+            }   
         }
         case types.SELECT_CHANNEL: {
             let id = action.id;
@@ -161,17 +190,6 @@ const rootReducer = (state = initialState, action) => {
             const updated = { settings: { ...state.settings, ...action.payload } };
             return persistence(state, updated);
         }
-        case types.SET_DEFAULT_STATE: {
-            const { currentChannelId, currentFeedItemId, showContent } = state;
-            const updated = { ...defaultState, lastActiveState: { currentChannelId, currentFeedItemId, showContent }, showGoBack: action.payload && showContent };
-            if (state.channels.length > 0) {
-                updated.currentChannelId = state.channels[0].id;
-            } else {
-                updated.currentChannelId = null;
-            }
-
-            return persistence(state, updated);
-        }
         case types.CONNECT_BACKGROUND: {
             ChromeUtil.connect(state, action.payload);
             return state;
@@ -191,9 +209,11 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, {});
         }
         case types.GO_BACK_LAST_READ:
-            return persistence(state, { ...state.lastActiveState, lastActiveState: {}, showGoBack: false });
+            return persistence(state, { ...state.lastActiveState, lastActiveState: {} });
         case types.DELETE_LAST_READ:
-            return persistence(state, { lastActiveState: {}, showGoBack: false });
+            return persistence(state, { lastActiveState: {} });
+        case types.CLOSE_MESSAGE_BAR:
+            return persistence(state, { readerMessageBar: { open: false } });
         case types.SET_COMPONENT_STATE: {
             let newState;
             if (typeof action.payload.state === "function") {

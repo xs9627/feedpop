@@ -5,7 +5,7 @@ import { syncState, selectChannel, setDefaultState, setupBackgroundConnection } 
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
 import ReaderHeader from './header/ReaderHeader';
-import GoBackBar from './GoBackBar';
+import ReaderMessageBar from './ReaderMessageBar';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { withStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -54,11 +54,7 @@ class Reader extends Component {
         super(props);
         this.props.setupBackgroundConnection();
         this.props.syncState().then(state => {
-            const lastActiveSpan = new Date() - new Date(state.lastActiveTime);
-            if (lastActiveSpan > .1 * 60 * 1000) {
-                const showGoBack = lastActiveSpan <= .5 * 60 * 1000
-                this.props.setDefaultState(showGoBack);
-            }
+            this.props.setDefaultState();
             return state;
         });
     }
@@ -102,7 +98,7 @@ class Reader extends Component {
                     >
                         <FeedContent />
                     </Dialog>
-                    <GoBackBar />
+                    <ReaderMessageBar />
                 </div>
             </MuiThemeProvider>
         );
