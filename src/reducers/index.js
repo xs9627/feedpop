@@ -163,7 +163,7 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.SET_DEFAULT_STATE: {
             const { currentChannelId, currentFeedItemId, showContent } = state;
-            const updated = { ...defaultState, lastActiveState: { currentChannelId, currentFeedItemId, showContent } };
+            const updated = { ...defaultState, lastActiveState: { currentChannelId, currentFeedItemId, showContent }, showGoBack: action.payload && showContent };
             if (state.channels.length > 0) {
                 updated.currentChannelId = state.channels[0].id;
             } else {
@@ -190,6 +190,10 @@ const rootReducer = (state = initialState, action) => {
         case types.UPDATE_LAST_ACTIVE_TIME: {
             return persistence(state, {});
         }
+        case types.GO_BACK_LAST_READ:
+            return persistence(state, { ...state.lastActiveState, lastActiveState: {}, showGoBack: false });
+        case types.DELETE_LAST_READ:
+            return persistence(state, { lastActiveState: {}, showGoBack: false });
         case types.SET_COMPONENT_STATE: {
             let newState;
             if (typeof action.payload.state === "function") {

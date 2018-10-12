@@ -5,6 +5,7 @@ import { syncState, selectChannel, setDefaultState, setupBackgroundConnection } 
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
 import ReaderHeader from './header/ReaderHeader';
+import GoBackBar from './GoBackBar';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { withStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -24,7 +25,7 @@ const mapDispatchToProps = dispatch => {
     return {
         syncState: () => dispatch(syncState()),
         selectChannel: id => dispatch(selectChannel(id)),
-        setDefaultState: () => dispatch(setDefaultState()),
+        setDefaultState: showGoBack => dispatch(setDefaultState(showGoBack)),
         setupBackgroundConnection: () => dispatch(setupBackgroundConnection()),
     };
 };
@@ -55,7 +56,8 @@ class Reader extends Component {
         this.props.syncState().then(state => {
             const lastActiveSpan = new Date() - new Date(state.lastActiveTime);
             if (lastActiveSpan > .1 * 60 * 1000) {
-                this.props.setDefaultState();
+                const showGoBack = lastActiveSpan <= .5 * 60 * 1000
+                this.props.setDefaultState(showGoBack);
             }
             return state;
         });
@@ -100,6 +102,7 @@ class Reader extends Component {
                     >
                         <FeedContent />
                     </Dialog>
+                    <GoBackBar />
                 </div>
             </MuiThemeProvider>
         );

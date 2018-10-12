@@ -64,7 +64,7 @@ const styles = theme => ({
         width: 16,
         height: 16,
         fontSize: 12,
-        marginRight: 5,
+        marginRight: theme.spacing.unit,
     },
 });
 
