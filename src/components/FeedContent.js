@@ -4,6 +4,12 @@ import { withStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
 import { closeFeed } from '../actions/index'
 
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
+
 const mapStateToProps = state => {
     return {
         feed: state.feeds.find(f => f.id === state.currentChannelId).feed.items.find(i => i.readerId === state.currentFeedItemId) || {},
@@ -18,24 +24,35 @@ const mapDispatchToProps = dispatch => {
 
 const styles = theme => ({
     root: {
+        width: '100%',
+        display: 'flex',
+        'flex-flow': 'column',
+    },
+    title: {
+        flex: '0 1 auto',
+        zIndex: '2',
+    },
+    content: {
+        flex: '1 1 auto',
+        overflow: 'auto',
+        padding: '0 16px',
         '& *': {
             color: theme.palette.text.primary + ' !important'
         },
-        padding: '0 16px',
         background: 'inherit',
         fontFamily: 'Roboto',
         fontSize: 13,
         lineHeight: '20px',
-    },
-    content: {
-        width: '100%',
         '& img': {
             maxWidth: '100%'
         },
         '& span': {
             wordBreak: 'break-word'
         }
-    }
+    },
+    close: {
+        padding: theme.spacing.unit / 2,
+    },
 });
 
 class FeedContent extends Component {
@@ -61,13 +78,24 @@ class FeedContent extends Component {
         document.removeEventListener('click', this.handleClick);
     }
     render() {
+        const { classes } = this.props;
         return (
-            <div className={this.props.classes.root} ref={node => this.node = node}>
-                <div>
-                    <p>{this.props.feed.title}</p>
-                    <button onClick={ this.props.closeFeed }>Close</button>
-                </div>
-                <div className={this.props.classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
+            <div className={classes.root} ref={node => this.node = node}>
+                <Paper className={classes.title}>
+                    <Grid container>
+                        <Grid item>
+                            <Typography variant="body2">
+                                {this.props.feed.title}
+                            </Typography>
+                        </Grid>
+                        <Grid item>
+                            <IconButton key="close" className={classes.close} onClick={this.props.closeFeed}>
+                                <CloseIcon />
+                            </IconButton>
+                        </Grid>
+                    </Grid>
+                </Paper>
+                <div className={classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
             </div>
         );
     }

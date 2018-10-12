@@ -36,7 +36,7 @@ const styles = theme => ({
             margin: 0,
             padding: 0,
             'font-family': 'Roboto',
-            'min-width': '300px',
+            'min-width': 320,
         },
     },
     root: {
