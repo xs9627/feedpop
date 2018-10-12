@@ -84,7 +84,7 @@ const rootReducer = (state = initialState, action) => {
             const lastActiveSpan = new Date() - new Date(lastActiveTime);
             if (lastActiveSpan > .1 * 60 * 1000) {
                 const { currentChannelId, currentFeedItemId, showContent } = state;
-                const showGoBack = lastActiveSpan <= .5 * 60 * 1000;
+                const showGoBack = showContent && lastActiveSpan <= .5 * 60 * 1000;
                 const updated = { ...defaultState,
                     lastActiveState: { currentChannelId, currentFeedItemId, showContent },
                     readerMessageBar: showGoBack ? {
