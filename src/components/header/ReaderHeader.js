@@ -12,6 +12,10 @@ import Sync from '@material-ui/icons/Sync';
 import Edit from '@material-ui/icons/Edit';
 import Settings from '@material-ui/icons/Settings';
 import Paper from '@material-ui/core/Paper';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import Button from '@material-ui/core/Button';
 
 import { connect } from "react-redux";
 import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed } from "../../actions/index";
@@ -42,6 +46,7 @@ const styles = theme => ({
     },
     actionPanel: {
         width: '100%',
+        background: theme.palette.background.default,
     },
     menuCollapse: {
         width: '100%',
@@ -54,6 +59,14 @@ const styles = theme => ({
         background: theme.palette.common.black,
         opacity: 0.3,
     },
+    loadingContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    cancelLoading: {
+        marginTop: theme.spacing.unit,
+    }
 });
 class ReaderHeader extends Component {
     setHeaderContent = (event, contentName) => {
@@ -80,7 +93,20 @@ class ReaderHeader extends Component {
             case 'List': 
                 return <ChannelSelector onChange={() => { this.closeActionMenu(); }} />;
             case 'Update': 
-                return <div className='Menu-item'>Updating</div>;
+                return (
+                    <Dialog open={this.props.showContent}>
+                        <DialogContent>
+                            <div className={this.props.classes.loadingContainer}>
+                                <CircularProgress />
+                            </div>
+                            <div>
+                                <Button className={this.props.classes.cancelLoading} onClick={this.props.closeActionMenu} color="primary">
+                                    Cancel
+                                </Button>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                );
             case 'Settings':
                 return <ReaderSettings />;
             default:
@@ -100,7 +126,7 @@ class ReaderHeader extends Component {
                         ) : <List />
                     } />
                     <BottomNavigationAction label="Update" value="Update" icon={<Sync />} />
-                    <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} />
+                    {/* <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} /> */}
                     <BottomNavigationAction label="Settings" value="Settings" icon={<Settings />} />
                 </BottomNavigation>
 
