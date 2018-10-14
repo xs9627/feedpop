@@ -40,9 +40,6 @@ const styles = theme => ({
         paddingTop: theme.spacing.unit,
         paddingBottom: theme.spacing.unit,
     },
-    title: {
-        lineHeight: '32px',
-    },
     contentContainer: {
         flex: '1 1 auto',
         overflowY: 'auto',
@@ -50,9 +47,8 @@ const styles = theme => ({
         padding: '0 16px',
     },
     content: {
-        color: theme.palette.text.primary,
         '& *': {
-            color: theme.palette.text.primary + ' !important'
+            color: 'inherit !important'
         },
         background: 'inherit',
         fontFamily: 'Roboto',
@@ -119,11 +115,29 @@ class FeedContent extends Component {
                         </Grid>
                     </Grid>
                 </Paper>
-                <div className={ classes.contentContainer}>
-                    <Typography variant="body2" noWrap className={classes.title}>
-                        {this.props.feed.title}
+                <div className={ classes.contentContainer }>
+                    <Grid container wrap="nowrap" direction="column">
+                        <Grid item xs={12}>
+                            <Typography variant="h6">
+                                {this.props.feed.title}
+                            </Typography>
+                        </Grid>
+                        <Grid item container>
+                            <Grid item xs>
+                                <Typography variant="subtitle2">
+                                    {this.props.feed.isoDate ? (new Date(this.props.feed.isoDate)).toLocaleString() : null}
+                                </Typography>
+                            </Grid>
+                            <Grid item>
+                                <Typography variant="subtitle2">
+                                    {this.props.feed.creator}
+                                </Typography>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                    <Typography>
+                        <div className={classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
                     </Typography>
-                    <div className={classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
                 </div>
             </div>
         );
