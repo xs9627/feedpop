@@ -152,11 +152,10 @@ class ChannelSelector extends Component {
     }
     handleEditConfirmClose = () => {
         if (this.props.isAdd) {
-            const channel = { name: this.props.editName, url: this.props.editUrl };
-            this.props.addChannel(channel);
-            this.props.updateChannelFeed(channel.id);
+            this.props.addChannel(this.props.editUrl).then(() => {
+                this.props.setComponentState({ editOpen: false });
+            });
         }
-        this.props.setComponentState({ editOpen: false });
     }
     render () {
         const { classes } = this.props;

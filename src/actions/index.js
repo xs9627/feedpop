@@ -26,7 +26,16 @@ export const syncState = () => dispatch => {
 export const selectChannel = id => ({ type: types.SELECT_CHANNEL, id: id });
 export const setSyncState = state => ({type: types.SET_SYNC_STATE, state: state });
 export const setDefaultState = () => ({ type: types.SET_DEFAULT_STATE });
-export const addChannel = channel => ({ type: types.ADD_CHANNEL, payload: channel });
+export const addChannel = url => (dispatch, getState) => {
+    dispatch({ type: types.ADD_CHANNEL_BEGIN });
+    return fetchFeed(url).then(feed => {
+        const channel = { url, name: feed.title };
+        dispatch({ type: types.ADD_CHANNEL, payload: channel });
+        dispatch(receiveFeed(feed, channel.id));
+    }, (reason) => {
+        console.log(reason);
+    });
+};
 export const setChannels = channels => ({ type: types.SET_CHANNELS, payload: channels });
 export const deleteChannel = id => ({ type: types.DELETE_CHANNELS, payload: id });
 export const receiveFeed = (feed, id) => ({ type: types.RECEIVE_FEED, payload: { feed, id } });
