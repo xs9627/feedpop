@@ -6,7 +6,11 @@ import { closeFeed } from '../actions/index'
 
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import OpenIcon from '@material-ui/icons/OpenInBrowser';
+import MoreIcon from '@material-ui/icons/MoreHoriz';
+import ShareVariantIcon from '@material-ui/icons/Share';
+import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 
@@ -28,14 +32,25 @@ const styles = theme => ({
         display: 'flex',
         'flex-flow': 'column',
     },
-    title: {
+    actionContainer: {
         flex: '0 1 auto',
         zIndex: '2',
+        paddingLeft: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit * 2,
+        paddingTop: theme.spacing.unit,
+        paddingBottom: theme.spacing.unit,
+    },
+    title: {
+        lineHeight: '32px',
+    },
+    contentContainer: {
+        flex: '1 1 auto',
+        overflowY: 'auto',
+        overflowX: 'hidden',
+        padding: '0 16px',
     },
     content: {
-        flex: '1 1 auto',
-        overflow: 'auto',
-        padding: '0 16px',
+        color: theme.palette.text.primary,
         '& *': {
             color: theme.palette.text.primary + ' !important'
         },
@@ -44,13 +59,14 @@ const styles = theme => ({
         fontSize: 13,
         lineHeight: '20px',
         '& img': {
-            maxWidth: '100%'
+            maxWidth: '100%',
+            height: 'auto',
         },
         '& span': {
             wordBreak: 'break-word'
         }
     },
-    close: {
+    icon: {
         padding: theme.spacing.unit / 2,
     },
 });
@@ -59,13 +75,16 @@ class FeedContent extends Component {
     state = {};
     createMarkup = () => {
         const { feed } = this.props;
-        const content = feed.content ? feed.content : feed['content:encoded']; 
+        const content = feed['content:encoded'] ? feed['content:encoded'] : feed.content; 
         return {__html: content}; 
     }
     handleClick = e => {
         if (this.node.contains(e.target) && e.target.href !== undefined) {
             ChromeUtil.openTab(e.target.href);
         }
+    }
+    openFeed = url => {
+        ChromeUtil.openTab(url);
     }
     componentDidMount = () => {
         setTimeout(() => {
@@ -81,21 +100,31 @@ class FeedContent extends Component {
         const { classes } = this.props;
         return (
             <div className={classes.root} ref={node => this.node = node}>
-                <Paper className={classes.title}>
-                    <Grid container>
-                        <Grid item>
-                            <Typography variant="body2">
-                                {this.props.feed.title}
-                            </Typography>
+                <Paper className={classes.actionContainer}>
+                    <Grid container wrap="nowrap">
+                        <Grid item xs zeroMinWidth>
+                            <IconButton key="close" className={classes.icon} onClick={this.props.closeFeed}>
+                                <ArrowBackIcon />
+                            </IconButton>
                         </Grid>
                         <Grid item>
-                            <IconButton key="close" className={classes.close} onClick={this.props.closeFeed}>
-                                <CloseIcon />
+                            <Tooltip title="Open in new tab">
+                                <IconButton key="open" className={classes.icon} onClick={ () => this.openFeed(this.props.feed.link)}>
+                                    <OpenIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <IconButton key="more" className={classes.icon} onClick={this.props.closeFeed}>
+                                <MoreIcon />
                             </IconButton>
                         </Grid>
                     </Grid>
                 </Paper>
-                <div className={classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
+                <div className={ classes.contentContainer}>
+                    <Typography variant="body2" noWrap className={classes.title}>
+                        {this.props.feed.title}
+                    </Typography>
+                    <div className={classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
+                </div>
             </div>
         );
     }
