@@ -20,6 +20,7 @@ import MoreVert from '@material-ui/icons/MoreVert';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Badge from '@material-ui/core/Badge';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { connect } from "react-redux";
 import { addChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, updateChannelFeed, setComponentState} from "../../actions/index"
@@ -31,11 +32,14 @@ const mapStateToProps = state => {
         channel: state.channels,
         editMode: state.channelSelectorEditMode,
         currentChannelId: state.currentChannelId,
+        isCheckingUrl: state.getComponentState(componentStateName, 'isCheckingUrl'),
         editOpen: state.getComponentState(componentStateName, 'editOpen'),
         isAdd: state.getComponentState(componentStateName, 'isAdd'), 
         editName: state.getComponentState(componentStateName, 'editName'),
         editUrl: state.getComponentState(componentStateName, 'editUrl'),
         currentEditChannel: state.getComponentState(componentStateName, 'currentEditChannel'),
+        isUrlValid: state.getComponentState(componentStateName, 'isUrlValid'),
+        urlErrorMessage: state.getComponentState(componentStateName, 'urlErrorMessage'),
     };
 };
 
@@ -148,7 +152,7 @@ class ChannelSelector extends Component {
         }));
     }
     handleEditClose = () => {
-        this.props.setComponentState({ editOpen: false });
+        this.props.setComponentState({ editOpen: false, isCheckingUrl: false, isUrlValid: true, });
     }
     handleEditConfirmClose = () => {
         if (this.props.isAdd) {
@@ -158,7 +162,7 @@ class ChannelSelector extends Component {
         }
     }
     render () {
-        const { classes } = this.props;
+        const { classes, isCheckingUrl, isAdd, isUrlValid, urlErrorMessage } = this.props;
         const { anchorEl } = this.state;
         return (
             <div className={classes.root}>
@@ -191,15 +195,17 @@ class ChannelSelector extends Component {
                     >
                     <DialogTitle id="form-dialog-title">{this.props.isAdd ? 'Add' : 'Edit'}</DialogTitle>
                     <DialogContent>
-                        <TextField
+                        { !isAdd && <TextField
                         margin="dense"
                         id="chanelName"
                         label="Name"
                         fullWidth
                         value={this.props.editName}
                         onChange={e => this.props.setComponentState({ editName: e.target.value })}
-                        />
+                        /> }
                         <TextField
+                        error={ !isUrlValid }
+                        helperText={ !isUrlValid && 'Url Invalid' }
                         margin="dense"
                         id="channelUrl"
                         label="Url"
@@ -209,11 +215,12 @@ class ChannelSelector extends Component {
                         />
                     </DialogContent>
                     <DialogActions>
+                        { isCheckingUrl && <CircularProgress size={24} className={classes.buttonProgress} /> }
+                        <Button disabled={ isCheckingUrl } onClick={this.handleEditConfirmClose} color="primary">
+                            {this.props.isAdd ? 'Add' : 'Update'}
+                         </Button>
                         <Button onClick={this.handleEditClose} color="primary">
-                        Cancel
-                        </Button>
-                        <Button onClick={this.handleEditConfirmClose} color="primary">
-                        {this.props.isAdd ? 'Add' : 'Update'}
+                            Cancel
                         </Button>
                     </DialogActions>
                 </Dialog>

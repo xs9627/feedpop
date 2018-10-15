@@ -41,6 +41,8 @@ const defaultState = {
     channelSelectorEditMode: false,
     channelSelector: {
         editOpen: false,
+        isCheckingUrl: false,
+        isUrlValid: true,
     }
 }
 
@@ -116,13 +118,19 @@ const rootReducer = (state = initialState, action) => {
             const updated = { currentChannelId: id };
             return persistence(state, updated);
         }
+        case types.ADD_CHANNEL_BEGIN: {
+            return persistence(state, { channelSelector: { ...state.channelSelector, isCheckingUrl: true } });
+        }
         case types.ADD_CHANNEL: {
             action.payload.id = require('uuid/v4')();
-            const updated = { channels: [...state.channels, action.payload]};
+            const updated = { channels: [...state.channels, action.payload], isCheckingUrl: false, isUrlValid: true };
             if (updated.channels.length === 1) {
                 updated.currentChannelId = action.payload.id;
             }
             return persistence(state, updated);
+        }
+        case types.ADD_CHANNEL_ERROR: {
+            return persistence(state, { channelSelector: { ...state.channelSelector, isCheckingUrl: false, isUrlValid: false, urlErrorMessage: action.payload } });
         }
         case types.SET_CHANNELS:
             return { ...state, channels: action.payload };

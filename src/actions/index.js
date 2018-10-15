@@ -33,7 +33,7 @@ export const addChannel = url => (dispatch, getState) => {
         dispatch({ type: types.ADD_CHANNEL, payload: channel });
         dispatch(receiveFeed(feed, channel.id));
     }, (reason) => {
-        console.log(reason);
+        dispatch({ type: types.ADD_CHANNEL_ERROR, payload: reason });
     });
 };
 export const setChannels = channels => ({ type: types.SET_CHANNELS, payload: channels });
