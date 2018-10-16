@@ -102,7 +102,7 @@ class ChannelSelector extends Component {
                 selected={!this.props.editMode && this.props.currentChannelId == channel.id}
                 onClick={() => this.changeChannel(channel.id)}
             >
-                <ListItemText primary={channel.name} />
+                <ListItemText primary={channel.name} primaryTypographyProps={{ noWrap: true }} />
                 {this.props.editMode ?
                 (
                     <ListItemSecondaryAction>
@@ -156,9 +156,7 @@ class ChannelSelector extends Component {
     }
     handleEditConfirmClose = () => {
         if (this.props.isAdd) {
-            this.props.addChannel(this.props.editUrl).then(() => {
-                this.props.setComponentState({ editOpen: false });
-            });
+            this.props.addChannel(this.props.editUrl);
         }
     }
     render () {
@@ -204,6 +202,7 @@ class ChannelSelector extends Component {
                         onChange={e => this.props.setComponentState({ editName: e.target.value })}
                         /> }
                         <TextField
+                        autoFocus={ isAdd }
                         error={ !isUrlValid }
                         helperText={ !isUrlValid && 'Url Invalid' }
                         margin="dense"
@@ -211,7 +210,7 @@ class ChannelSelector extends Component {
                         label="Url"
                         fullWidth
                         value={this.props.editUrl}
-                        onChange={e => this.props.setComponentState({ editUrl: e.target.value })}
+                        onChange={e => this.props.setComponentState({ editUrl: e.target.value, isUrlValid: true })}
                         />
                     </DialogContent>
                     <DialogActions>

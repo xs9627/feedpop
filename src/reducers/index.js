@@ -123,7 +123,7 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.ADD_CHANNEL: {
             action.payload.id = require('uuid/v4')();
-            const updated = { channels: [...state.channels, action.payload], isCheckingUrl: false, isUrlValid: true };
+            const updated = { channels: [...state.channels, action.payload], channelSelector: { ...state.channelSelector, isCheckingUrl: false, isUrlValid: true, editOpen: false } };
             if (updated.channels.length === 1) {
                 updated.currentChannelId = action.payload.id;
             }
