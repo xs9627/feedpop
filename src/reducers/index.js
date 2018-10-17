@@ -155,6 +155,7 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.RECEIVE_FEED: {
             const feed = action.payload.feed;
+            feed.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
             if (state.feeds) {
                 const oldFeedObj = state.feeds.find(f => f.id === action.payload.id);
                 if (oldFeedObj) {
