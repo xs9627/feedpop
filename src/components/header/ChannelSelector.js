@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
+import ChannelList from './ChannelList';
+import ChannelListItem from './ChannelListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from '@material-ui/core/Button';
@@ -98,7 +98,7 @@ class ChannelSelector extends Component {
         for (let i = 0; i < this.props.channel.length; i++) {
             const channel = this.props.channel[i];
             channels.push(
-            <ListItem button
+            <ChannelListItem button
                 selected={!this.props.editMode && this.props.currentChannelId == channel.id}
                 onClick={() => this.changeChannel(channel.id)}
             >
@@ -117,7 +117,7 @@ class ChannelSelector extends Component {
                 ) : (
                     channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : '...'} color="primary" /> : null
                 )}
-            </ListItem>
+            </ChannelListItem>
             );
         }
         return channels;
@@ -166,7 +166,7 @@ class ChannelSelector extends Component {
         const { anchorEl } = this.state;
         return (
             <div className={classes.root}>
-                <List component="nav" className={classes.list}>
+                <ChannelList component="nav" className={classes.list}>
                     {this.renderChannels()}
                     <Menu
                         id="simple-menu"
@@ -177,7 +177,7 @@ class ChannelSelector extends Component {
                         <MenuItem onClick={this.handleEditChannel}>Edit</MenuItem>
                         <MenuItem onClick={this.handleDeleteChannel}>Delete</MenuItem>
                     </Menu>
-                </List>
+                </ChannelList>
                 <div className={classes.actionPanel}>
                     <div className={classes.actionRight}>
                         <IconButton className={classes.actionButton} onClick={this.handleAddClick}>
