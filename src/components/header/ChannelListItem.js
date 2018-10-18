@@ -1,13 +1,74 @@
 import React, { Component } from 'react';
+import { findDOMNode } from 'react-dom'
 import ListItem from '@material-ui/core/ListItem';
 import { ItemTypes } from '../../constants';
-import { DragSource } from 'react-dnd';
+import { DragSource, DropTarget } from 'react-dnd';
 
 const channelItemSource = {
     beginDrag(props) {
-        return {};
+        return {
+            id: props.id,
+            index: props.index,
+        };
     }
 };
+
+const channelItemTarget = {
+    hover(props, monitor, component) {
+        // Refer to React DnD sort example https://github.com/react-dnd/react-dnd/blob/master/packages/documentation/examples/04%20Sortable/Simple/Container.tsx
+        if (!component) {
+			return null
+		}
+		const dragIndex = monitor.getItem().index
+        const hoverIndex = props.index
+
+		// Don't replace items with themselves
+		if (dragIndex === hoverIndex) {
+			return
+		}
+
+		// Determine rectangle on screen
+		const hoverBoundingRect = (findDOMNode(
+			component,
+		)).getBoundingClientRect()
+
+		// Get vertical middle
+		const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+
+		// Determine mouse position
+		const clientOffset = monitor.getClientOffset()
+
+		// Get pixels to the top
+		const hoverClientY = (clientOffset).y - hoverBoundingRect.top
+
+		// Only perform the move when the mouse has crossed half of the items height
+		// When dragging downwards, only move when the cursor is below 50%
+		// When dragging upwards, only move when the cursor is above 50%
+
+		// Dragging downwards
+		if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+			return
+		}
+
+		// Dragging upwards
+		if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+			return
+		}
+
+		// Time to actually perform the action
+		props.moveItem(dragIndex, hoverIndex)
+
+		// Note: we're mutating the monitor item here!
+		// Generally it's better to avoid mutations,
+		// but it's good here for the sake of performance
+		// to avoid expensive index searches.
+		monitor.getItem().index = hoverIndex
+    }
+}
+
+const dropCollecton = (connect) => ({
+    connectDropTarget: connect.dropTarget(),
+})
 
 function collect(connect, monitor) {
   return {
@@ -36,17 +97,17 @@ class ChannelListItem extends Component {
         });
     }
     render() {
-        const {children, connectDragPreview, connectDragSource, isDragging, ...otherProps} = this.props;
+        const {children, connectDragPreview, connectDragSource, isDragging, connectDropTarget, ...otherProps} = this.props;
         const connectChildren = this.connectChildren(children, connectDragSource);
-        console.log(connectChildren);
-        return connectDragPreview(
-            <div>
-            <ListItem {...otherProps}>
-                {connectChildren}
-            </ListItem>
+        const opacity = isDragging ? 0 : 1;
+        return connectDropTarget(connectDragPreview(
+            <div style={{opacity}}>
+                <ListItem {...otherProps}>
+                    {connectChildren}
+                </ListItem>
             </div>
-        );
+        ));
     }
 }
 
-export default DragSource(ItemTypes.CHANNELITEM, channelItemSource, collect)(ChannelListItem);
+export default DragSource(ItemTypes.CHANNELITEM, channelItemSource, collect)(DropTarget(ItemTypes.CHANNELITEM, channelItemTarget, dropCollecton)((ChannelListItem)));

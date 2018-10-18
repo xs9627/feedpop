@@ -27,7 +27,7 @@ import Typography from '@material-ui/core/Typography';
 import Portal from '@material-ui/core/Portal';
 
 import { connect } from "react-redux";
-import { addChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, updateChannelFeed, setComponentState} from "../../actions/index"
+import { addChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, updateChannelFeed, setComponentState, moveChannel} from "../../actions/index"
 
 const componentStateName = 'channelSelector';
 
@@ -56,6 +56,7 @@ const mapDispatchToProps = dispatch => {
         closeActionMenu: () => dispatch(closeActionMenu()),
         updateChannelFeed: id => dispatch(updateChannelFeed(id)),
         setComponentState: state => dispatch(setComponentState(componentStateName, state)),
+        moveChannel: (from, to) => dispatch(moveChannel(from, to)),
     };
 };
 
@@ -118,35 +119,7 @@ class ChannelSelector extends Component {
     renderChannels = () => {
         const { anchorEl } = this.state;
         const { classes } = this.props;
-        let channels = [];
-        for (let i = 0; i < this.props.channel.length; i++) {
-            const channel = this.props.channel[i];
-            channels.push(
-            <ChannelListItem button 
-                disableRipple={this.props.editMode}
-                selected={!this.props.editMode && this.props.currentChannelId == channel.id}
-                onClick={() => !this.props.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel)}
-            >
-                {this.props.editMode &&
-                    <Typography draggable-handle draggable-classname={this.props.classes.draggableHandle}>
-                        <DragHandle fontSize="small" />
-                    </Typography>
-                }
-                <ListItemText primary={channel.name} />
-                {this.props.editMode ?
-                (
-                    <ListItemSecondaryAction>
-                        <Button variant="fab" mini color="secondary" aria-label="Add" className={classes.removeButton} onClick={() => this.handleRemoveClick(channel.id)}>
-                            <RemoveIcon fontSize="small" />
-                        </Button>
-                    </ListItemSecondaryAction>
-                ) : (
-                    channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : '...'} color="primary" /> : null
-                )}
-            </ChannelListItem>
-            );
-        }
-        return channels;
+        return ;
     }
     handleItemMenulick = (event, channel) => {
         this.props.setComponentState({ currentEditChannel: channel });
@@ -199,12 +172,38 @@ class ChannelSelector extends Component {
         }
     }
     render () {
-        const { classes, isCheckingUrl, isAdd, isUrlValid, urlErrorMessage } = this.props;
+        const { classes, isCheckingUrl, isAdd, isUrlValid, urlErrorMessage, moveChannel } = this.props;
         const { anchorEl } = this.state;
         return (
             <div className={classes.root}>
                 <ChannelList component="nav" className={classes.list}>
-                    {this.renderChannels()}
+                    {this.props.channel.map((channel, i) => (
+                        <ChannelListItem button
+                            key={channel.id}
+                            index={i}
+                            disableRipple={this.props.editMode}
+                            selected={!this.props.editMode && this.props.currentChannelId == channel.id}
+                            onClick={() => !this.props.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel)}
+                            moveItem={moveChannel}
+                        >
+                            {this.props.editMode &&
+                                <Typography draggable-handle draggable-classname={this.props.classes.draggableHandle}>
+                                    <DragHandle fontSize="small" />
+                                </Typography>
+                            }
+                            <ListItemText primary={channel.name} />
+                            {this.props.editMode ?
+                            (
+                                <ListItemSecondaryAction>
+                                    <Button variant="fab" mini color="secondary" aria-label="Add" className={classes.removeButton} onClick={() => this.handleRemoveClick(channel.id)}>
+                                        <RemoveIcon fontSize="small" />
+                                    </Button>
+                                </ListItemSecondaryAction>
+                            ) : (
+                                channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : '...'} color="primary" /> : null
+                            )}
+                        </ChannelListItem>
+                    ))}
                     <Menu
                         id="simple-menu"
                         anchorEl={anchorEl}
