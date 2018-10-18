@@ -23,7 +23,6 @@ chrome.alarms.onAlarm.addListener(alarm => {
         console.log('Starting update all channels - ' + Date());
         store.dispatch(syncState()).then(() => {
             const state = store.getState();
-            state.silentPersistent = true;
             store.dispatch(log('Starting update all channels'));
             const promises = [];
             state.channels.forEach(channel => {
@@ -42,7 +41,8 @@ chrome.runtime.onConnect.addListener(externalPort => {
     this.ports.push(externalPort);
     externalPort.onDisconnect.addListener(() => {
         this.ports.splice(this.ports.indexOf(externalPort), 1);
-        store.getState().silentPersistent = false;
-        store.dispatch(updateLastActiveTime());
+        store.dispatch(syncState()).then(() => {
+            store.dispatch(updateLastActiveTime());
+        });
     });
 })

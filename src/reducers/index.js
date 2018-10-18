@@ -15,12 +15,16 @@ const mergeFeed = (oldFeed, newFeed) => {
     return merged;
 }
 
-const persistence = (state, updated) => {
-    if (!state.silentPersistent) {
-        updated.lastActiveTime = (new Date()).toISOString();
+const persistence = (state, updated, silentPersistent) => {
+    const newState = { ...state,  ...updated };
+    if (!silentPersistent) {
+        newState.lastActiveTime = (new Date()).toISOString();
     }
-    ChromeUtil.set(updated);
-    return { ...state,  ...updated };
+    const { getComponentState, ...persistenceState } = newState;
+    console.log('persistenceState');
+    console.log(persistenceState);
+    ChromeUtil.set({ state: persistenceState });
+    return newState;
 }
 
 const initialState = {

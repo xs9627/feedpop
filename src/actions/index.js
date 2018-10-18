@@ -18,7 +18,8 @@ const fetchFeed = url => {
 
 export const log = msg => ({ type: types.LOG, payload: msg });
 export const syncState = () => dispatch => {
-    return ChromeUtil.get(null).then(state => {
+    return ChromeUtil.get('state').then(state => {
+        console.log(state);
         dispatch(setSyncState(state));
         return state;
     });
