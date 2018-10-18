@@ -17,10 +17,14 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import MoreVert from '@material-ui/icons/MoreVert';
+import DragHandle from '@material-ui/icons/DragHandle';
+import RemoveIcon from '@material-ui/icons/Remove';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Badge from '@material-ui/core/Badge';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Typography from '@material-ui/core/Typography';
+import Portal from '@material-ui/core/Portal';
 
 import { connect } from "react-redux";
 import { addChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, updateChannelFeed, setComponentState} from "../../actions/index"
@@ -79,7 +83,26 @@ const styles = theme => ({
         color: theme.palette.primary.main,
     },
     itemBadge: {
-        marginRight: 12
+        marginRight: theme.spacing.unit * 2,
+    },
+    draggableHandle: {
+        display: 'inline-flex', 
+        verticalAlign: 'middle',
+        cursor: 'move',
+        '& p': {
+            display: 'inherit',
+        }
+    },
+    removeButtonContaniner: {
+        right: 'auto',
+        left: '4px',
+    },
+    removeButton: {
+        width: 20,
+        height: 20,
+        minHeight: 20,
+        marginRight: theme.spacing.unit * 2,
+
     }
 });
 
@@ -94,25 +117,28 @@ class ChannelSelector extends Component {
     }
     renderChannels = () => {
         const { anchorEl } = this.state;
+        const { classes } = this.props;
         let channels = [];
         for (let i = 0; i < this.props.channel.length; i++) {
             const channel = this.props.channel[i];
             channels.push(
-            <ChannelListItem button
+            <ChannelListItem button 
+                disableRipple={this.props.editMode}
                 selected={!this.props.editMode && this.props.currentChannelId == channel.id}
-                onClick={() => this.changeChannel(channel.id)}
+                onClick={() => !this.props.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel)}
             >
+                {this.props.editMode &&
+                    <Typography draggable-handle draggable-classname={this.props.classes.draggableHandle}>
+                        <DragHandle fontSize="small" />
+                    </Typography>
+                }
                 <ListItemText primary={channel.name} />
                 {this.props.editMode ?
                 (
                     <ListItemSecondaryAction>
-                        <IconButton 
-                            aria-owns={anchorEl ? 'simple-menu' : null}
-                            aria-haspopup="true"
-                            onClick={event => this.handleItemMenulick(event, channel)}
-                        >
-                            <MoreVert fontSize="small" />
-                        </IconButton>
+                        <Button variant="fab" mini color="secondary" aria-label="Add" className={classes.removeButton} onClick={() => this.handleRemoveClick(channel.id)}>
+                            <RemoveIcon fontSize="small" />
+                        </Button>
                     </ListItemSecondaryAction>
                 ) : (
                     channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : '...'} color="primary" /> : null
@@ -140,9 +166,20 @@ class ChannelSelector extends Component {
         this.props.deleteChannel(channelId);
         this.setState({ anchorEl: null });
     };
+    handleEditClick = channel => {
+        this.props.setComponentState(state => ({ 
+            editOpen: true, 
+            isAdd: false, 
+            editName: channel.name,
+            editUrl: channel.url,
+        }));
+    };
+    handleRemoveClick = channelId => {
+        this.props.deleteChannel(channelId);
+    };
     handleItemMenuClose = () => {
         this.setState({ anchorEl: null });
-      };
+    };
     handleAddClick = () => {
         this.props.setComponentState(state => ({
             isAdd: true,
