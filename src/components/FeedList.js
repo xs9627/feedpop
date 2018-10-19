@@ -21,7 +21,7 @@ const mapStateToProps = state => {
     return {
         currentChannelId: state.currentChannelId,
         currentChannel: state.channels.find(c => c.id === state.currentChannelId) || {},
-        feedObj: state.feeds ? state.feeds.find(f => f.id === state.currentChannelId) : null,
+        feeds: state.currentFeeds,
         feedReadStatus: state.feedReadStatus,
     };
 };
@@ -74,9 +74,9 @@ class FeedList extends Component {
         collapseStatus: {},
     }
     faviconsApi = 'https://www.google.com/s2/favicons?domain=';
-    arrangeFeeds = feedObj => {
-        if (feedObj) {
-            return feedObj.feed.items.reduce((r, a) => {
+    arrangeFeeds = feeds => {
+        if (feeds) {
+            return feeds.items.reduce((r, a) => {
                 let dateStr = new Date(a.isoDate).toLocaleDateString();
                 r[dateStr] = r[dateStr] || [];
                 r[dateStr].push(a);
@@ -86,10 +86,10 @@ class FeedList extends Component {
             return {};
         }
     }
-    initCollapseStatus = feedObj => {
-        if (feedObj && feedObj.id != this.state.feedObjId) {
-            this.setState({ feedObjId: feedObj.id, collapseStatus: {} });
-        }
+    initCollapseStatus = feeds => {
+        // if (feedObj && feedObj.id != this.state.feedObjId) {
+        //     this.setState({ feedObjId: feedObj.id, collapseStatus: {} });
+        // }
     }
     handleSubheaderClick = dateStr => {
         const collapseStatus = this.state.collapseStatus;
@@ -131,26 +131,26 @@ class FeedList extends Component {
         request.send();
     }
     renderChannelIcon = () => {
-        const { feedObj, classes } = this.props;
-        if (feedObj) {
+        const { feeds, classes } = this.props;
+        if (feeds) {
             if (this.state.faviconsReachable) {
-                const hostName = (new URL(feedObj.feed.link)).hostname;
+                const hostName = (new URL(feeds.link)).hostname;
                 return <Avatar src={ this.faviconsApi + hostName } className={classes.avatar} />;
             } else {
-                return <Avatar className={classes.avatar}>{ feedObj.feed.title.substr(0, 1)}</Avatar>;
+                return <Avatar className={classes.avatar}>{ feeds.title.substr(0, 1)}</Avatar>;
             }
         }
     }
     render() {
-        const { classes, feedObj, currentChannel } = this.props;
-        const arranged = this.arrangeFeeds(feedObj);
-        this.initCollapseStatus(feedObj);
+        const { classes, feeds, currentChannel } = this.props;
+        const arranged = this.arrangeFeeds(feeds);
+        this.initCollapseStatus(feeds);
         return (
             <div className={classes.root} ref={node => this.feedList = node}>
                 <div className={ classes.feedInfoContainer }>
                     { this.renderChannelIcon() }
                     <Typography variant="body2" className={ classes.feedTitle }>
-                        { feedObj ? feedObj.feed.title : null }
+                        { feeds ? feeds.title : null }
                     </Typography>
                 </div>
                 <Divider />

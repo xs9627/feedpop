@@ -16,7 +16,7 @@ import Paper from '@material-ui/core/Paper';
 
 const mapStateToProps = state => {
     return {
-        feed: state.feeds.find(f => f.id === state.currentChannelId).feed.items.find(i => i.readerId === state.currentFeedItemId) || {},
+        feed: (state.currentFeeds && state.currentFeeds.items.find(i => i.readerId === state.currentFeedItemId)) || {},
     };
 };
   

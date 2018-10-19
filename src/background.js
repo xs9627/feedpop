@@ -6,12 +6,14 @@ import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
 this.ports = [];
 
 chrome.runtime.onInstalled.addListener(() => {
-    store.dispatch(setSettins({ 
-        theme: 'light', 
-        version: chrome.runtime.getManifest().version, 
-        source: 'https://github.com/xs9627/rss-reader'
-    }));
-
+    store.dispatch(syncState()).then(() => {
+        store.dispatch(setSettins({ 
+            theme: 'light', 
+            version: chrome.runtime.getManifest().version, 
+            source: 'https://github.com/xs9627/rss-reader'
+        }));    
+    });
+    
     chrome.alarms.create("refreshAll", {
         delayInMinutes: 1,
         periodInMinutes: 10,

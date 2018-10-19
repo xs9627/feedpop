@@ -22,6 +22,17 @@ let ChromeUtil = {
             });
         });
     },
+    clear: () => {
+        return new Promise((resolve, reject) => {
+            chrome.storage.local.clear(() => {
+                const error = chrome.runtime.lastError;  
+                if (error) {
+                    reject(error);
+                }
+                resolve();
+            });
+        });
+    },
     openTab: url => {
         chrome.tabs.create({url:url});
     },

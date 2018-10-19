@@ -16,6 +16,14 @@ const fetchFeed = url => {
     });
 }
 
+const getChannelFeeds = channelId => {
+    return ChromeUtil.get('f-' + channelId);
+}
+
+const saveChannelFeeds = (channelId, feeds) => {
+    return ChromeUtil.set({ ['f-' + channelId]: feeds });
+}
+
 export const log = msg => ({ type: types.LOG, payload: msg });
 export const syncState = () => dispatch => {
     return ChromeUtil.get('state').then(state => {
@@ -27,29 +35,40 @@ export const syncState = () => dispatch => {
 export const selectChannel = id => ({ type: types.SELECT_CHANNEL, id: id });
 export const setSyncState = state => ({type: types.SET_SYNC_STATE, state: state });
 export const setDefaultState = () => ({ type: types.SET_DEFAULT_STATE });
-export const addChannel = url => (dispatch, getState) => {
+export const addChannel = url => async (dispatch, getState) => {
     dispatch({ type: types.ADD_CHANNEL_BEGIN });
-    return fetchFeed(url).then(feed => {
-        const channel = { url, name: feed.title };
-        dispatch({ type: types.ADD_CHANNEL, payload: channel });
-        dispatch(receiveFeed(feed, channel.id));
-    }, (reason) => {
+    try {
+        const feeds = await fetchFeed(url);
+        const channel = { url, name: feeds.title };
+        dispatch({ type: types.ADD_CHANNEL, payload: { channel, feeds } });
+        await saveChannelFeeds(channel.id, feeds);
+        dispatch({ type: types.ADD_CHANNEL_END });
+    }
+    catch (reason) {
         dispatch({ type: types.ADD_CHANNEL_ERROR, payload: reason });
-    });
+    }
 };
+export const setCurrentFeeds = () => async (dispatch, getState) => {
+    dispatch({ type: types.SET_CURRENT_FEEDS_BEGIN });
+    const feeds = await getChannelFeeds(getState().currentChannelId);
+    dispatch({ type: types.SET_CURRENT_FEEDS, payload: feeds });
+}
 export const setChannels = channels => ({ type: types.SET_CHANNELS, payload: channels });
 export const deleteChannel = id => ({ type: types.DELETE_CHANNELS, payload: id });
 export const moveChannel = (from, to) => ({ type: types.MOVE_CHANNEL, payload: { from, to } });
-export const receiveFeed = (feed, id) => ({ type: types.RECEIVE_FEED, payload: { feed, id } });
-export const updateChannelFeed = id => (dispatch, getState) => {
+export const updateChannelFeed = id => async (dispatch, getState) => {
     const channel = getState().channels.find(c => c.id === id);
-    return fetchFeed(channel.url).then(feed => {
-        return dispatch(syncState()).then(() => {
-            dispatch(receiveFeed(feed, id));
-        });
-    }, (reason) => {
+    let feeds;
+    try {
+        feeds = await fetchFeed(channel.url);
+    }
+    catch (reason) {
         console.log(reason);
-    });
+        return;
+    }
+    const oldFeeds = await getChannelFeeds(id);
+    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds } });
+    await saveChannelFeeds(id, getState().currentFeeds);
 }
 export const setFeedReadStatus = (channelId, feedId) => ({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId } });
 export const openFeed = feedItemId => ({ type: types.OPEN_FEED, payload: feedItemId });
@@ -66,13 +85,17 @@ export const connectBackground = messageCallback => ({ type: types.CONNECT_BACKG
 export const setupBackgroundConnection = () => (dispatch, getState) => {
     dispatch(connectBackground(msg => {
         if (msg.type === types.BACKGROUND_UPDATE_CHANNEL) {
-            dispatch(syncState()).then(() => {
+            dispatch(setCurrentFeeds()).then(() => {
                 dispatch(log('Update reader by background'));
             });
         }
     }));
 }
-export const cleanCache = () => ({ type: types.CLEAN_CACHE });
+export const cleanCache = () => async (dispatch, getState) => {
+    dispatch({ type: types.CLEAN_CACHE });
+    await ChromeUtil.clear();
+    await ChromeUtil.set({ state: getState() });
+};
 export const updateLastActiveTime = () => ({ type: types.UPDATE_LAST_ACTIVE_TIME });
 export const closeMessageBar = () => ({ type: types.CLOSE_MESSAGE_BAR });
 

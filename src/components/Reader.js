@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
-import { syncState, selectChannel, setDefaultState, setupBackgroundConnection } from "../actions/index"
+import { syncState, setDefaultState, setupBackgroundConnection, setCurrentFeeds } from "../actions/index"
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
 import ReaderHeader from './header/ReaderHeader';
@@ -24,9 +24,9 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         syncState: () => dispatch(syncState()),
-        selectChannel: id => dispatch(selectChannel(id)),
         setDefaultState: showGoBack => dispatch(setDefaultState(showGoBack)),
         setupBackgroundConnection: () => dispatch(setupBackgroundConnection()),
+        setCurrentFeeds: () => dispatch(setCurrentFeeds()),
     };
 };
 
@@ -65,7 +65,7 @@ class Reader extends Component {
         this.props.setupBackgroundConnection();
         this.props.syncState().then(state => {
             this.props.setDefaultState();
-            return state;
+            return this.props.setCurrentFeeds();
         });
     }
 

@@ -27,7 +27,7 @@ import Typography from '@material-ui/core/Typography';
 import Portal from '@material-ui/core/Portal';
 
 import { connect } from "react-redux";
-import { addChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, updateChannelFeed, setComponentState, moveChannel} from "../../actions/index"
+import { addChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds} from "../../actions/index"
 
 const componentStateName = 'channelSelector';
 
@@ -54,9 +54,9 @@ const mapDispatchToProps = dispatch => {
         deleteChannel: id => dispatch(deleteChannel(id)),
         selectChannel: id => dispatch(selectChannel(id)),
         closeActionMenu: () => dispatch(closeActionMenu()),
-        updateChannelFeed: id => dispatch(updateChannelFeed(id)),
         setComponentState: state => dispatch(setComponentState(componentStateName, state)),
         moveChannel: (from, to) => dispatch(moveChannel(from, to)),
+        setCurrentFeeds: () => dispatch(setCurrentFeeds()),
     };
 };
 
@@ -122,6 +122,7 @@ class ChannelSelector extends Component {
     }
     changeChannel = channelId => {
         this.props.selectChannel(channelId);
+        this.props.setCurrentFeeds();
         this.props.closeActionMenu();
     }
     handleItemMenulick = (event, channel) => {
