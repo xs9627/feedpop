@@ -41,9 +41,9 @@ const styles = theme => ({
         '::-webkit-scrollbar': {
                 width: '0.25em',
         },
-        '::-webkit-scrollbar-track': {
-            '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.2)',
-        },
+        // '::-webkit-scrollbar-track': {
+        //     '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.2)',
+        // },
         '::-webkit-scrollbar-thumb': {
             backgroundColor: 'darkgrey',
             outline: '1px solid slategrey',

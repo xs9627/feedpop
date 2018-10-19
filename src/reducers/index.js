@@ -123,7 +123,7 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.ADD_CHANNEL: {
             action.payload.id = require('uuid/v4')();
-            const updated = { channels: [...state.channels, action.payload], isCheckingUrl: false, isUrlValid: true };
+            const updated = { channels: [...state.channels, action.payload], channelSelector: { ...state.channelSelector, isCheckingUrl: false, isUrlValid: true, editOpen: false } };
             if (updated.channels.length === 1) {
                 updated.currentChannelId = action.payload.id;
             }
@@ -163,6 +163,7 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.RECEIVE_FEED: {
             const feed = action.payload.feed;
+            feed.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
             if (state.feeds) {
                 const oldFeedObj = state.feeds.find(f => f.id === action.payload.id);
                 if (oldFeedObj) {

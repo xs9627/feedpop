@@ -14,6 +14,10 @@ let ChromeUtil = {
     set: obj => {
         return new Promise((resolve, reject) => {
             chrome.storage.local.set(obj, () => {
+                const error = chrome.runtime.lastError;  
+                if (error) {
+                    reject(error);
+                }
                 resolve(obj);
             });
         });
