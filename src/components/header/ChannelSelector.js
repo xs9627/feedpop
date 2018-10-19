@@ -16,7 +16,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import MoreVert from '@material-ui/icons/MoreVert';
+import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
 import DragHandle from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Remove';
 import Menu from '@material-ui/core/Menu';
@@ -102,8 +102,16 @@ const styles = theme => ({
         width: 20,
         height: 20,
         minHeight: 20,
-        marginRight: theme.spacing.unit * 2,
+        marginLeft: theme.spacing.unit * 2,
 
+    },
+    channelItemEditMode: {
+        paddingLeft: theme.spacing.unit * 10,
+        paddingRight: theme.spacing.unit * 2,
+    },
+    channelItemActionPanel: {
+        right: 'auto',
+        left: theme.spacing.unit,
     }
 });
 
@@ -181,20 +189,21 @@ class ChannelSelector extends Component {
                         <ChannelListItem button
                             key={channel.id}
                             index={i}
-                            disableRipple={this.props.editMode}
                             selected={!this.props.editMode && this.props.currentChannelId == channel.id}
                             onClick={() => !this.props.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel)}
                             moveItem={moveChannel}
+                            className={classNames({ [classes.channelItemEditMode]: this.props.editMode })}
                         >
-                            {this.props.editMode &&
-                                <Typography draggable-handle draggable-classname={this.props.classes.draggableHandle}>
-                                    <DragHandle fontSize="small" />
-                                </Typography>
-                            }
-                            <ListItemText primary={channel.name} />
+                            <ListItemText primary={channel.name} primaryTypographyProps={{noWrap: true}} />
+                            {this.props.editMode && <Typography>
+                                <KeyboardArrowRight fontSize="small" />
+                            </Typography>}
                             {this.props.editMode ?
                             (
-                                <ListItemSecondaryAction>
+                                <ListItemSecondaryAction className={classes.channelItemActionPanel}>
+                                    <Typography draggable-handle draggable-classname={this.props.classes.draggableHandle}>
+                                        <DragHandle fontSize="small" />
+                                    </Typography>
                                     <Button variant="fab" mini color="secondary" aria-label="Add" className={classes.removeButton} onClick={() => this.handleRemoveClick(channel.id)}>
                                         <RemoveIcon fontSize="small" />
                                     </Button>
