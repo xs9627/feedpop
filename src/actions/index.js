@@ -39,6 +39,7 @@ export const addChannel = url => (dispatch, getState) => {
 };
 export const setChannels = channels => ({ type: types.SET_CHANNELS, payload: channels });
 export const deleteChannel = id => ({ type: types.DELETE_CHANNELS, payload: id });
+export const moveChannel = (from, to) => ({ type: types.MOVE_CHANNEL, payload: { from, to } });
 export const receiveFeed = (feed, id) => ({ type: types.RECEIVE_FEED, payload: { feed, id } });
 export const updateChannelFeed = id => (dispatch, getState) => {
     const channel = getState().channels.find(c => c.id === id);
