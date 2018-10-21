@@ -119,6 +119,12 @@ const rootReducer = (state = initialState, action) => {
             channel.id = require('uuid/v4')();
             channel.unreadCount = feeds.items.length;
             const updated = { channels: [...state.channels, channel], allUnreadCount: state.allUnreadCount + channel.unreadCount };
+            const uuidv4 = require('uuid/v4');
+            feeds.items.forEach(item => {
+                if (!item.readerId) {
+                    item.readerId = uuidv4();
+                }
+            });
             if (updated.channels.length === 1) {
                 updated.currentChannelId = channel.id;
                 updated.currentFeeds = feeds;
