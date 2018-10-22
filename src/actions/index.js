@@ -67,7 +67,7 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
         return;
     }
     const oldFeeds = await getChannelFeeds(id);
-    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds } });
+    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
     await saveChannelFeeds(id, getState().currentFeeds);
 }
 export const setFeedReadStatus = (channelId, feedId) => ({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId } });
@@ -99,5 +99,15 @@ export const cleanCache = () => async (dispatch, getState) => {
 export const updateLastActiveTime = () => ({ type: types.UPDATE_LAST_ACTIVE_TIME });
 export const closeMessageBar = () => ({ type: types.CLOSE_MESSAGE_BAR });
 
-export const triggerAction = type => ({ type: type });
+export const triggerAction = type => async (dispatch, getState) => {
+    switch(type) {
+        case types.GO_BACK_LAST_READ: {
+            dispatch({ type });
+            await dispatch(setCurrentFeeds());
+            break;
+        }
+        default:
+            dispatch({ type: type });
+    };
+}
 export const setComponentState = (componentName, state) => ({ type: types.SET_COMPONENT_STATE, payload: { componentName, state }});
