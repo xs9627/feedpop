@@ -2,17 +2,23 @@ import * as types from "../constants/action-types";
 import ChromeUtil from "../utils/ChromeUtil";
 
 const mergeFeed = (oldFeed, newFeed) => {
-    let merged = newFeed.concat(oldFeed);
-    for(let i = 0; i < merged.length; ++i) {
-        for(let j = i+1; j < merged.length; ++j) {
-            if((merged[i].isoDate && merged[i].isoDate === merged[j].isoDate) ||
-                (merged[i].pubDate && merged[i].pubDate === merged[j].pubDate)) {
-                merged[i].readerId = merged[j].readerId;
-                merged.splice(j--, 1);
+    const uuidv4 = require('uuid/v4');
+    newFeed.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
+    const newItems = newFeed.items;
+    const mergedItems = oldFeed.items;
+    for(let i = newItems.length - 1; i >= 0; i--) {
+        for(let j = 0; j < mergedItems.length; j++) {
+            const diff = new Date(newItems[i].isoDate) - new Date(mergedItems[j].isoDate);
+            if (diff === 0) {
+                break;
+            } else if (diff > 0 || j === (mergedItems.length - 1)) {
+                newItems[i].readerId = uuidv4();
+                mergedItems.splice(j, 0, newItems[i]);
+                break;
             }
         }
     }
-    return merged;
+    newFeed.items = mergedItems;
 }
 
 const persistence = (state, updated) => {
@@ -120,6 +126,7 @@ const rootReducer = (state = initialState, action) => {
             channel.id = require('uuid/v4')();
             channel.unreadCount = feeds.items.length;
             const updated = { channels: [...state.channels, channel], allUnreadCount: (state.allUnreadCount || 0) + channel.unreadCount };
+            feeds.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
             const uuidv4 = require('uuid/v4');
             feeds.items.forEach(item => {
                 if (!item.readerId) {
@@ -172,17 +179,7 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.UPDATE_CHANNEL_FEED: {
             const { feeds, oldFeeds, channelId} = action.payload;
-            feeds.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
-            if (oldFeeds) {
-                let mergedItems = mergeFeed(oldFeeds.items, feeds.items);
-                feeds.items = mergedItems;
-            }
-            const uuidv4 = require('uuid/v4');
-            feeds.items.forEach(item => {
-                if (!item.readerId) {
-                    item.readerId = uuidv4();
-                }
-            });
+            mergeFeed(oldFeeds, feeds);
             return persistence(state, { currentFeeds: feeds, ...updateUnreadCount(state, { currentFeeds: feeds }, channelId) });
         }
         case types.SET_FEED_READ_STATUS: {
