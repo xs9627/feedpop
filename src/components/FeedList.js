@@ -86,10 +86,11 @@ class FeedList extends Component {
             return {};
         }
     }
-    initCollapseStatus = feeds => {
-        // if (feedObj && feedObj.id != this.state.feedObjId) {
-        //     this.setState({ feedObjId: feedObj.id, collapseStatus: {} });
-        // }
+    initCollapseStatus = currentChannelId => {
+        if (currentChannelId !== this.state.currentChannelId) {
+            this.feedList.scrollTop = 0;
+            this.setState({ currentChannelId, collapseStatus: {} });
+        }
     }
     handleSubheaderClick = dateStr => {
         const collapseStatus = this.state.collapseStatus;
@@ -110,16 +111,6 @@ class FeedList extends Component {
     }
     getTime = isoDate => {
         return new Date(isoDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    }
-    componentDidMount() {
-        this.currentChannelId = this.props.currentChannelId;
-        this.testFaiconsApi();
-    }
-    componentWillReceiveProps(newProps) {    
-        if (this.currentChannelId != newProps.currentChannelId) {
-            this.feedList.scrollTop = 0;
-            this.currentChannelId = newProps.currentChannelId;
-        }
     }
     testFaiconsApi = () => {
         const request = new XMLHttpRequest();
@@ -142,9 +133,9 @@ class FeedList extends Component {
         }
     }
     render() {
-        const { classes, feeds, currentChannel } = this.props;
+        const { classes, feeds, currentChannelId } = this.props;
         const arranged = this.arrangeFeeds(feeds);
-        this.initCollapseStatus(feeds);
+        this.initCollapseStatus(currentChannelId);
         return (
             <div className={classes.root} ref={node => this.feedList = node}>
                 <div className={ classes.feedInfoContainer }>
@@ -171,9 +162,9 @@ class FeedList extends Component {
                                         <ListItem 
                                             button 
                                             dense={true} 
-                                            key={`item-${feed.isoDate}`} 
+                                            key={`item-${feed.readerId}`} 
                                             onClick={() => {
-                                                this.props.setFeedReadStatus(this.props.currentChannelId, feed.readerId);
+                                                this.props.setFeedReadStatus(currentChannelId, feed.readerId);
                                                 this.props.openFeed(feed.readerId);
                                             }}
                                         >
