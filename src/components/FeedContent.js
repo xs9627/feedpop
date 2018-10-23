@@ -70,9 +70,12 @@ const styles = theme => ({
 class FeedContent extends Component {
     state = {};
     createMarkup = () => {
-        const { feed } = this.props;
-        const content = feed['content:encoded'] ? feed['content:encoded'] : feed.content; 
-        return {__html: content}; 
+        setTimeout(() => {
+            const { feed } = this.props;
+            const content = feed['content:encoded'] ? feed['content:encoded'] : feed.content;
+            this.setState({ contentHtml:  {__html: content} });
+        }, 0);
+        
     }
     handleClick = e => {
         if (this.node.contains(e.target) && e.target.href !== undefined) {
@@ -83,14 +86,17 @@ class FeedContent extends Component {
         ChromeUtil.openTab(url);
     }
     componentDidMount = () => {
-        setTimeout(() => {
-            this.setState({ contentHtml: this.createMarkup() });
-        }, 0);
-        
+        this.createMarkup();
         document.addEventListener('click', this.handleClick);
     }
     componentWillUnmount = () => {
         document.removeEventListener('click', this.handleClick);
+    }
+    componentWillReceiveProps(newProps) {    
+        if (this.feed != newProps.feed) {
+            this.createMarkup();
+            this.feed = newProps.feed;
+        }
     }
     render() {
         const { classes } = this.props;
