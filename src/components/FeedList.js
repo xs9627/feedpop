@@ -112,6 +112,9 @@ class FeedList extends Component {
                     break;
                 }
             }
+            this.state.page = Math.ceil(this.state.arrangedFeeds[dateStr].length / 20);
+        } else {
+            this.state.page -= Math.ceil(this.state.arrangedFeeds[dateStr].length / 20) - 1;
         }
         this.setState({ collapseStatus: collapseStatus });
     }
