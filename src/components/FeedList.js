@@ -38,6 +38,7 @@ const styles = theme => ({
         backgroundColor: theme.palette.background.paper,
         flex: '1 1 auto',
         overflow: 'auto',
+        wordBreak: 'break-word',
     },
     listSection: {
         backgroundColor: 'inherit',
@@ -131,6 +132,9 @@ class FeedList extends Component {
                 return <Avatar className={classes.avatar}>{ feeds.title.substr(0, 1)}</Avatar>;
             }
         }
+    }
+    componentDidMount() {
+        this.testFaiconsApi();
     }
     render() {
         const { classes, feeds, currentChannelId } = this.props;

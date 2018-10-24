@@ -48,7 +48,7 @@ const styles = theme => ({
     },
     content: {
         '& *': {
-            color: 'inherit !important'
+            color: theme.palette.type === 'dark' ? 'inherit !important' : 'auto',
         },
         background: 'inherit',
         fontFamily: 'Roboto',
@@ -56,7 +56,7 @@ const styles = theme => ({
         lineHeight: '20px',
         '& img': {
             maxWidth: '100%',
-            height: 'auto',
+            height: 'auto !important',
         },
         '& span': {
             wordBreak: 'break-word'

@@ -1,6 +1,6 @@
 {
-  "short_name": "Reader",
-  "name": "Reader React Extension",
+  "short_name": "FeedPop",
+  "name": "FeedPop: Simply RSS feed reader",
   "manifest_version": 2,
   "permissions": ["storage", "unlimitedStorage", "alarms", "<all_urls>"],
   "background": {
@@ -9,7 +9,7 @@
   },
   "browser_action": {
     "default_popup": "index.html",
-    "default_title": "React Ext"
+    "default_title": "FeedPop"
   },
   "icons": { 
     "16": "icon16.png",
