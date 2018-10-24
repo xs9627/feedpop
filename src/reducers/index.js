@@ -145,6 +145,9 @@ const rootReducer = (state = initialState, action) => {
         case types.ADD_CHANNEL_ERROR: {
             return persistence(state, { channelSelector: { ...state.channelSelector, isCheckingUrl: false, isUrlValid: false, urlErrorMessage: action.payload } });
         }
+        case types.SET_CURRENT_FEEDS_BEGIN: {
+            return { ...state, currentFeeds: null };
+        }
         case types.SET_CURRENT_FEEDS: {
             return { ...state, currentFeeds: action.payload };
         }
