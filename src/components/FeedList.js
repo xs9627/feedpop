@@ -73,30 +73,45 @@ class FeedList extends Component {
     state = {
         faviconsReachable: false,
         collapseStatus: {},
+        page: 1,
     }
     faviconsApi = 'https://www.google.com/s2/favicons?domain=';
     arrangeFeeds = feeds => {
         if (feeds) {
-            return feeds.items.reduce((r, a) => {
-                let dateStr = new Date(a.isoDate).toLocaleDateString();
-                r[dateStr] = r[dateStr] || [];
+            return feeds.items
+            .filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate)])
+            .slice(0, this.state.page * 20)
+            .reduce((r, a) => {
+                let dateStr = this.getDateStr(a.isoDate);
                 r[dateStr].push(a);
                 return r;
-            }, Object.create(null));
+            }, feeds.items.reduce((r, a) => (r[this.getDateStr(a.isoDate)] ? r : {...r, [this.getDateStr(a.isoDate)]: []}), {}));
+            // const keys = Object.keys(arranged);
+            // if (keys.some(k => arranged[k].length > 0)) {
+            //     for(let i = keys.length - 1; i >=0; i--) {
+            //         if (arranged[keys[i]].length === 0 && !this.state.collapseStatus[keys[i]]) {
+            //             delete arranged[keys[i]];
+            //         } else {
+            //             break;
+            //         }
+            //     }
+            // }
+            // return arranged;
         } else {
             return {};
         }
     }
+    getDateStr = date => (new Date(date).toLocaleDateString())
     initCollapseStatus = currentChannelId => {
         if (currentChannelId !== this.state.currentChannelId) {
             this.feedList.scrollTop = 0;
-            this.setState({ currentChannelId, collapseStatus: {} });
+            this.setState({ currentChannelId, collapseStatus: {}, page: 1 });
         }
     }
     handleSubheaderClick = dateStr => {
         const collapseStatus = this.state.collapseStatus;
         collapseStatus[dateStr] = !collapseStatus[dateStr];
-        this.setState({ collapseStatus: collapseStatus });
+        this.setState({ collapseStatus: collapseStatus, page: 1 });
     }
     isUnRead = readerId => {
         if (this.props.feedReadStatus) {
@@ -135,11 +150,25 @@ class FeedList extends Component {
     }
     componentDidMount() {
         this.testFaiconsApi();
+        this.feedList.addEventListener('scroll', this.trackScrolling);
     }
+    isBottom(e) {
+        return e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+    }
+    componentWillUnmount() {
+        this.feedList.removeEventListener('scroll', this.trackScrolling);
+    }
+    trackScrolling = (e) => {
+        const wrappedElement = document.getElementById('header');
+        if (this.isBottom(e)) {
+            console.log('header bottom reached');
+            this.setState(state => ({ page: state.page + 1 }));
+        }
+    };
     render() {
         const { classes, feeds, currentChannelId } = this.props;
-        const arranged = this.arrangeFeeds(feeds);
         this.initCollapseStatus(currentChannelId);
+        const arranged = this.arrangeFeeds(feeds);
         return (
             <div className={classes.root} ref={node => this.feedList = node}>
                 <div className={ classes.feedInfoContainer }>
@@ -155,27 +184,25 @@ class FeedList extends Component {
                             <ul className={classes.ul}>
                                 <ListItem>
                                     <ListItemText primary={dateStr}></ListItemText>
-                                        <ListItemSecondaryAction>
-                                            <IconButton onClick={() => this.handleSubheaderClick(dateStr)}>
-                                                {this.state.collapseStatus[dateStr] ? <ExpandLess /> : <ExpandMore />}
-                                            </IconButton>
-                                        </ListItemSecondaryAction>
+                                    <ListItemSecondaryAction>
+                                        <IconButton onClick={() => this.handleSubheaderClick(dateStr)}>
+                                            {this.state.collapseStatus[dateStr] ? <ExpandLess /> : <ExpandMore />}
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                                {arranged[dateStr].map(feed => (
+                                    <ListItem 
+                                        button  
+                                        dense={true} 
+                                        key={`item-${feed.readerId}`} 
+                                        onClick={() => {
+                                            this.props.setFeedReadStatus(currentChannelId, feed.readerId);
+                                            this.props.openFeed(feed.readerId);
+                                        }}
+                                    >
+                                        <ListItemText classes={{ primary: classNames({[classes.unRead]: this.isUnRead(feed.readerId)}) }} primary={feed.title} secondary={this.getTime(feed.isoDate)} />
                                     </ListItem>
-                                <Collapse in={!this.state.collapseStatus[dateStr]} timeout="auto" unmountOnExit>
-                                    {arranged[dateStr].map(feed => (
-                                        <ListItem 
-                                            button 
-                                            dense={true} 
-                                            key={`item-${feed.readerId}`} 
-                                            onClick={() => {
-                                                this.props.setFeedReadStatus(currentChannelId, feed.readerId);
-                                                this.props.openFeed(feed.readerId);
-                                            }}
-                                        >
-                                            <ListItemText classes={{ primary: classNames({[classes.unRead]: this.isUnRead(feed.readerId)}) }} primary={feed.title} secondary={this.getTime(feed.isoDate)} />
-                                        </ListItem>
-                                    ))}
-                                </Collapse>
+                                ))}
                                 <Divider light />
                             </ul>
                         </li>
