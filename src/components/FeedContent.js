@@ -75,7 +75,7 @@ class FeedContent extends Component {
         setTimeout(() => {
             const { feed } = this.props;
             const content = feed['content:encoded'] ? feed['content:encoded'] : feed.content;
-            this.setState({ feed, contentHtml:  {__html: content} }, () => this.contentContainer.scrollTop = this.props.feedContentTop);
+            this.setState({ feed, contentHtml:  {__html: content} });
         }, 0);
         
     }
@@ -95,6 +95,9 @@ class FeedContent extends Component {
         this.createMarkup();
         document.addEventListener('click', this.handleClick);
         this.contentContainer.addEventListener('scroll', this.trackScrolling);
+    }
+    componentDidUpdate = () => {
+        this.contentContainer.scrollTop = this.props.feedContentTop;
     }
     componentWillUnmount = () => {
         document.removeEventListener('click', this.handleClick);
