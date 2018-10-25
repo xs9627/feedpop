@@ -70,12 +70,12 @@ const styles = theme => ({
 });
 
 class FeedContent extends Component {
-    state = {};
+    state = { feed: {} };
     createMarkup = () => {
         setTimeout(() => {
             const { feed } = this.props;
             const content = feed['content:encoded'] ? feed['content:encoded'] : feed.content;
-            this.setState({ contentHtml:  {__html: content} }, () => this.contentContainer.scrollTop = this.props.feedContentTop);
+            this.setState({ feed, contentHtml:  {__html: content} }, () => this.contentContainer.scrollTop = this.props.feedContentTop);
         }, 0);
         
     }
@@ -98,15 +98,17 @@ class FeedContent extends Component {
     }
     componentWillUnmount = () => {
         document.removeEventListener('click', this.handleClick);
+        this.contentContainer.removeEventListener('scroll', this.trackScrolling);
     }
     componentWillReceiveProps(newProps) {    
-        if (this.feed != newProps.feed) {
+        if (newProps.feed.readerId && this.readerId != newProps.feed.readerId) {
             this.createMarkup();
-            this.feed = newProps.feed;
+            this.readerId = newProps.feed.readerId;
         }
     }
     render() {
         const { classes } = this.props;
+        const { feed } = this.state;
         return (
             <div className={classes.root} ref={node => this.node = node}>
                 <Paper className={classes.actionContainer}>
@@ -132,18 +134,18 @@ class FeedContent extends Component {
                     <Grid container wrap="nowrap" direction="column">
                         <Grid item xs={12}>
                             <Typography variant="h6">
-                                {this.props.feed.title}
+                                {feed.title}
                             </Typography>
                         </Grid>
                         <Grid item container>
                             <Grid item xs>
                                 <Typography variant="subtitle2">
-                                    {this.props.feed.isoDate ? (new Date(this.props.feed.isoDate)).toLocaleString() : null}
+                                    {feed.isoDate ? (new Date(feed.isoDate)).toLocaleString() : null}
                                 </Typography>
                             </Grid>
                             <Grid item>
                                 <Typography variant="subtitle2">
-                                    {this.props.feed.creator}
+                                    {feed.creator}
                                 </Typography>
                             </Grid>
                         </Grid>
