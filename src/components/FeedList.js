@@ -164,7 +164,6 @@ class FeedList extends Component {
         this.feedList.removeEventListener('scroll', this.trackScrolling);
     }
     trackScrolling = (e) => {
-        const wrappedElement = document.getElementById('header');
         if (this.isBottom(e) && this.props.feeds) {
             this.setState(state => ({ page: state.page + 1 }));
         }

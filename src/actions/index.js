@@ -73,6 +73,7 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
 export const setFeedReadStatus = (channelId, feedId) => ({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId } });
 export const openFeed = feedItemId => ({ type: types.OPEN_FEED, payload: feedItemId });
 export const closeFeed = () => ({ type: types.CLOSE_FEED });
+export const scrollFeedContent = top => ({ type: types.SCROLL_FEED_CONTENT, payload: top });
 
 export const openActionMenu = actionName => ({ type: types.OPEN_ACTION_MENU, payload: actionName });
 export const closeActionMenu = () => ({ type: types.CLOSE_ACTION_MENU });

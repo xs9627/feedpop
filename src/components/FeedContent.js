@@ -2,7 +2,7 @@ import React, { Component }  from 'react'
 import { connect } from "react-redux";
 import { withStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
-import { closeFeed } from '../actions/index'
+import { closeFeed, scrollFeedContent } from '../actions/index'
 
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
@@ -17,11 +17,13 @@ import Paper from '@material-ui/core/Paper';
 const mapStateToProps = state => {
     return {
         feed: (state.currentFeeds && state.currentFeeds.items.find(i => i.readerId === state.currentFeedItemId)) || {},
+        feedContentTop: state.feedContentTop,
     };
 };
   
 const mapDispatchToProps = dispatch => {
     return {
+        scrollFeedContent: top => dispatch(scrollFeedContent(top)),
         closeFeed: () => dispatch(closeFeed()),
     };
 };
@@ -73,7 +75,7 @@ class FeedContent extends Component {
         setTimeout(() => {
             const { feed } = this.props;
             const content = feed['content:encoded'] ? feed['content:encoded'] : feed.content;
-            this.setState({ contentHtml:  {__html: content} });
+            this.setState({ contentHtml:  {__html: content} }, () => this.contentContainer.scrollTop = this.props.feedContentTop);
         }, 0);
         
     }
@@ -85,9 +87,14 @@ class FeedContent extends Component {
     openFeed = url => {
         ChromeUtil.openTab(url);
     }
+    trackScrolling = (e) => {
+        console.log(e.target.scrollTop);
+        this.props.scrollFeedContent(e.target.scrollTop);
+    }
     componentDidMount = () => {
         this.createMarkup();
         document.addEventListener('click', this.handleClick);
+        this.contentContainer.addEventListener('scroll', this.trackScrolling);
     }
     componentWillUnmount = () => {
         document.removeEventListener('click', this.handleClick);
@@ -121,7 +128,7 @@ class FeedContent extends Component {
                         </Grid>
                     </Grid>
                 </Paper>
-                <div className={ classes.contentContainer }>
+                <div className={ classes.contentContainer } ref={node => this.contentContainer = node}>
                     <Grid container wrap="nowrap" direction="column">
                         <Grid item xs={12}>
                             <Typography variant="h6">

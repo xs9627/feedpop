@@ -42,6 +42,7 @@ const initialState = {
 
 const defaultState = {
     showContent: false,
+    feedContentTop: 0,
     isShowActionMenu: false,
     currentFeedItemId: null,
     channelSelectorEditMode: false,
@@ -85,10 +86,10 @@ const rootReducer = (state = initialState, action) => {
             const { lastActiveTime } = state;
             const lastActiveSpan = new Date() - new Date(lastActiveTime);
             if (lastActiveSpan > .1 * 60 * 1000) {
-                const { currentChannelId, currentFeedItemId, showContent } = state;
+                const { currentChannelId, currentFeedItemId, showContent, feedContentTop } = state;
                 const showGoBack = showContent && lastActiveSpan <= .5 * 60 * 1000;
                 const updated = { ...defaultState,
-                    lastActiveState: { currentChannelId, currentFeedItemId, showContent },
+                    lastActiveState: { currentChannelId, currentFeedItemId, showContent, feedContentTop },
                     readerMessageBar: showGoBack ? {
                         open: true,
                         mainActionName: 'GO',
@@ -194,7 +195,10 @@ const rootReducer = (state = initialState, action) => {
         case types.OPEN_FEED:
             return persistence(state, { currentFeedItemId: action.payload, showContent: true });
         case types.CLOSE_FEED:
-            return persistence(state, { showContent: false });
+            return persistence(state, { showContent: false, feedContentTop: 0 });
+        case types.SCROLL_FEED_CONTENT: {
+            return persistence(state, { feedContentTop: action.payload });
+        }
         case types.OPEN_ACTION_MENU: {
             const updated = { isShowActionMenu: true, actionName: action.payload };
             return persistence(state, updated);
