@@ -75,7 +75,18 @@ class FeedContent extends Component {
         setTimeout(() => {
             const { feed } = this.props;
             const content = feed['content:encoded'] ? feed['content:encoded'] : feed.content;
-            this.setState({ feed, contentHtml:  {__html: content} });
+            this.setState({ feed, contentHtml:  {__html: content} }, () => {
+                const imgList = this.contentContainer.getElementsByTagName('img');
+                let count = imgList.length;
+                for (let img of imgList) {
+                    img.onload= () => {
+                        count--;
+                        if (count === 0) {
+                            this.contentContainer.scrollTop = this.props.feedContentTop;
+                        }
+                    }
+                }
+            });
         }, 0);
         
     }
@@ -95,9 +106,6 @@ class FeedContent extends Component {
         this.createMarkup();
         document.addEventListener('click', this.handleClick);
         this.contentContainer.addEventListener('scroll', this.trackScrolling);
-    }
-    componentDidUpdate = () => {
-        this.contentContainer.scrollTop = this.props.feedContentTop;
     }
     componentWillUnmount = () => {
         document.removeEventListener('click', this.handleClick);
