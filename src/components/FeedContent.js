@@ -76,14 +76,20 @@ class FeedContent extends Component {
             const { feed } = this.props;
             const content = feed['content:encoded'] ? feed['content:encoded'] : feed.content;
             this.setState({ feed, contentHtml:  {__html: content} }, () => {
-                const imgList = this.contentContainer.getElementsByTagName('img');
-                let count = imgList.length;
-                for (let img of imgList) {
-                    img.onload= () => {
-                        count--;
-                        if (count === 0) {
-                            this.contentContainer.scrollTop = this.props.feedContentTop;
+                if (this.props.feedContentTop > 0) {
+                    const imgList = this.contentContainer.getElementsByTagName('img');
+                    if (imgList.length > 0) {
+                        let count = imgList.length;
+                        for (let img of imgList) {
+                            img.onload= () => {
+                                count--;
+                                if (count === 0) {
+                                    this.contentContainer.scrollTop = this.props.feedContentTop;
+                                }
+                            }
                         }
+                    } else {
+                        this.contentContainer.scrollTop = this.props.feedContentTop;
                     }
                 }
             });
