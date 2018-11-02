@@ -163,6 +163,14 @@ class FeedList extends Component {
     componentWillUnmount() {
         this.feedList.removeEventListener('scroll', this.trackScrolling);
     }
+    componentWillReceiveProps(newProps) {
+        if (this.props.feeds && newProps.feeds && newProps.feeds.items.length !== this.props.feeds.items.length) {
+            this.state.arrangedFeeds = Object.keys(this.state.arrangedFeeds).reduce((r, a) => {
+                r[a] = [];
+                return r;
+            }, {});
+        }
+    }
     trackScrolling = (e) => {
         if (this.isBottom(e) && this.props.feeds) {
             this.setState(state => ({ page: state.page + 1 }));

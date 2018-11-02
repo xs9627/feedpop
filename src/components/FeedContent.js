@@ -94,7 +94,6 @@ class FeedContent extends Component {
                 }
             });
         }, 0);
-        
     }
     handleClick = e => {
         if (this.node.contains(e.target) && e.target.href !== undefined) {
@@ -105,8 +104,12 @@ class FeedContent extends Component {
         ChromeUtil.openTab(url);
     }
     trackScrolling = (e) => {
-        console.log(e.target.scrollTop);
-        this.props.scrollFeedContent(e.target.scrollTop);
+        const top  = e.target.scrollTop;
+        setTimeout(() => {
+            if (this.contentContainer.scrollTop === top) {
+                this.props.scrollFeedContent(top);
+            }
+        }, 500);
     }
     componentDidMount = () => {
         this.createMarkup();
@@ -117,7 +120,7 @@ class FeedContent extends Component {
         document.removeEventListener('click', this.handleClick);
         this.contentContainer.removeEventListener('scroll', this.trackScrolling);
     }
-    componentWillReceiveProps(newProps) {    
+    componentWillReceiveProps(newProps) {
         if (newProps.feed.readerId && this.readerId != newProps.feed.readerId) {
             this.createMarkup();
             this.readerId = newProps.feed.readerId;
