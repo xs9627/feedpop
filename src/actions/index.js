@@ -48,6 +48,22 @@ export const addChannel = url => async (dispatch, getState) => {
         dispatch({ type: types.ADD_CHANNEL_ERROR, payload: reason });
     }
 };
+export const editChannel = channel => async (dispatch, getState) => {
+    dispatch({ type: types.ADD_CHANNEL_BEGIN });
+    let feeds;
+    try {
+        feeds = await fetchFeed(channel.url);
+    }
+    catch (reason) {
+        dispatch({ type: types.ADD_CHANNEL_ERROR, payload: reason });
+        return;
+    }
+    const oldFeeds = await getChannelFeeds(channel.id);
+    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: channel.id } });
+    dispatch({ type: types.EDIT_CHANNEL, payload: channel });
+    await saveChannelFeeds(channel.id, getState().currentFeeds);
+    dispatch({ type: types.ADD_CHANNEL_END });
+}
 export const setCurrentFeeds = () => async (dispatch, getState) => {
     dispatch({ type: types.SET_CURRENT_FEEDS_BEGIN });
     const feeds = await getChannelFeeds(getState().currentChannelId);

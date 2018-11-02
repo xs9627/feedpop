@@ -27,7 +27,7 @@ import Typography from '@material-ui/core/Typography';
 import Portal from '@material-ui/core/Portal';
 
 import { connect } from "react-redux";
-import { addChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds} from "../../actions/index"
+import { addChannel, editChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds} from "../../actions/index"
 
 const componentStateName = 'channelSelector';
 
@@ -38,7 +38,8 @@ const mapStateToProps = state => {
         currentChannelId: state.currentChannelId,
         isCheckingUrl: state.getComponentState(componentStateName, 'isCheckingUrl'),
         editOpen: state.getComponentState(componentStateName, 'editOpen'),
-        isAdd: state.getComponentState(componentStateName, 'isAdd'), 
+        isAdd: state.getComponentState(componentStateName, 'isAdd'),
+        editChannelId: state.getComponentState(componentStateName, 'editChannelId'),
         editName: state.getComponentState(componentStateName, 'editName'),
         editUrl: state.getComponentState(componentStateName, 'editUrl'),
         currentEditChannel: state.getComponentState(componentStateName, 'currentEditChannel'),
@@ -49,7 +50,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        addChannel: channel => dispatch(addChannel(channel)),
+        addChannel: url => dispatch(addChannel(url)),
+        editChannel: channel => dispatch(editChannel(channel)),
         toggleEditMode: () => dispatch(toggleChannelSelectorEditMode()),
         deleteChannel: id => dispatch(deleteChannel(id)),
         selectChannel: id => dispatch(selectChannel(id)),
@@ -146,7 +148,8 @@ class ChannelSelector extends Component {
     handleEditClick = channel => {
         this.props.setComponentState(state => ({ 
             editOpen: true, 
-            isAdd: false, 
+            isAdd: false,
+            editChannelId: channel.id,
             editName: channel.name,
             editUrl: channel.url,
         }));
@@ -171,6 +174,12 @@ class ChannelSelector extends Component {
     handleEditConfirmClose = () => {
         if (this.props.isAdd) {
             this.props.addChannel(this.props.editUrl);
+        } else {
+            this.props.editChannel({
+                id: this.props.editChannelId, 
+                name: this.props.editName,
+                url: this.props.editUrl
+            });
         }
     }
     render () {
@@ -235,6 +244,7 @@ class ChannelSelector extends Component {
                     <DialogTitle id="form-dialog-title">{this.props.isAdd ? 'Add' : 'Edit'}</DialogTitle>
                     <DialogContent>
                         { !isAdd && <TextField
+                        autoFocus={ !isAdd }
                         margin="dense"
                         id="chanelName"
                         label="Name"

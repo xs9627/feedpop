@@ -140,6 +140,10 @@ const rootReducer = (state = initialState, action) => {
             }
             return persistence(state, updated);
         }
+        case types.EDIT_CHANNEL: {
+            const channel = action.payload;
+            return persistence(state, { channels: state.channels.map(c => c.id === channel.id ? { ...c, ...channel } : c) });
+        }
         case types.ADD_CHANNEL_END: {
             return persistence(state, { channelSelector: { ...state.channelSelector, isCheckingUrl: false, isUrlValid: true, editOpen: false } });
         }
