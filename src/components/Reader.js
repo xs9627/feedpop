@@ -6,6 +6,7 @@ import FeedList from './FeedList';
 import FeedContent from './FeedContent';
 import ReaderHeader from './header/ReaderHeader';
 import ReaderMessageBar from './ReaderMessageBar';
+import Guide from './Guide';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { withStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
@@ -100,7 +101,7 @@ class Reader extends Component {
             })}>
                 <div className={this.props.classes.root}>
                     <ReaderHeader />
-                    <FeedList />
+                    { this.props.channels.length > 0 ? <FeedList /> : <Guide/> }                    
                     <Dialog
                         fullScreen
                         open={this.props.showContent}

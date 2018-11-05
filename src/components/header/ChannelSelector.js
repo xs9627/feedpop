@@ -94,7 +94,9 @@ const styles = theme => ({
         cursor: 'move',
         '& p': {
             display: 'inherit',
-        }
+        },
+        borderRight: `2px solid ${theme.palette.divider}`,
+        padding: theme.spacing.unit,
     },
     removeButtonContaniner: {
         right: 'auto',
@@ -104,7 +106,7 @@ const styles = theme => ({
         width: 20,
         height: 20,
         minHeight: 20,
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing.unit,
 
     },
     channelItemEditMode: {
@@ -229,7 +231,7 @@ class ChannelSelector extends Component {
                 <div className={classes.actionPanel}>
                     <div className={classes.actionRight}>
                         <IconButton className={classes.actionButton} onClick={this.handleAddClick}>
-                            <Add fontSize="small" />
+                            <Add fontSize="small" className="AddAction" />
                         </IconButton>
                         <IconButton className={classes.actionButton} onClick={this.props.toggleEditMode}>
                             <Edit fontSize="small" className={classNames({ [classes.actionButtonIconActive]: this.props.editMode })} />

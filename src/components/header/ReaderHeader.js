@@ -118,7 +118,7 @@ class ReaderHeader extends Component {
         return (
             <Paper className={classes.readerHeader}>
                 <BottomNavigation value={ showContent ? contentName : null } onChange={this.setHeaderContent} className={classes.actionPanel}>
-                    <BottomNavigationAction label="List" value="List" icon={
+                    <BottomNavigationAction className='ListAction' label="List" value="List" icon={
                         !(showContent && contentName === "List") && allUnreadCount > 0 ? (
                             <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : '...'} color="primary">
                                 <List />

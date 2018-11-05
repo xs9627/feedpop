@@ -3,19 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@material-ui/core": "^3.2.2",
+    "@material-ui/core": "^3.4.0",
     "@material-ui/icons": "^3.0.1",
     "classnames": "^2.2.6",
     "i": "^0.3.6",
     "npm": "^6.4.1",
-    "react": "^16.5.2",
+    "react": "^16.6.0",
     "react-dnd": "^5.0.0",
     "react-dnd-html5-backend": "^5.0.1",
-    "react-dom": "^16.5.2",
+    "react-dom": "^16.6.0",
     "react-scripts-chrome-extension": "^1.1.5",
     "react-transition-group": "^1.2.1",
+    "reactour": "^1.9.1",
     "redux-thunk": "^2.3.0",
     "rss-parser": "https://github.com/xs9627/rss-parser/tarball/master",
+    "styled-components": "^4.0.3",
     "typeface-roboto": "0.0.54",
     "uuid": "^3.3.2"
   },
@@ -27,7 +29,7 @@
     "build:chrome": "node scripts/update-chrome-extensions-prop.js"
   },
   "devDependencies": {
-    "react-redux": "^5.0.7",
+    "react-redux": "^5.1.0",
     "redux": "^4.0.1"
   }
 }

@@ -95,7 +95,9 @@ class FeedList extends Component {
     getDateStr = date => (new Date(date).toLocaleDateString())
     initCollapseStatus = currentChannelId => {
         if (currentChannelId !== this.state.currentChannelId) {
-            this.feedList.scrollTop = 0;
+            if (this.feedList) {
+                this.feedList.scrollTop = 0;
+            }
             this.setState({ currentChannelId, collapseStatus: {}, arrangedFeeds: {}, page: 1 });
         }
     }
