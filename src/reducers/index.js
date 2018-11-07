@@ -233,6 +233,7 @@ const rootReducer = (state = initialState, action) => {
             return state;
         }
         case types.CLEAN_CACHE: {
+            ChromeUtil.setUnreadCount(0);
             return {...state,
                 logs: [],
                 showContent: false,

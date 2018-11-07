@@ -93,6 +93,8 @@ class FeedList extends Component {
                 }
                 return r;
             }, this.state.arrangedFeeds);
+        } else {
+            this.state.arrangedFeeds = [];
         }
     }
     getDateStr = date => (new Date(date).toLocaleDateString())
@@ -191,7 +193,7 @@ class FeedList extends Component {
                 <div className={ classes.feedInfoContainer }>
                     { this.renderChannelIcon() }
                     <Typography variant="body2" className={ classes.feedTitle }>
-                        { feeds ? feeds.title : null }
+                        { feeds ? feeds.title : 'No feed loaded' }
                     </Typography>
                 </div>
                 <Divider />
