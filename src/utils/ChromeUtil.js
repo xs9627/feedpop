@@ -42,6 +42,9 @@ let ChromeUtil = {
         port.onMessage.addListener(msg => {
             receiveMessage(msg);
         });
+    },
+    setUnreadCount: count => {
+        chrome.browserAction.setBadgeText({text: count > 0 ? `${count}` : ''});
     }
 };
 

@@ -18,6 +18,8 @@ chrome.runtime.onInstalled.addListener(() => {
         delayInMinutes: 1,
         periodInMinutes: 10,
     });
+
+    chrome.browserAction.setBadgeBackgroundColor({ color: '#424242' });
 });
 
 chrome.alarms.onAlarm.addListener(alarm => {

@@ -33,6 +33,7 @@ const persistence = (state, updated) => {
     const newState = { ...state,  ...updated };
     const { getComponentState, currentFeeds, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
+    ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
 }
 
