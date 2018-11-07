@@ -16,6 +16,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { connect } from "react-redux";
 import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed } from "../../actions/index";
@@ -120,7 +121,11 @@ class ReaderHeader extends Component {
                 <BottomNavigation value={ showContent ? contentName : null } onChange={this.setHeaderContent} className={classes.actionPanel}>
                     <BottomNavigationAction label="List" value="List" icon={
                         !(showContent && contentName === "List") && allUnreadCount > 0 ? (
-                            <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : '...'} color="primary">
+                            <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : (
+                                <Tooltip title={allUnreadCount}>
+                                    <span>...</span>
+                                </Tooltip>
+                            )} color="primary">
                                 <List className='ListAction' />
                             </Badge>
                         ) : <List className='ListAction' />

@@ -25,6 +25,7 @@ import Badge from '@material-ui/core/Badge';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 import Portal from '@material-ui/core/Portal';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { connect } from "react-redux";
 import { addChannel, editChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds} from "../../actions/index"
@@ -214,7 +215,11 @@ class ChannelSelector extends Component {
                                     </Button>
                                 </ListItemSecondaryAction>
                             ) : (
-                                channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : '...'} color="primary" /> : null
+                                channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
+                                    <Tooltip title={channel.unreadCount}>
+                                        <span>...</span>
+                                    </Tooltip>
+                                )} color="primary" /> : null
                             )}
                         </ChannelListItem>
                     ))}
