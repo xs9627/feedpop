@@ -131,7 +131,7 @@ class FeedContent extends Component {
         const { feed } = this.state;
         return (
             <div className={classes.root} ref={node => this.node = node}>
-                <Paper className={classes.actionContainer}>
+                <Paper square={true} className={classes.actionContainer}>
                     <Grid container wrap="nowrap">
                         <Grid item xs zeroMinWidth>
                             <IconButton key="close" className={classes.icon} onClick={this.props.closeFeed}>

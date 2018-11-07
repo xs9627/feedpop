@@ -67,6 +67,9 @@ const styles = theme => ({
         fontSize: 12,
         marginRight: theme.spacing.unit,
     },
+    collapseIcon: {
+        padding: theme.spacing.unit,
+    }
 });
 
 class FeedList extends Component {
@@ -199,7 +202,7 @@ class FeedList extends Component {
                                 <ListItem>
                                     <ListItemText primary={dateStr}></ListItemText>
                                     <ListItemSecondaryAction>
-                                        <IconButton onClick={() => this.handleSubheaderClick(dateStr)}>
+                                        <IconButton className={classes.collapseIcon} onClick={() => this.handleSubheaderClick(dateStr)}>
                                             {this.state.collapseStatus[dateStr] ? <ExpandLess /> : <ExpandMore />}
                                         </IconButton>
                                     </ListItemSecondaryAction>

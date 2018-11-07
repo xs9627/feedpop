@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, withTheme } from '@material-ui/core/styles';
 import { connect } from "react-redux";
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import AddIcon from '@material-ui/icons/Add';
 import Tour from 'reactour';
 
 const mapStateToProps = state => {
@@ -21,18 +22,32 @@ const styles = theme => ({
         justifyContent: 'center',
         height: '100%',
     },
+    button: {
+        marginLeft: theme.spacing.unit * 2,
+    },
+    extendedIcon: {
+        marginLeft: theme.spacing.unit,
+    },
 });
 
-const steps = [
+const steps = theme => ([
     {
-      selector: '.ListAction',
-      content: 'This is my first Step',
+        selector: '.ListAction',
+        content: <Typography>First open the feed list</Typography>,
+        style: {
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.primary.main
+        }
     },
     {
         selector: '.AddAction',
-        content: 'This is my secound Step',
+        content: <Typography>And, add a feed</Typography>,
+        style: {
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.primary.main
+        }
     },
-]
+])
 
 class Guide extends Component {
     state = {
@@ -54,13 +69,18 @@ class Guide extends Component {
         } 
     }
     render() {
+        const { classes, theme } = this.props;
         return (
-            <div className={this.props.classes.root}>
-                <Typography variant="button">
-                    No feed here, start to <Button onClick={this.startTour}>add one</Button>.
+            <div className={classes.root}>
+                <Typography variant="body1">
+                    No feed here, start to 
                 </Typography>
+                <Button variant="contained" size="small" color="primary" className={classes.button} onClick={this.startTour}>
+                    add one
+                    <AddIcon className={classes.extendedIcon} />
+                </Button>
                 <Tour
-                    steps={steps}
+                    steps={steps(theme)}
                     isOpen={this.state.isTourOpen}
                     onRequestClose={this.closeTour}
                     goToStep={this.state.goToStep} 
@@ -68,6 +88,7 @@ class Guide extends Component {
                     showNavigation={false}
                     showNumber={false}
                     startAt={0}
+                    rounded={4}
                 />
                     
             </div>
@@ -75,4 +96,4 @@ class Guide extends Component {
     }
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(Guide));
+export default connect(mapStateToProps)(withStyles(styles)(withTheme()(Guide)));

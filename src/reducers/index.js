@@ -4,21 +4,29 @@ import ChromeUtil from "../utils/ChromeUtil";
 const mergeFeed = (oldFeed, newFeed) => {
     const uuidv4 = require('uuid/v4');
     newFeed.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
-    const newItems = newFeed.items;
-    const mergedItems = oldFeed.items;
-    for(let i = newItems.length - 1; i >= 0; i--) {
-        for(let j = 0; j < mergedItems.length; j++) {
-            const diff = new Date(newItems[i].isoDate) - new Date(mergedItems[j].isoDate);
-            if (diff === 0) {
-                break;
-            } else if (diff > 0 || j === (mergedItems.length - 1)) {
-                newItems[i].readerId = uuidv4();
-                mergedItems.splice(j, 0, newItems[i]);
-                break;
+    if (oldFeed) {
+        const newItems = newFeed.items;
+        const mergedItems = oldFeed.items;
+        for(let i = newItems.length - 1; i >= 0; i--) {
+            for(let j = 0; j < mergedItems.length; j++) {
+                const diff = new Date(newItems[i].isoDate) - new Date(mergedItems[j].isoDate);
+                if (diff === 0) {
+                    break;
+                } else if (diff > 0 || j === (mergedItems.length - 1)) {
+                    newItems[i].readerId = uuidv4();
+                    mergedItems.splice(j, 0, newItems[i]);
+                    break;
+                }
             }
         }
+        newFeed.items = mergedItems;
+    } else {
+        newFeed.items.forEach(item => {
+            if (!item.readerId) {
+                item.readerId = uuidv4();
+            }
+        });
     }
-    newFeed.items = mergedItems;
 }
 
 const persistence = (state, updated) => {

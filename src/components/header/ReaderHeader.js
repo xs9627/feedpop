@@ -116,14 +116,14 @@ class ReaderHeader extends Component {
     render () {
         const { classes, allUnreadCount, showContent, contentName } = this.props;
         return (
-            <Paper className={classes.readerHeader}>
+            <Paper square={true} className={classes.readerHeader}>
                 <BottomNavigation value={ showContent ? contentName : null } onChange={this.setHeaderContent} className={classes.actionPanel}>
-                    <BottomNavigationAction className='ListAction' label="List" value="List" icon={
+                    <BottomNavigationAction label="List" value="List" icon={
                         !(showContent && contentName === "List") && allUnreadCount > 0 ? (
                             <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : '...'} color="primary">
-                                <List />
+                                <List className='ListAction' />
                             </Badge>
-                        ) : <List />
+                        ) : <List className='ListAction' />
                     } />
                     <BottomNavigationAction label="Update" value="Update" icon={<Sync />} />
                     {/* <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} /> */}
