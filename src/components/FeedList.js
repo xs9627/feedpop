@@ -69,6 +69,11 @@ const styles = theme => ({
     },
     collapseIcon: {
         padding: theme.spacing.unit,
+    },
+    emptyMsg: {
+        textAlign: 'center',
+        margin: theme.spacing.unit * 2,
+        opacity: .5,
     }
 });
 
@@ -97,7 +102,10 @@ class FeedList extends Component {
             this.state.arrangedFeeds = [];
         }
     }
-    getDateStr = date => (new Date(date).toLocaleDateString())
+    getDateStr = date => {
+        const result = new Date(date).toLocaleDateString();
+        return result !== 'Invalid Date' ? result : 'All';
+    }
     initCollapseStatus = currentChannelId => {
         if (currentChannelId !== this.state.currentChannelId) {
             if (this.feedList) {
@@ -138,7 +146,8 @@ class FeedList extends Component {
         }
     }
     getTime = isoDate => {
-        return new Date(isoDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const result = new Date(isoDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        return result != 'Invalid Date' ? result : null;
     }
     testFaiconsApi = () => {
         const request = new XMLHttpRequest();
@@ -184,7 +193,7 @@ class FeedList extends Component {
         }
     };
     render() {
-        const { classes, feeds, currentChannelId } = this.props;
+        const { classes, feeds, currentChannelId, currentChannel } = this.props;
         this.initCollapseStatus(currentChannelId);
         this.arrangeFeeds(feeds);
         const arranged = this.state.arrangedFeeds;
@@ -193,10 +202,13 @@ class FeedList extends Component {
                 <div className={ classes.feedInfoContainer }>
                     { this.renderChannelIcon() }
                     <Typography variant="body2" className={ classes.feedTitle }>
-                        { feeds ? feeds.title : 'No feed loaded' }
+                        { currentChannel.name }
                     </Typography>
                 </div>
                 <Divider />
+                { !feeds && <div class={classes.emptyMsg}>
+                    <Typography variant="caption">No feed loaded</Typography> 
+                </div>}
                 <List subheader={<li />}>
                     {Object.keys(arranged).map(dateStr => (
                         <li key={`dateStr-${dateStr}`} className={classes.listSection}>

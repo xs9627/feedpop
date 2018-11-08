@@ -144,9 +144,9 @@ class FeedContent extends Component {
                                     <OpenIcon />
                                 </IconButton>
                             </Tooltip>
-                            <IconButton key="more" className={classes.icon} onClick={this.props.closeFeed}>
+                            {/* <IconButton key="more" className={classes.icon} onClick={this.props.closeFeed}>
                                 <MoreIcon />
-                            </IconButton>
+                            </IconButton> */}
                         </Grid>
                     </Grid>
                 </Paper>
