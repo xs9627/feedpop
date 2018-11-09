@@ -8,14 +8,20 @@ const mergeFeed = (oldFeed, newFeed) => {
         const newItems = newFeed.items;
         const mergedItems = oldFeed.items;
         for(let i = newItems.length - 1; i >= 0; i--) {
-            for(let j = 0; j < mergedItems.length; j++) {
-                const diff = new Date(newItems[i].isoDate) - new Date(mergedItems[j].isoDate);
-                if (diff === 0) {
-                    break;
-                } else if (diff > 0 || j === (mergedItems.length - 1)) {
-                    newItems[i].readerId = uuidv4();
-                    mergedItems.splice(j, 0, newItems[i]);
-                    break;
+            if (newItems[i].isoDate) {
+                for(let j = 0; j < mergedItems.length; j++) {
+                    const diff = new Date(newItems[i].isoDate) - new Date(mergedItems[j].isoDate);
+                    if (diff === 0) {
+                        break;
+                    } else if (diff > 0 || j === (mergedItems.length - 1)) {
+                        newItems[i].readerId = uuidv4();
+                        mergedItems.splice(j, 0, newItems[i]);
+                        break;
+                    }
+                }
+            } else {
+                if (!mergedItems.some(o => o.title === newItems[i].title)) {
+                    mergedItems.splice(0, 0, newItems[i]);
                 }
             }
         }

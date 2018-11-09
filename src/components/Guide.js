@@ -73,7 +73,7 @@ class Guide extends Component {
         return (
             <div className={classes.root}>
                 <Typography variant="body1">
-                    No feed here, start to 
+                    No feeds here, start to 
                 </Typography>
                 <Button variant="contained" size="small" color="primary" className={classes.button} onClick={this.startTour}>
                     add one

@@ -159,14 +159,14 @@ class FeedList extends Component {
         request.send();
     }
     renderChannelIcon = () => {
-        const { feeds, classes } = this.props;
-        if (feeds) {
-            if (this.state.faviconsReachable) {
-                const hostName = (new URL(feeds.link)).hostname;
-                return <Avatar src={ this.faviconsApi + hostName } className={classes.avatar} />;
-            } else {
-                return <Avatar className={classes.avatar}>{ feeds.title.substr(0, 1)}</Avatar>;
-            }
+        const { feeds, classes, currentChannel } = this.props;
+        const title = feeds ? feeds.title : currentChannel.name;
+        const url = feeds ? feeds.link : currentChannel.url;
+        if (this.state.faviconsReachable) {
+            const hostName = (new URL(url)).hostname;
+            return <Avatar src={ this.faviconsApi + hostName } className={classes.avatar} />;
+        } else {
+            return <Avatar className={classes.avatar}>{ title.substr(0, 1)}</Avatar>;
         }
     }
     componentDidMount() {
@@ -207,7 +207,7 @@ class FeedList extends Component {
                 </div>
                 <Divider />
                 { !feeds && <div class={classes.emptyMsg}>
-                    <Typography variant="caption">No feed loaded</Typography> 
+                    <Typography variant="caption">No feeds loaded</Typography> 
                 </div>}
                 <List subheader={<li />}>
                     {Object.keys(arranged).map(dateStr => (
