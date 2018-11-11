@@ -37,7 +37,7 @@ const mergeFeed = (oldFeed, newFeed) => {
 
 const persistence = (state, updated) => {
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -68,13 +68,12 @@ const defaultState = {
     }
 }
 
-const updateUnreadCount = (state, updated, channelId) => {
-    const { feedReadStatus, currentFeeds, channels } = { ...state, ...updated };
-    let count = currentFeeds.items.length;
+const updateUnreadCount = (feedReadStatus, feeds, channels, channelId) => {
+    let count = feeds.items.length;
     if (feedReadStatus) {
         const statusObj = feedReadStatus.find(t => t.channelId === channelId);
         if (statusObj) {
-            currentFeeds.items.forEach(f => {
+            feeds.items.forEach(f => {
                 if (statusObj.feedIds.some(id => id === f.readerId)) {
                     count--;
                 }
@@ -203,13 +202,13 @@ const rootReducer = (state = initialState, action) => {
         case types.UPDATE_CHANNEL_FEED: {
             const { feeds, oldFeeds, channelId} = action.payload;
             mergeFeed(oldFeeds, feeds);
-            return persistence(state, { currentFeeds: feeds, ...updateUnreadCount(state, { currentFeeds: feeds }, channelId) });
+            return persistence(state, { currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds, mergedFeed: feeds, ...updateUnreadCount(state.feedReadStatus, feeds, state.channels, channelId) });
         }
         case types.SET_FEED_READ_STATUS: {
             const feedReadStatus = state.feedReadStatus.some(s => s.channelId === action.payload.channelId) ?
                 state.feedReadStatus.map(s => s.channelId === action.payload.channelId ? { ...s, feedIds: [...s.feedIds, action.payload.feedId] } : s) :
                 [...state.feedReadStatus, { channelId: action.payload.channelId, feedIds: [action.payload.feedId]}];
-            return persistence(state, { feedReadStatus, ...updateUnreadCount(state, { feedReadStatus }, state.currentChannelId) });
+            return persistence(state, { feedReadStatus, ...updateUnreadCount(feedReadStatus, state.currentFeeds, state.channels, state.currentChannelId) });
         }
         case types.OPEN_FEED:
             return persistence(state, { currentFeedItemId: action.payload, showContent: true });

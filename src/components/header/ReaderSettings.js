@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ChromeUtil from '../../utils/ChromeUtil';
 import { withStyles } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
@@ -8,6 +9,9 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Typography from '@material-ui/core/Typography';
 import Collapse from '@material-ui/core/Collapse';
@@ -56,8 +60,18 @@ class Settings extends Component {
         }
     }
     
+    openCleanCacheConfirm = () => {
+        this.setState({ cleanCacheConfirm: true });
+    }
+
+    closeCleanCacheConfirm = () => {
+        this.setState({ cleanCacheConfirm: false });
+    }
+
+
     handleCleanCacheClick = () => {
         this.props.cleanCache();
+        this.closeCleanCacheConfirm();
     }
 
     handleAboutClick = () => {
@@ -89,7 +103,7 @@ class Settings extends Component {
                             />
                         </ListItemSecondaryAction>
                     </ListItem>
-                    <ListItem button onClick={this.handleCleanCacheClick}>
+                    <ListItem button onClick={this.openCleanCacheConfirm}>
                         <ListItemText primary="Clean Cache"></ListItemText>
                     </ListItem>
                     <ListItem button onClick={this.handleAboutClick}>
@@ -124,6 +138,22 @@ class Settings extends Component {
                     <Typography variant="caption" gutterBottom align="center">
                         你真skr小机灵鬼
                     </Typography>
+                </Dialog>
+                <Dialog open={this.state.cleanCacheConfirm}>
+                    <DialogTitle id="alert-dialog-title">{"Confirm"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                        Delete all saved feeds?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.closeCleanCacheConfirm} color="primary">
+                        Cancel
+                        </Button>
+                        <Button onClick={this.handleCleanCacheClick} color="primary" autoFocus>
+                        OK
+                        </Button>
+                    </DialogActions>
                 </Dialog>
             </div>
         );

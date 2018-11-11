@@ -61,7 +61,7 @@ export const editChannel = channel => async (dispatch, getState) => {
     const oldFeeds = await getChannelFeeds(channel.id);
     dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: channel.id } });
     dispatch({ type: types.EDIT_CHANNEL, payload: channel });
-    await saveChannelFeeds(channel.id, getState().currentFeeds);
+    await saveChannelFeeds(channel.id, getState().mergedFeed);
     dispatch({ type: types.ADD_CHANNEL_END });
 }
 export const setCurrentFeeds = () => async (dispatch, getState) => {
@@ -84,7 +84,7 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
     }
     const oldFeeds = await getChannelFeeds(id);
     dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
-    await saveChannelFeeds(id, getState().currentFeeds);
+    await saveChannelFeeds(id, getState().mergedFeed);
 }
 export const setFeedReadStatus = (channelId, feedId) => ({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId } });
 export const openFeed = feedItemId => ({ type: types.OPEN_FEED, payload: feedItemId });

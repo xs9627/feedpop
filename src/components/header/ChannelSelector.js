@@ -117,7 +117,18 @@ const styles = theme => ({
     channelItemActionPanel: {
         right: 'auto',
         left: theme.spacing.unit,
-    }
+    },
+    buttonWrapper: {
+        margin: theme.spacing.unit,
+        position: 'relative',
+    },
+    buttonProgress: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        marginTop: -12,
+        marginLeft: -12,
+    },
 });
 
 class ChannelSelector extends Component {
@@ -143,6 +154,12 @@ class ChannelSelector extends Component {
         }));
         this.setState({ anchorEl: null });
     };
+    openDeleteChannelConfirm = channelId => {
+        this.setState({deleteChannelConfirm: true, deleteChannelId: channelId});
+    }
+    closeDeleteChannelConfirm = () => {
+        this.setState({deleteChannelConfirm: false});
+    }
     handleDeleteChannel = () => {
         const channelId = this.props.currentEditChannel.id;
         this.props.deleteChannel(channelId);
@@ -158,7 +175,8 @@ class ChannelSelector extends Component {
         }));
     };
     handleRemoveClick = channelId => {
-        this.props.deleteChannel(channelId);
+        this.props.deleteChannel(this.state.deleteChannelId);
+        this.closeDeleteChannelConfirm();
     };
     handleItemMenuClose = () => {
         this.setState({ anchorEl: null });
@@ -210,7 +228,7 @@ class ChannelSelector extends Component {
                                     <Typography draggable-handle draggable-classname={this.props.classes.draggableHandle}>
                                         <DragHandle fontSize="small" />
                                     </Typography>
-                                    <Button variant="fab" mini color="secondary" aria-label="Add" className={classes.removeButton} onClick={() => this.handleRemoveClick(channel.id)}>
+                                    <Button variant="fab" mini color="secondary" aria-label="Add" className={classes.removeButton} onClick={() => this.openDeleteChannelConfirm(channel.id)}>
                                         <RemoveIcon fontSize="small" />
                                     </Button>
                                 </ListItemSecondaryAction>
@@ -272,12 +290,30 @@ class ChannelSelector extends Component {
                         />
                     </DialogContent>
                     <DialogActions>
-                        { isCheckingUrl && <CircularProgress size={24} className={classes.buttonProgress} /> }
-                        <Button disabled={ isCheckingUrl } onClick={this.handleEditConfirmClose} color="primary">
-                            {this.props.isAdd ? 'Add' : 'Update'}
-                         </Button>
                         <Button onClick={this.handleEditClose} color="primary">
                             Cancel
+                        </Button>
+                        <div className={classes.buttonWrapper}>
+                            <Button disabled={ isCheckingUrl } onClick={this.handleEditConfirmClose} color="primary">
+                                {this.props.isAdd ? 'Add' : 'Update'}
+                            </Button>
+                            { isCheckingUrl && <CircularProgress size={24} className={classes.buttonProgress} /> }
+                        </div>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={this.state.deleteChannelConfirm}>
+                    <DialogTitle id="delete-channel-dialog-title">{"Confirm"}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="delete-channel-description">
+                        Delete this channel?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.closeDeleteChannelConfirm} color="primary">
+                        Cancel
+                        </Button>
+                        <Button onClick={this.handleRemoveClick} color="primary" autoFocus>
+                        OK
                         </Button>
                     </DialogActions>
                 </Dialog>
