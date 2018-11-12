@@ -3,7 +3,7 @@ import store from './store/index';
 import { syncState, updateChannelFeed, setSettins, log, updateLastActiveTime } from './actions/index';
 import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
 
-this.ports = [];
+const ports = [];
 
 chrome.runtime.onInstalled.addListener(() => {
     store.dispatch(syncState()).then(() => {
@@ -33,7 +33,7 @@ chrome.alarms.onAlarm.addListener(alarm => {
                 promises.push(store.dispatch(updateChannelFeed(channel.id)));
             });
             Promise.all(promises).then(() => {
-                this.ports.forEach(port => {
+                ports.forEach(port => {
                     port.postMessage({ type: BACKGROUND_UPDATE_CHANNEL });
                 });
             });
@@ -42,9 +42,9 @@ chrome.alarms.onAlarm.addListener(alarm => {
 });
 
 chrome.runtime.onConnect.addListener(externalPort => {
-    this.ports.push(externalPort);
+    ports.push(externalPort);
     externalPort.onDisconnect.addListener(() => {
-        this.ports.splice(this.ports.indexOf(externalPort), 1);
+        ports.splice(ports.indexOf(externalPort), 1);
         store.dispatch(syncState()).then(() => {
             store.dispatch(updateLastActiveTime());
         });
