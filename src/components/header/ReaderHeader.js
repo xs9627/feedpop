@@ -122,7 +122,7 @@ class ReaderHeader extends Component {
                     <BottomNavigationAction label="List" value="List" icon={
                         !(showContent && contentName === "List") && allUnreadCount > 0 ? (
                             <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : (
-                                <Tooltip title={allUnreadCount}>
+                                <Tooltip title={allUnreadCount} enterDelay={200}>
                                     <span>...</span>
                                 </Tooltip>
                             )} color="primary">
