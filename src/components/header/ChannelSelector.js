@@ -234,7 +234,7 @@ class ChannelSelector extends Component {
                                 </ListItemSecondaryAction>
                             ) : (
                                 channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
-                                    <Tooltip title={channel.unreadCount} enterDelay={200}>
+                                    <Tooltip title={channel.unreadCount} enterDelay={100}>
                                         <span>...</span>
                                     </Tooltip>
                                 )} color="primary" /> : null

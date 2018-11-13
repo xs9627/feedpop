@@ -46,7 +46,7 @@ const styles = theme => ({
         flex: '1 1 auto',
         overflowY: 'auto',
         overflowX: 'hidden',
-        padding: '0 16px',
+        padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
     },
     content: {
         '& *': {
@@ -139,7 +139,7 @@ class FeedContent extends Component {
                             </IconButton>
                         </Grid>
                         <Grid item>
-                            <Tooltip title="Open in new tab">
+                            <Tooltip title="Open in new tab" enterDelay={100}>
                                 <IconButton key="open" className={classes.icon} onClick={ () => this.openFeed(this.props.feed.link)}>
                                     <OpenIcon />
                                 </IconButton>

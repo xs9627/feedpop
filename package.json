@@ -18,12 +18,13 @@
     "redux-thunk": "^2.3.0",
     "rss-parser": "https://github.com/xs9627/rss-parser/tarball/master",
     "styled-components": "^4.0.3",
-    "typeface-roboto": "0.0.54",
+    "typeface-roboto-material": "0.0.1",
     "uuid": "^3.3.2"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env INLINE_RUNTIME_CHUNK=false react-scripts build && npm run build:chrome",
+    "publish": "cross-env GENERATE_SOURCEMAP=false npm run build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "build:chrome": "node scripts/update-chrome-extensions-prop.js"

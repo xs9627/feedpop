@@ -49,7 +49,7 @@ const styles = theme => ({
     },
     unRead: {
         color: theme.palette.primary.main,
-        fontWeight: 'bold',
+        fontWeight: '500',
         '&::before': {
             content: '"● "',
         },
