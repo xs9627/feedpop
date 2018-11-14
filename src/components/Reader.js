@@ -18,7 +18,7 @@ const mapStateToProps = state => {
     return {
         channels: state.channels,
         showContent: state.showContent,
-        theme: state.settings.theme,
+        theme: state.theme,
     };
 };
 

@@ -27,7 +27,7 @@ const saveChannelFeeds = (channelId, feeds) => {
 export const log = msg => ({ type: types.LOG, payload: msg });
 export const syncState = () => dispatch => {
     return ChromeUtil.get('state').then(state => {
-        console.log(state);
+        //console.log(state);
         dispatch(setSyncState(state));
         return state;
     });

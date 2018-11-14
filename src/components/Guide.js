@@ -52,24 +52,18 @@ const steps = theme => ([
 class Guide extends Component {
     state = {
         isTourOpen: false,
-        goToStep: 0,
     }
     startTour = () => {
         this.setState({isTourOpen: true});
     }
     closeTour = () => {
-        this.setState({isTourOpen: false, goToStep: 0});
-    }
-    componentWillReceiveProps(newProps) {
-        if (this.props.isShowActionMenu === false && newProps.isShowActionMenu) {
-            this.setState({goToStep: 1});
-        }
-        if (this.props.editOpen === false && newProps.editOpen) {
-            this.closeTour();
-        } 
+        this.setState({isTourOpen: false});
     }
     render() {
-        const { classes, theme } = this.props;
+        const { classes, theme, editOpen, isShowActionMenu } = this.props;
+        if (editOpen) {
+            this.state.isTourOpen = false;
+        }
         return (
             <div className={classes.root}>
                 <Typography variant="body1">
@@ -83,14 +77,13 @@ class Guide extends Component {
                     steps={steps(theme)}
                     isOpen={this.state.isTourOpen}
                     onRequestClose={this.closeTour}
-                    goToStep={this.state.goToStep} 
+                    goToStep={isShowActionMenu ? 1 : 0} 
                     showButtons={false}
                     showNavigation={false}
                     showNumber={false}
                     startAt={0}
                     rounded={4}
                 />
-                    
             </div>
         );
     }

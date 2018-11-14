@@ -6,20 +6,15 @@ import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
 const ports = [];
 
 chrome.runtime.onInstalled.addListener(() => {
-    store.dispatch(syncState()).then(() => {
-        store.dispatch(setSettins({ 
-            theme: 'light', 
-            version: chrome.runtime.getManifest().version, 
-            source: 'https://github.com/xs9627/rss-reader'
-        }));    
+    store.dispatch(syncState()).then(stage => {
+        chrome.browserAction.setBadgeText({text: stage && stage.allUnreadCount > 0 ? `${stage.allUnreadCount}` : ''});
+        chrome.browserAction.setBadgeBackgroundColor({ color: '#424242' }); 
     });
     
     chrome.alarms.create("refreshAll", {
         delayInMinutes: 1,
         periodInMinutes: 10,
     });
-
-    chrome.browserAction.setBadgeBackgroundColor({ color: '#424242' });
 });
 
 chrome.alarms.onAlarm.addListener(alarm => {
@@ -27,7 +22,7 @@ chrome.alarms.onAlarm.addListener(alarm => {
         console.log('Starting update all channels - ' + Date());
         store.dispatch(syncState()).then(() => {
             const state = store.getState();
-            store.dispatch(log('Starting update all channels'));
+            //store.dispatch(log('Starting update all channels'));
             const promises = [];
             state.channels.forEach(channel => {
                 promises.push(store.dispatch(updateChannelFeed(channel.id)));

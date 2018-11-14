@@ -45,6 +45,9 @@ let ChromeUtil = {
     },
     setUnreadCount: count => {
         chrome.browserAction.setBadgeText({text: count > 0 ? `${count}` : ''});
+    },
+    getVersion: () => {
+        return chrome.runtime.getManifest().version;
     }
 };
 

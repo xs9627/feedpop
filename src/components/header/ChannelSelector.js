@@ -44,7 +44,7 @@ const mapStateToProps = state => {
         editName: state.getComponentState(componentStateName, 'editName'),
         editUrl: state.getComponentState(componentStateName, 'editUrl'),
         currentEditChannel: state.getComponentState(componentStateName, 'currentEditChannel'),
-        isUrlValid: state.getComponentState(componentStateName, 'isUrlValid'),
+        isUrlInvalid: state.getComponentState(componentStateName, 'isUrlInvalid'),
         urlErrorMessage: state.getComponentState(componentStateName, 'urlErrorMessage'),
     };
 };
@@ -190,7 +190,7 @@ class ChannelSelector extends Component {
         }));
     }
     handleEditClose = () => {
-        this.props.setComponentState({ editOpen: false, isCheckingUrl: false, isUrlValid: true, });
+        this.props.setComponentState({ editOpen: false, isCheckingUrl: false, isUrlInvalid: false, });
     }
     handleEditConfirmClose = () => {
         const withHttp = url => !/^https?:\/\//i.test(url) ? `http://${url}` : url; 
@@ -206,7 +206,7 @@ class ChannelSelector extends Component {
         }
     }
     render () {
-        const { classes, isCheckingUrl, isAdd, isUrlValid, urlErrorMessage, moveChannel } = this.props;
+        const { classes, isCheckingUrl, isAdd, isUrlInvalid, urlErrorMessage, moveChannel } = this.props;
         const { anchorEl } = this.state;
         return (
             <div className={classes.root}>
@@ -281,14 +281,14 @@ class ChannelSelector extends Component {
                         /> }
                         <TextField
                         autoFocus={ isAdd }
-                        error={ !isUrlValid }
-                        helperText={ !isUrlValid && 'Url Invalid' }
+                        error={ isUrlInvalid }
+                        helperText={ isUrlInvalid && 'Url Invalid' }
                         margin="dense"
                         id="channelUrl"
                         label="Url"
                         fullWidth
                         value={this.props.editUrl}
-                        onChange={e => this.props.setComponentState({ editUrl: e.target.value, isUrlValid: true })}
+                        onChange={e => this.props.setComponentState({ editUrl: e.target.value, isUrlInvalid: false })}
                         />
                     </DialogContent>
                     <DialogActions>

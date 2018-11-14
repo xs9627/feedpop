@@ -17,13 +17,16 @@ import Typography from '@material-ui/core/Typography';
 import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import { connect } from "react-redux";
 import { setSettins, cleanCache } from "../../actions/index"
 
 const mapStateToProps = state => {
+    const { theme, maxFeedsCount, source, version } = state;
     return {
-        config: state.settings,
+        config: { theme, maxFeedsCount, source, version },
         logs: state.logs,
     };
 };
@@ -42,6 +45,9 @@ const styles = theme => ({
     nested: {
         paddingLeft: theme.spacing.unit * 4,
     },
+    maxFeedsCountSelect: {
+        paddingRight: theme.spacing.unit,
+    }
 });
 
 class Settings extends Component {
@@ -50,6 +56,10 @@ class Settings extends Component {
     handleChangeTheme = event => {
         let isdarkTheme = event.target.checked;
         this.props.setSettins({ theme: isdarkTheme ? 'dark' : 'light' });
+    }
+
+    handleChangeMaxFeedsCount = event => {
+        this.props.setSettins({ maxFeedsCount: event.target.value });
     }
 
     doSkr = () => {
@@ -101,6 +111,23 @@ class Settings extends Component {
                                 value="checkedB"
                                 color="primary"
                             />
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                    <ListItem>
+                        <ListItemText primary="Channel maximum feeds"></ListItemText>
+                        <ListItemSecondaryAction className={classes.maxFeedsCountSelect}>
+                            <Select
+                                value={this.props.config.maxFeedsCount}
+                                onChange={this.handleChangeMaxFeedsCount}
+                                displayEmpty
+                                name="maxFeedsCount"
+                            >
+                                <MenuItem value={20}>20</MenuItem>
+                                <MenuItem value={100}>100</MenuItem>
+                                <MenuItem value={500}>500</MenuItem>
+                                <MenuItem value={1000}>1000</MenuItem>
+                                <MenuItem value={-1}>Unlimite</MenuItem>
+                            </Select>
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem button onClick={this.openCleanCacheConfirm}>

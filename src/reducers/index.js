@@ -37,7 +37,7 @@ const mergeFeed = (oldFeed, newFeed) => {
 
 const persistence = (state, updated) => {
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, version, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -45,7 +45,10 @@ const persistence = (state, updated) => {
 
 const initialState = {
     channels: [],
-    settings: {},
+    theme: 'light',
+    maxFeedsCount: 500,
+    source: 'https://github.com/xs9627/rss-reader',
+    version: ChromeUtil.getVersion(),
     feedReadStatus: [],
     logs: [],
     allUnreadCount: 0,
@@ -64,7 +67,7 @@ const defaultState = {
     channelSelector: {
         editOpen: false,
         isCheckingUrl: false,
-        isUrlValid: true,
+        isUrlInvalid: false,
     }
 }
 
@@ -159,10 +162,10 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, { channels: state.channels.map(c => c.id === channel.id ? { ...c, ...channel } : c) });
         }
         case types.ADD_CHANNEL_END: {
-            return persistence(state, { channelSelector: { ...state.channelSelector, isCheckingUrl: false, isUrlValid: true, editOpen: false } });
+            return persistence(state, { channelSelector: { ...state.channelSelector, isCheckingUrl: false, isUrlInvalid: false, editOpen: false } });
         }
         case types.ADD_CHANNEL_ERROR: {
-            return persistence(state, { channelSelector: { ...state.channelSelector, isCheckingUrl: false, isUrlValid: false, urlErrorMessage: action.payload } });
+            return persistence(state, { channelSelector: { ...state.channelSelector, isCheckingUrl: false, isUrlInvalid: true, urlErrorMessage: action.payload } });
         }
         case types.SET_CURRENT_FEEDS_BEGIN: {
             return { ...state, currentFeeds: null };
@@ -202,6 +205,9 @@ const rootReducer = (state = initialState, action) => {
         case types.UPDATE_CHANNEL_FEED: {
             const { feeds, oldFeeds, channelId} = action.payload;
             mergeFeed(oldFeeds, feeds);
+            if (state.maxFeedsCount && state.maxFeedsCount > 0) {
+                feeds.items = feeds.items.slice(0, state.maxFeedsCount);
+            }
             return persistence(state, { currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds, mergedFeed: feeds, ...updateUnreadCount(state.feedReadStatus, feeds, state.channels, channelId) });
         }
         case types.SET_FEED_READ_STATUS: {
@@ -230,8 +236,7 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, updated);
         }
         case types.SET_SETTINGS: {
-            const updated = { settings: { ...state.settings, ...action.payload } };
-            return persistence(state, updated);
+            return persistence(state, action.payload );
         }
         case types.CONNECT_BACKGROUND: {
             ChromeUtil.connect(state, action.payload);
