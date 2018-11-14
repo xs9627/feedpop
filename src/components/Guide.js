@@ -33,7 +33,7 @@ const styles = theme => ({
 const steps = theme => ([
     {
         selector: '.ListAction',
-        content: <Typography>First open the feed list</Typography>,
+        content: <Typography>First open the channel list</Typography>,
         style: {
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.primary.main

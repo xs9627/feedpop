@@ -70,7 +70,12 @@ export const setCurrentFeeds = () => async (dispatch, getState) => {
     dispatch({ type: types.SET_CURRENT_FEEDS, payload: feeds });
 }
 export const setChannels = channels => ({ type: types.SET_CHANNELS, payload: channels });
-export const deleteChannel = id => ({ type: types.DELETE_CHANNELS, payload: id });
+export const deleteChannel = id => async (dispatch, getState) => {
+    dispatch({ type: types.DELETE_CHANNELS, payload: id });
+    if (getState().currentChannelId && getState().currentChannelId !== id) {
+        await dispatch(setCurrentFeeds()); 
+    }
+}
 export const moveChannel = (from, to) => ({ type: types.MOVE_CHANNEL, payload: { from, to } });
 export const updateChannelFeed = id => async (dispatch, getState) => {
     const channel = getState().channels.find(c => c.id === id);

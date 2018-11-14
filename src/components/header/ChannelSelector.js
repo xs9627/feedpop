@@ -193,13 +193,15 @@ class ChannelSelector extends Component {
         this.props.setComponentState({ editOpen: false, isCheckingUrl: false, isUrlValid: true, });
     }
     handleEditConfirmClose = () => {
+        const withHttp = url => !/^https?:\/\//i.test(url) ? `http://${url}` : url; 
+
         if (this.props.isAdd) {
-            this.props.addChannel(this.props.editUrl);
+            this.props.addChannel(withHttp(this.props.editUrl));
         } else {
             this.props.editChannel({
                 id: this.props.editChannelId, 
                 name: this.props.editName,
-                url: this.props.editUrl
+                url: withHttp(this.props.editUrl),
             });
         }
     }
