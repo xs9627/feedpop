@@ -1,6 +1,6 @@
 {
   "short_name": "FeedPop",
-  "name": "FeedPop: Simply RSS feed reader",
+  "name": "FeedPop: Simple RSS feed reader",
   "manifest_version": 2,
   "permissions": ["storage", "unlimitedStorage", "alarms", "<all_urls>"],
   "background": {

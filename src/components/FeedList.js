@@ -22,7 +22,6 @@ const mapStateToProps = state => {
         currentChannelId: state.currentChannelId,
         currentChannel: state.channels.find(c => c.id === state.currentChannelId) || {},
         feeds: state.currentFeeds,
-        feedReadStatus: state.feedReadStatus,
     };
 };
 
@@ -95,6 +94,8 @@ class FeedList extends Component {
                 r[dateStr] = r[dateStr] || [];
                 if (!r[dateStr].find(f => f.readerId === a.readerId)) {
                     r[dateStr].push(a);
+                } else {
+                    r[dateStr] = r[dateStr].map(i => (i.readerId === a.readerId) ? a : i);
                 }
                 return r;
             }, this.state.arrangedFeeds);
@@ -132,18 +133,6 @@ class FeedList extends Component {
             this.state.page -= Math.ceil(this.state.arrangedFeeds[dateStr].length / 20) - 1;
         }
         this.setState({ collapseStatus: collapseStatus });
-    }
-    isUnRead = readerId => {
-        if (this.props.feedReadStatus) {
-            const status = this.props.feedReadStatus.find(s => s.channelId === this.props.currentChannelId);
-            if (status) {
-                return !status.feedIds.some(id => id === readerId);
-            } else {
-                return true;
-            }
-        } else {
-            return true;
-        }
     }
     getTime = isoDate => {
         const result = new Date(isoDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -232,7 +221,7 @@ class FeedList extends Component {
                                                 this.props.openFeed(feed.readerId);
                                             }}
                                         >
-                                            <ListItemText classes={{ primary: classNames({[classes.unRead]: this.isUnRead(feed.readerId)}) }} primary={feed.title} secondary={this.getTime(feed.isoDate)} />
+                                            <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={this.getTime(feed.isoDate)} />
                                         </ListItem>
                                     ))}
                                 </Collapse>

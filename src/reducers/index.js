@@ -49,7 +49,6 @@ const initialState = {
     maxFeedsCount: 500,
     source: 'https://github.com/xs9627/rss-reader',
     version: ChromeUtil.getVersion(),
-    feedReadStatus: [],
     logs: [],
     allUnreadCount: 0,
     ...defaultState,
@@ -71,18 +70,9 @@ const defaultState = {
     }
 }
 
-const updateUnreadCount = (feedReadStatus, feeds, channels, channelId) => {
-    let count = feeds.items.length;
-    if (feedReadStatus) {
-        const statusObj = feedReadStatus.find(t => t.channelId === channelId);
-        if (statusObj) {
-            feeds.items.forEach(f => {
-                if (statusObj.feedIds.some(id => id === f.readerId)) {
-                    count--;
-                }
-            });
-        }
-    }
+const updateUnreadCount = (feeds, channels, channelId) => {
+    let count = feeds.items.filter(i => !i.isRead).length;
+    
     const updatedChannels = channels.map(channel => channel.id === channelId ? { ...channel, unreadCount: count } : channel);
     return {
         channels: updatedChannels,
@@ -178,7 +168,6 @@ const rootReducer = (state = initialState, action) => {
         case types.DELETE_CHANNELS: {
             const updated = {
                 channels: state.channels.filter(c => c.id !== action.payload),
-                feedReadStatus: state.feedReadStatus.filter(rs => rs.channelId !== action.payload),
             };
             if (state.currentChannelId === action.payload) {
                 updated.currentFeeds = null;
@@ -208,13 +197,12 @@ const rootReducer = (state = initialState, action) => {
             if (state.maxFeedsCount && state.maxFeedsCount > 0) {
                 feeds.items = feeds.items.slice(0, state.maxFeedsCount);
             }
-            return persistence(state, { currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds, mergedFeed: feeds, ...updateUnreadCount(state.feedReadStatus, feeds, state.channels, channelId) });
+            return persistence(state, { currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds, mergedFeed: feeds, ...updateUnreadCount(feeds, state.channels, channelId) });
         }
         case types.SET_FEED_READ_STATUS: {
-            const feedReadStatus = state.feedReadStatus.some(s => s.channelId === action.payload.channelId) ?
-                state.feedReadStatus.map(s => s.channelId === action.payload.channelId ? { ...s, feedIds: [...s.feedIds, action.payload.feedId] } : s) :
-                [...state.feedReadStatus, { channelId: action.payload.channelId, feedIds: [action.payload.feedId]}];
-            return persistence(state, { feedReadStatus, ...updateUnreadCount(feedReadStatus, state.currentFeeds, state.channels, state.currentChannelId) });
+            const items = state.currentFeeds.items.map(i => (i.readerId === action.payload.feedId ? { ...i, isRead: true } : i));
+            const currentFeeds = { ...state.currentFeeds, items };
+            return persistence(state, { currentFeeds, ...updateUnreadCount(currentFeeds, state.channels, state.currentChannelId) });
         }
         case types.OPEN_FEED:
             return persistence(state, { currentFeedItemId: action.payload, showContent: true });
@@ -248,7 +236,6 @@ const rootReducer = (state = initialState, action) => {
                 logs: [],
                 showContent: false,
                 currentFeeds: null,
-                feedReadStatus: [],
                 allUnreadCount: 0,
                 channels: state.channels.map(c => ({ ...c, unreadCount: 0 }))
             };
