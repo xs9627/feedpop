@@ -110,7 +110,11 @@ export const connectBackground = messageCallback => ({ type: types.CONNECT_BACKG
 export const setupBackgroundConnection = () => (dispatch, getState) => {
     dispatch(connectBackground(msg => {
         if (msg.type === types.BACKGROUND_UPDATE_CHANNEL) {
-            dispatch(setCurrentFeeds()).then(() => {
+            Promise.all([
+                ChromeUtil.get('state'),
+                getChannelFeeds(getState().currentChannelId),
+            ]).then(values => {
+                dispatch({ type: types.SYNC_BACKGROUND_UPDATE, payload: { state: values[0], currentFeeds: values[1] } });
                 dispatch(log('Update reader by background'));
             });
         }

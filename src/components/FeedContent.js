@@ -16,7 +16,7 @@ import Paper from '@material-ui/core/Paper';
 
 const mapStateToProps = state => {
     return {
-        feed: (state.currentFeeds && state.currentFeeds.items.find(i => i.readerId === state.currentFeedItemId)) || {},
+        feed: (state.currentFeeds && state.currentFeeds.items.find(i => i.readerId === state.currentFeedItemId)) || { deleted: true },
         feedContentTop: state.feedContentTop,
     };
 };
@@ -66,6 +66,11 @@ const styles = theme => ({
     },
     icon: {
         padding: theme.spacing.unit / 2,
+    },
+    emptyMsg: {
+        textAlign: 'center',
+        margin: theme.spacing.unit * 2,
+        opacity: .5,
     },
 });
 
@@ -150,6 +155,9 @@ class FeedContent extends Component {
                         </Grid>
                     </Grid>
                 </Paper>
+                { feed.deleted && <div class={classes.emptyMsg}>
+                    <Typography variant="caption">Feed has been deleted</Typography> 
+                </div>}
                 <div className={ classes.contentContainer } ref={node => this.contentContainer = node}>
                     <Grid container wrap="nowrap" direction="column">
                         <Grid item xs={12}>

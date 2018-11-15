@@ -13,9 +13,13 @@ const mergeFeed = (oldFeed, newFeed) => {
                     const diff = new Date(newItems[i].isoDate) - new Date(mergedItems[j].isoDate);
                     if (diff === 0) {
                         break;
-                    } else if (diff > 0 || j === (mergedItems.length - 1)) {
+                    } else if (diff > 0) {
                         newItems[i].readerId = uuidv4();
                         mergedItems.splice(j, 0, newItems[i]);
+                        break;
+                    } else if (j === (mergedItems.length - 1)) {
+                        newItems[i].readerId = uuidv4();
+                        mergedItems.splice(j + 1, 0, newItems[i]);
                         break;
                     }
                 }
@@ -162,6 +166,11 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.SET_CURRENT_FEEDS: {
             return { ...state, currentFeeds: action.payload };
+        }
+        case types.SYNC_BACKGROUND_UPDATE: {
+            const { channels, allUnreadCount } = action.payload.state;
+            const currentFeeds = action.payload.currentFeeds;
+            return { ...state, channels, allUnreadCount, currentFeeds };
         }
         case types.SET_CHANNELS:
             return { ...state, channels: action.payload };

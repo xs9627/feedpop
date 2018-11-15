@@ -25,7 +25,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         syncState: () => dispatch(syncState()),
-        setDefaultState: showGoBack => dispatch(setDefaultState(showGoBack)),
+        setDefaultState: () => dispatch(setDefaultState()),
         setupBackgroundConnection: () => dispatch(setupBackgroundConnection()),
         setCurrentFeeds: () => dispatch(setCurrentFeeds()),
     };
