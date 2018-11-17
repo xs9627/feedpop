@@ -5,6 +5,7 @@ import store from "./store/index";
 import 'typeface-roboto-material';
 import Reader from './components/Reader';
 import {unregister} from './registerServiceWorker';
+import GA from './utils/GA';
 
 ReactDOM.render(
     <Provider store={store}>
@@ -13,3 +14,5 @@ ReactDOM.render(
     document.getElementById('root')
 );
 unregister();
+
+GA.sendAppView('MainView');
