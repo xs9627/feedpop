@@ -30,6 +30,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { connect } from "react-redux";
 import { addChannel, editChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds} from "../../actions/index"
 
+import { withNamespaces } from 'react-i18next';
+
 const componentStateName = 'channelSelector';
 
 const mapStateToProps = state => {
@@ -206,7 +208,7 @@ class ChannelSelector extends Component {
         }
     }
     render () {
-        const { classes, isCheckingUrl, isAdd, isUrlInvalid, urlErrorMessage, moveChannel } = this.props;
+        const { classes, isCheckingUrl, isAdd, isUrlInvalid, urlErrorMessage, moveChannel, t } = this.props;
         const { anchorEl } = this.state;
         return (
             <div className={classes.root}>
@@ -268,13 +270,13 @@ class ChannelSelector extends Component {
                     onClose={this.handleEditClose}
                     aria-labelledby="form-dialog-title"
                     >
-                    <DialogTitle id="form-dialog-title">{this.props.isAdd ? 'Add' : 'Edit'}</DialogTitle>
+                    <DialogTitle id="form-dialog-title">{this.props.isAdd ? t('Add') : t('Edit')}</DialogTitle>
                     <DialogContent>
                         { !isAdd && <TextField
                         autoFocus={ !isAdd }
                         margin="dense"
                         id="chanelName"
-                        label="Name"
+                        label={t("ChannelName")}
                         fullWidth
                         value={this.props.editName}
                         onChange={e => this.props.setComponentState({ editName: e.target.value })}
@@ -285,7 +287,7 @@ class ChannelSelector extends Component {
                         helperText={ isUrlInvalid && 'Url Invalid' }
                         margin="dense"
                         id="channelUrl"
-                        label="Url"
+                        label={t("ChannelUrl")}
                         fullWidth
                         value={this.props.editUrl}
                         onChange={e => this.props.setComponentState({ editUrl: e.target.value, isUrlInvalid: false })}
@@ -293,29 +295,29 @@ class ChannelSelector extends Component {
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.handleEditClose} color="primary">
-                            Cancel
+                            {t("Cancel")}
                         </Button>
                         <div className={classes.buttonWrapper}>
                             <Button disabled={ isCheckingUrl } onClick={this.handleEditConfirmClose} color="primary">
-                                {this.props.isAdd ? 'Add' : 'Update'}
+                                {this.props.isAdd ? t('Add') : t('Update')}
                             </Button>
                             { isCheckingUrl && <CircularProgress size={24} className={classes.buttonProgress} /> }
                         </div>
                     </DialogActions>
                 </Dialog>
                 <Dialog open={this.state.deleteChannelConfirm}>
-                    <DialogTitle id="delete-channel-dialog-title">{"Confirm"}</DialogTitle>
+                    <DialogTitle id="delete-channel-dialog-title">{t("Confirm")}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="delete-channel-description">
-                        Delete this channel?
+                        {t("Delete this channel?")}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.closeDeleteChannelConfirm} color="primary">
-                        Cancel
+                        {t("Cancel")}
                         </Button>
                         <Button onClick={this.handleRemoveClick} color="primary" autoFocus>
-                        OK
+                        {t("OK")}
                         </Button>
                     </DialogActions>
                 </Dialog>
@@ -324,4 +326,4 @@ class ChannelSelector extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ChannelSelector));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(ChannelSelector)));

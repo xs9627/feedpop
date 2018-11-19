@@ -13,6 +13,7 @@ import ShareVariantIcon from '@material-ui/icons/Share';
 import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
     return {
@@ -132,7 +133,7 @@ class FeedContent extends Component {
         }
     }
     render() {
-        const { classes } = this.props;
+        const { classes, t } = this.props;
         const { feed } = this.state;
         return (
             <div className={classes.root} ref={node => this.node = node}>
@@ -144,7 +145,7 @@ class FeedContent extends Component {
                             </IconButton>
                         </Grid>
                         <Grid item>
-                            <Tooltip title="Open in new tab" enterDelay={100}>
+                            <Tooltip title={t("Open in new tab")} enterDelay={100}>
                                 <IconButton key="open" className={classes.icon} onClick={ () => this.openFeed(this.props.feed.link)}>
                                     <OpenIcon />
                                 </IconButton>
@@ -156,7 +157,7 @@ class FeedContent extends Component {
                     </Grid>
                 </Paper>
                 { feed.deleted && <div class={classes.emptyMsg}>
-                    <Typography variant="caption">Feed has been deleted</Typography> 
+                    <Typography variant="caption">{t("Feed has been deleted")}</Typography> 
                 </div>}
                 <div className={ classes.contentContainer } ref={node => this.contentContainer = node}>
                     <Grid container wrap="nowrap" direction="column">
@@ -187,4 +188,4 @@ class FeedContent extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(FeedContent));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(FeedContent)));

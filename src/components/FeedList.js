@@ -15,7 +15,8 @@ import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 
-import { setFeedReadStatus, openFeed } from '../actions/index'
+import { setFeedReadStatus, openFeed } from '../actions/index';
+import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
     return {
@@ -182,7 +183,7 @@ class FeedList extends Component {
         }
     };
     render() {
-        const { classes, feeds, currentChannelId, currentChannel } = this.props;
+        const { classes, feeds, currentChannelId, currentChannel, t } = this.props;
         this.initCollapseStatus(currentChannelId);
         this.arrangeFeeds(feeds);
         const arranged = this.state.arrangedFeeds;
@@ -196,7 +197,7 @@ class FeedList extends Component {
                 </div>
                 <Divider />
                 { !feeds && <div class={classes.emptyMsg}>
-                    <Typography variant="caption">No feeds loaded</Typography> 
+                    <Typography variant="caption">{t("No feeds loaded")}</Typography> 
                 </div>}
                 <List subheader={<li />}>
                     {Object.keys(arranged).map(dateStr => (
@@ -235,4 +236,4 @@ class FeedList extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(FeedList));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(FeedList)));

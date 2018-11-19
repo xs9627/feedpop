@@ -1,3 +1,32 @@
 {
-    "List": "频道"
+    "List": "源列表",
+    "Update": "更新",
+    "Settings": "设置",
+
+    "Add": "新增",
+    "Edit": "编辑",
+    "ChannelName": "源名称",
+    "ChannelUrl": "Url",
+    "Confirm": "提示",
+    "Delete this channel?": "是否删除该频道？",
+    "Cancel": "取消",
+    "OK": "确认",
+
+    "Dark Theme": "夜间模式",
+    "Channel maximum feeds": "源订阅文章数",
+    "Clean Cache": "清除缓存",
+    "About": "关于",
+    "Source": "源代码",
+    "Version": "版本号",
+    "Delete all saved feeds?": "是否删除缓存内容？",
+
+    "Open in new tab": "在新标签页打开",
+    "Feed has been deleted": "内容已经被删除",
+
+    "No feeds loaded": "无更新内容",
+
+    "First open the channel list": "打开源列表",
+    "And, add a feed": "新增RSS源",
+    "No feeds here, start to ": "未添加RSS源 ",
+    "add one": "开始添加"
 }

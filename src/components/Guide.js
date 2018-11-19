@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import Tour from 'reactour';
+import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
     return {
@@ -30,10 +31,10 @@ const styles = theme => ({
     },
 });
 
-const steps = theme => ([
+const steps = (theme, t) => ([
     {
         selector: '.ListAction',
-        content: <Typography>First open the channel list</Typography>,
+        content: <Typography>{t("First open the channel list")}</Typography>,
         style: {
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.primary.main
@@ -41,7 +42,7 @@ const steps = theme => ([
     },
     {
         selector: '.AddAction',
-        content: <Typography>And, add a feed</Typography>,
+        content: <Typography>{t("And, add a feed")}</Typography>,
         style: {
             backgroundColor: theme.palette.background.paper,
             color: theme.palette.primary.main
@@ -60,21 +61,21 @@ class Guide extends Component {
         this.setState({isTourOpen: false});
     }
     render() {
-        const { classes, theme, editOpen, isShowActionMenu } = this.props;
+        const { classes, theme, editOpen, isShowActionMenu, t } = this.props;
         if (editOpen) {
             this.state.isTourOpen = false;
         }
         return (
             <div className={classes.root}>
                 <Typography variant="body1">
-                    No feeds here, start to 
+                    {t("No feeds here, start to ")}
                 </Typography>
                 <Button variant="contained" size="small" color="primary" className={classes.button} onClick={this.startTour}>
-                    add one
+                    {t("add one")}
                     <AddIcon className={classes.extendedIcon} />
                 </Button>
                 <Tour
-                    steps={steps(theme)}
+                    steps={steps(theme, t)}
                     isOpen={this.state.isTourOpen}
                     onRequestClose={this.closeTour}
                     goToStep={isShowActionMenu ? 1 : 0} 
@@ -89,4 +90,4 @@ class Guide extends Component {
     }
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(withTheme()(Guide)));
+export default connect(mapStateToProps)(withStyles(styles)(withTheme()(withNamespaces()(Guide))));

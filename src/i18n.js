@@ -11,7 +11,7 @@ const resources = {
 	en: {
 		translation: translationEN
 	},
-	cn: {
+	zh: {
 		translation: translationCN
 	}
 };
@@ -20,8 +20,10 @@ i18n
     .use(detector)
 	.use(reactI18nextModule) // passes i18n down to react-i18next
 	.init({
+		detection: {
+			order: ['navigator']
+		},
 		resources,
-        lng: "en",
         fallbackLng: "en",
 		keySeparator: false, // we do not use keys in form messages.welcome
 		interpolation: {

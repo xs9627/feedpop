@@ -1,3 +1,33 @@
 {
-    "List": "Channels"
+    "List": "Channels",
+    "Update": "Update",
+    "Settings": "Settings",
+
+    "Add": "Add",
+    "Edit": "Edit",
+    "ChannelName": "Name",
+    "ChannelUrl": "Url",
+    "Confirm": "Confirm",
+    "Delete this channel?": "Delete this channel?",
+    "Cancel": "Cancel",
+    "OK": "OK",
+
+    "Dark Theme": "Night mode",
+    "Channel maximum feeds": "Channel maximum feeds",
+    "Clean Cache": "Clean cache",
+    "About": "About",
+    "Source": "Source",
+    "Version": "Version",
+    "Delete all saved feeds?": "Delete all saved feeds?",
+
+    "Open in new tab": "Open in new tab",
+    "Feed has been deleted": "Feed has been deleted",
+
+    "No feeds loaded": "No feeds loaded",
+
+    "First open the channel list": "First open the channel list",
+    "And, add a feed": "And, add a feed",
+    "No feeds here, start to ": "No feeds here, start to ",
+    "add one": "add one"
+
 }

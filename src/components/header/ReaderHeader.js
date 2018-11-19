@@ -104,7 +104,7 @@ class ReaderHeader extends Component {
                             </div>
                             <div>
                                 <Button className={this.props.classes.cancelLoading} onClick={this.props.closeActionMenu} color="primary">
-                                    Cancel
+                                    {this.props.t("Cancel")}
                                 </Button>
                             </div>
                         </DialogContent>
@@ -132,9 +132,9 @@ class ReaderHeader extends Component {
                             </Badge>
                         ) : <List className='ListAction' />
                     } />
-                    <BottomNavigationAction label="Update" value="Update" icon={<Sync />} />
+                    <BottomNavigationAction label={t('Update')} value="Update" icon={<Sync />} />
                     {/* <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} /> */}
-                    <BottomNavigationAction label="Settings" value="Settings" icon={<Settings />} />
+                    <BottomNavigationAction label={t('Settings')} value="Settings" icon={<Settings />} />
                 </BottomNavigation>
 
                 {showContent ? <div key='Menu-background' className={classes.menuBackground} onClick={this.closeActionMenu} /> : null}

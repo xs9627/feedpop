@@ -22,6 +22,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 
 import { connect } from "react-redux";
 import { setSettins, cleanCache } from "../../actions/index"
+import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
     const { theme, maxFeedsCount, source, version } = state;
@@ -98,12 +99,12 @@ class Settings extends Component {
 
     render () {
         this.state.skr = 0;
-        const { classes } = this.props;
+        const { classes, t } = this.props;
         return (
             <div className={classes.root}>
                 <List component="nav">
                     <ListItem>
-                        <ListItemText primary="Dark Theme"></ListItemText>
+                        <ListItemText primary={t("Dark Theme")}></ListItemText>
                         <ListItemSecondaryAction>
                             <Switch
                                 checked={this.props.config.theme === 'dark'}
@@ -114,7 +115,7 @@ class Settings extends Component {
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>
-                        <ListItemText primary="Channel maximum feeds"></ListItemText>
+                        <ListItemText primary={t("Channel maximum feeds")}></ListItemText>
                         <ListItemSecondaryAction className={classes.maxFeedsCountSelect}>
                             <Select
                                 value={this.props.config.maxFeedsCount}
@@ -131,10 +132,10 @@ class Settings extends Component {
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem button onClick={this.openCleanCacheConfirm}>
-                        <ListItemText primary="Clean Cache"></ListItemText>
+                        <ListItemText primary={t("Clean Cache")}></ListItemText>
                     </ListItem>
                     <ListItem button onClick={this.handleAboutClick}>
-                        <ListItemText primary="About" />
+                        <ListItemText primary={t("About")} />
                         <Typography>
                             {this.state.aboutOpen ? <ExpandLess /> : <ExpandMore />}
                         </Typography>
@@ -142,7 +143,7 @@ class Settings extends Component {
                     <Collapse in={this.state.aboutOpen} timeout="auto" unmountOnExit>
                         <List component="div" disablePadding>
                             <ListItem button className={classes.nested}>
-                                <ListItemText primary="Source" />
+                                <ListItemText primary={t("Source")} />
                                 <a href="#" onClick={this.handleSourceClick}>
                                     <Typography variant="caption">
                                         GitHub
@@ -151,7 +152,7 @@ class Settings extends Component {
                             </ListItem>
                             <ClickAwayListener onClickAway={this.handleSkrClose}>
                                 <ListItem button onClick={this.doSkr} className={classes.nested}>
-                                    <ListItemText primary="Version" />
+                                    <ListItemText primary={t("Version")} />
                                     <Typography variant="caption">
                                         {this.props.config.version}
                                     </Typography>
@@ -167,18 +168,18 @@ class Settings extends Component {
                     </Typography>
                 </Dialog>
                 <Dialog open={this.state.cleanCacheConfirm}>
-                    <DialogTitle id="alert-dialog-title">{"Confirm"}</DialogTitle>
+                    <DialogTitle id="alert-dialog-title">{t("Confirm")}</DialogTitle>
                     <DialogContent>
                         <DialogContentText id="alert-dialog-description">
-                        Delete all saved feeds?
+                        {t("Delete all saved feeds?")}
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={this.closeCleanCacheConfirm} color="primary">
-                        Cancel
+                        {t('Cancel')}
                         </Button>
                         <Button onClick={this.handleCleanCacheClick} color="primary" autoFocus>
-                        OK
+                        {t('OK')}
                         </Button>
                     </DialogActions>
                 </Dialog>
@@ -187,4 +188,4 @@ class Settings extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Settings));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(Settings)));
