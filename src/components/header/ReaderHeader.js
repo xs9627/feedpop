@@ -21,6 +21,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { connect } from "react-redux";
 import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed } from "../../actions/index";
 
+import { withNamespaces } from 'react-i18next';
+
 const mapStateToProps = state => {
     return {
         allUnreadCount: state.allUnreadCount,
@@ -115,11 +117,11 @@ class ReaderHeader extends Component {
         };
     }
     render () {
-        const { classes, allUnreadCount, showContent, contentName } = this.props;
+        const { classes, allUnreadCount, showContent, contentName, t } = this.props;
         return (
             <Paper square={true} className={classes.readerHeader}>
                 <BottomNavigation value={ showContent ? contentName : null } onChange={this.setHeaderContent} className={classes.actionPanel}>
-                    <BottomNavigationAction label="List" value="List" icon={
+                    <BottomNavigationAction label={t('List')} value="List" icon={
                         !(showContent && contentName === "List") && allUnreadCount > 0 ? (
                             <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : (
                                 <Tooltip title={allUnreadCount} enterDelay={100}>
@@ -144,4 +146,4 @@ class ReaderHeader extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ReaderHeader));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(ReaderHeader)));

@@ -6,6 +6,7 @@ import 'typeface-roboto-material';
 import Reader from './components/Reader';
 import {unregister} from './registerServiceWorker';
 import GA from './utils/GA';
+import './i18n';
 
 ReactDOM.render(
     <Provider store={store}>
