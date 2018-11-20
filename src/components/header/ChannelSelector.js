@@ -299,7 +299,7 @@ class ChannelSelector extends Component {
                         </Button>
                         <div className={classes.buttonWrapper}>
                             <Button disabled={ isCheckingUrl } onClick={this.handleEditConfirmClose} color="primary">
-                                {this.props.isAdd ? t('Add') : t('Update')}
+                                {t('OK')}
                             </Button>
                             { isCheckingUrl && <CircularProgress size={24} className={classes.buttonProgress} /> }
                         </div>
