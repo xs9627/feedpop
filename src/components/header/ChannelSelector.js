@@ -28,7 +28,7 @@ import Portal from '@material-ui/core/Portal';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { connect } from "react-redux";
-import { addChannel, editChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds} from "../../actions/index"
+import { addChannel, editChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds, toggleTourOpen} from "../../actions/index"
 
 import { withNamespaces } from 'react-i18next';
 
@@ -62,6 +62,7 @@ const mapDispatchToProps = dispatch => {
         setComponentState: state => dispatch(setComponentState(componentStateName, state)),
         moveChannel: (from, to) => dispatch(moveChannel(from, to)),
         setCurrentFeeds: () => dispatch(setCurrentFeeds()),
+        toggleTourOpen: isTourOpen => dispatch(toggleTourOpen(isTourOpen)),
     };
 };
 
@@ -134,39 +135,18 @@ const styles = theme => ({
 });
 
 class ChannelSelector extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { editOpen: false };
-    }
+    state = {};
     changeChannel = channelId => {
         this.props.selectChannel(channelId);
         this.props.setCurrentFeeds();
         this.props.closeActionMenu();
     }
-    handleItemMenulick = (event, channel) => {
-        this.props.setComponentState({ currentEditChannel: channel });
-        this.setState({ anchorEl: event.currentTarget });
-    };
-    handleEditChannel = () => {
-        this.props.setComponentState(state => ({ 
-            editOpen: true, 
-            isAdd: false, 
-            editName: state.currentEditChannel.name,
-            editUrl: state.currentEditChannel.url,
-        }));
-        this.setState({ anchorEl: null });
-    };
     openDeleteChannelConfirm = channelId => {
         this.setState({deleteChannelConfirm: true, deleteChannelId: channelId});
     }
     closeDeleteChannelConfirm = () => {
         this.setState({deleteChannelConfirm: false});
     }
-    handleDeleteChannel = () => {
-        const channelId = this.props.currentEditChannel.id;
-        this.props.deleteChannel(channelId);
-        this.setState({ anchorEl: null });
-    };
     handleEditClick = channel => {
         this.props.setComponentState(state => ({ 
             editOpen: true, 
@@ -180,16 +160,14 @@ class ChannelSelector extends Component {
         this.props.deleteChannel(this.state.deleteChannelId);
         this.closeDeleteChannelConfirm();
     };
-    handleItemMenuClose = () => {
-        this.setState({ anchorEl: null });
-    };
     handleAddClick = () => {
         this.props.setComponentState(state => ({
             isAdd: true,
-            editOpen: !state.editOpen,
+            editOpen: true,
             editName: '',
             editUrl: '',
         }));
+        this.props.toggleTourOpen(false);
     }
     handleEditClose = () => {
         this.props.setComponentState({ editOpen: false, isCheckingUrl: false, isUrlInvalid: false, });
@@ -209,7 +187,6 @@ class ChannelSelector extends Component {
     }
     render () {
         const { classes, isCheckingUrl, isAdd, isUrlInvalid, urlErrorMessage, moveChannel, t } = this.props;
-        const { anchorEl } = this.state;
         return (
             <div className={classes.root}>
                 <ChannelList component="nav" className={classes.list}>
@@ -245,15 +222,6 @@ class ChannelSelector extends Component {
                             )}
                         </ChannelListItem>
                     ))}
-                    <Menu
-                        id="simple-menu"
-                        anchorEl={anchorEl}
-                        open={Boolean(anchorEl)}
-                        onClose={this.handleItemMenuClose}
-                        >
-                        <MenuItem onClick={this.handleEditChannel}>Edit</MenuItem>
-                        <MenuItem onClick={this.handleDeleteChannel}>Delete</MenuItem>
-                    </Menu>
                 </ChannelList>
                 <div className={classes.actionPanel}>
                     <div className={classes.actionRight}>

@@ -67,6 +67,7 @@ const defaultState = {
     isShowActionMenu: false,
     currentFeedItemId: null,
     channelSelectorEditMode: false,
+    isTourOpen: false,
     channelSelector: {
         editOpen: false,
         isCheckingUrl: false,
@@ -96,9 +97,9 @@ const rootReducer = (state = initialState, action) => {
         case types.SET_DEFAULT_STATE: {
             const { lastActiveTime } = state;
             const lastActiveSpan = new Date() - new Date(lastActiveTime);
-            if (lastActiveSpan > .1 * 60 * 1000) {
+            if (lastActiveSpan > .5 * 60 * 1000) {
                 const { currentChannelId, currentFeedItemId, showContent, feedContentTop } = state;
-                const showGoBack = showContent && lastActiveSpan <= .5 * 60 * 1000;
+                const showGoBack = showContent && lastActiveSpan <= 5 * 60 * 1000;
                 const updated = { ...defaultState,
                     lastActiveState: { currentChannelId, currentFeedItemId, showContent, feedContentTop },
                     readerMessageBar: showGoBack ? {
@@ -267,6 +268,9 @@ const rootReducer = (state = initialState, action) => {
             }
             const updated = { [action.payload.componentName]: state[action.payload.componentName] ? { ...state[action.payload.componentName], ...newState } :  { ...newState } };
             return persistence(state, updated);
+        }
+        case types.TOGGLE_TOUR_OPEN: {
+            return persistence(state, { isTourOpen: action.payload });
         }
         default:
             return state;

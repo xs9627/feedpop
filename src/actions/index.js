@@ -127,6 +127,7 @@ export const cleanCache = () => async (dispatch, getState) => {
 };
 export const updateLastActiveTime = () => ({ type: types.UPDATE_LAST_ACTIVE_TIME });
 export const closeMessageBar = () => ({ type: types.CLOSE_MESSAGE_BAR });
+export const toggleTourOpen = isTourOpen => ({ type: types.TOGGLE_TOUR_OPEN, payload: isTourOpen });
 
 export const triggerAction = type => async (dispatch, getState) => {
     switch(type) {

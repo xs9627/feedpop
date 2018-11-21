@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withStyles, withTheme } from '@material-ui/core/styles';
 import { connect } from "react-redux";
+import { toggleTourOpen } from "../actions/index";
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
@@ -9,9 +10,16 @@ import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
     return {
+        isTourOpen: state.isTourOpen,
         isShowActionMenu: state.isShowActionMenu,
         editOpen: state.getComponentState('channelSelector', 'editOpen'),
     };
+};
+
+const mapDispatchToProps = dispatch => {
+    return {
+        toggleTourOpen: isTourOpen => dispatch(toggleTourOpen(isTourOpen)),
+    }
 };
 
 const styles = theme => ({
@@ -54,35 +62,27 @@ class Guide extends Component {
     state = {
         isTourOpen: false,
     }
-    startTour = () => {
-        this.setState({isTourOpen: true});
-    }
-    closeTour = () => {
-        this.setState({isTourOpen: false});
-    }
     render() {
-        const { classes, theme, editOpen, isShowActionMenu, t } = this.props;
-        if (editOpen) {
-            this.state.isTourOpen = false;
-        }
+        const { classes, theme, isShowActionMenu, toggleTourOpen, isTourOpen, t } = this.props;
+        
         return (
             <div className={classes.root}>
                 <Typography variant="body1">
                     {t("No feeds here, start to ")}
                 </Typography>
-                <Button variant="contained" size="small" color="primary" className={classes.button} onClick={this.startTour}>
+                <Button variant="contained" size="small" color="primary" className={classes.button} onClick={() => toggleTourOpen(true)}>
                     {t("add one")}
                     <AddIcon className={classes.extendedIcon} />
                 </Button>
                 <Tour
                     steps={steps(theme, t)}
-                    isOpen={this.state.isTourOpen}
-                    onRequestClose={this.closeTour}
+                    isOpen={isTourOpen}
+                    onRequestClose={() => toggleTourOpen(false)}
                     goToStep={isShowActionMenu ? 1 : 0} 
                     showButtons={false}
                     showNavigation={false}
                     showNumber={false}
-                    startAt={0}
+                    startAt={isShowActionMenu ? 1 : 0}
                     rounded={4}
                 />
             </div>
@@ -90,4 +90,4 @@ class Guide extends Component {
     }
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(withTheme()(withNamespaces()(Guide))));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTheme()(withNamespaces()(Guide))));

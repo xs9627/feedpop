@@ -37,7 +37,6 @@ const styles = theme => ({
     },
     actionContainer: {
         flex: '0 1 auto',
-        zIndex: '2',
         paddingLeft: theme.spacing.unit * 2,
         paddingRight: theme.spacing.unit * 2,
         paddingTop: theme.spacing.unit,

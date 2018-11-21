@@ -17,6 +17,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
+import Drawer from '@material-ui/core/Drawer';
 
 import { connect } from "react-redux";
 import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed } from "../../actions/index";
@@ -29,6 +30,7 @@ const mapStateToProps = state => {
         showContent: state.isShowActionMenu,
         contentName: state.actionName,
         currentChannelId: state.currentChannelId,
+        isTourOpen: state.isTourOpen,
     };
 };
 
@@ -45,22 +47,17 @@ const styles = theme => ({
     readerHeader: {
         width: '100%',
         flex: '0 1 auto',
-        zIndex: '2'
+        zIndex: theme.zIndex.drawer + 1,
     },
     actionPanel: {
         width: '100%',
         background: theme.palette.background.default,
     },
-    menuCollapse: {
-        width: '100%',
-        position: 'absolute'
+    menuDrawer: {
+        zIndex: theme.zIndex.drawer,
     },
-    menuBackground: {
-        position: 'absolute',
-        width: '100%',
-        height: 600,
-        background: theme.palette.common.black,
-        opacity: 0.3,
+    menuContentPanel: {
+        marginTop: theme.mixins.toolbar.minHeight
     },
     loadingContainer: {
         display: 'flex',
@@ -117,7 +114,7 @@ class ReaderHeader extends Component {
         };
     }
     render () {
-        const { classes, allUnreadCount, showContent, contentName, t } = this.props;
+        const { classes, allUnreadCount, showContent, contentName, isTourOpen, t } = this.props;
         return (
             <Paper square={true} className={classes.readerHeader}>
                 <BottomNavigation value={ showContent ? contentName : null } onChange={this.setHeaderContent} className={classes.actionPanel}>
@@ -136,11 +133,17 @@ class ReaderHeader extends Component {
                     {/* <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} /> */}
                     <BottomNavigationAction label={t('Settings')} value="Settings" icon={<Settings />} />
                 </BottomNavigation>
-
-                {showContent ? <div key='Menu-background' className={classes.menuBackground} onClick={this.closeActionMenu} /> : null}
-                <Collapse in={showContent} className={classes.menuCollapse}>
-                    {this.getHeaderContent()}
-                </Collapse>
+                <Drawer
+                    className={classes.menuDrawer}
+                    anchor="top"
+                    open={showContent}
+                    onClose={this.closeActionMenu}
+                    transitionDuration={isTourOpen ? 0 : 200}
+                >
+                    <div className={classes.menuContentPanel}>
+                        {this.getHeaderContent()}
+                    </div>
+                </Drawer>
             </Paper>
         );
     }
