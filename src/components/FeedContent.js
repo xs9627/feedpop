@@ -41,6 +41,7 @@ const styles = theme => ({
         paddingRight: theme.spacing.unit * 2,
         paddingTop: theme.spacing.unit,
         paddingBottom: theme.spacing.unit,
+        zIndex: theme.zIndex.appBar,
     },
     contentContainer: {
         flex: '1 1 auto',
