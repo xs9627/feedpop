@@ -37,7 +37,7 @@ const getIsoDateNow = index => {
 
 const persistence = (state, updated) => {
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, version, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, source, version, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
