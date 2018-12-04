@@ -200,7 +200,7 @@ class FeedList extends Component {
                     <Typography variant="caption">{t("No feeds loaded")}</Typography> 
                 </div>}
                 <List subheader={<li />}>
-                    {Object.keys(arranged).map(dateStr => (
+                    {Object.keys(arranged).sort((a, b) => (a === 'All' ? 1 : b === 'All' ? -1 : new Date(b) - new Date(a))).map(dateStr => (
                         <li key={`dateStr-${dateStr}`} className={classes.listSection}>
                             <ul className={classes.ul}>
                                 <ListItem>

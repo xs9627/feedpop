@@ -58,7 +58,7 @@ const styles = theme => ({
         fontSize: 13,
         lineHeight: '20px',
         '& img': {
-            maxWidth: '100%',
+            maxWidth: '100% !important',
             height: 'auto !important',
         },
         '& span': {

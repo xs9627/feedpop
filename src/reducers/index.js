@@ -3,40 +3,36 @@ import ChromeUtil from "../utils/ChromeUtil";
 
 const mergeFeed = (oldFeed, newFeed) => {
     const uuidv4 = require('uuid/v4');
-    newFeed.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
     if (oldFeed) {
-        const newItems = newFeed.items;
-        const mergedItems = oldFeed.items;
-        for(let i = newItems.length - 1; i >= 0; i--) {
-            if (newItems[i].isoDate) {
-                for(let j = 0; j < mergedItems.length; j++) {
-                    const diff = new Date(newItems[i].isoDate) - new Date(mergedItems[j].isoDate);
-                    if (diff === 0) {
-                        break;
-                    } else if (diff > 0) {
-                        newItems[i].readerId = uuidv4();
-                        mergedItems.splice(j, 0, newItems[i]);
-                        break;
-                    } else if (j === (mergedItems.length - 1)) {
-                        newItems[i].readerId = uuidv4();
-                        mergedItems.splice(j + 1, 0, newItems[i]);
-                        break;
-                    }
-                }
-            } else {
-                if (!mergedItems.some(o => o.title === newItems[i].title)) {
-                    mergedItems.splice(0, 0, newItems[i]);
-                }
+        const mergedItems = [...oldFeed.items];
+        newFeed.items.forEach((ni, i) => {
+            if (!mergedItems.find(mi => mi.link === ni.link)) {
+                mergedItems.push({
+                    ...ni,
+                    readerId: uuidv4(),
+                    isoDate: ni.isoDate || getIsoDateNow(i)
+                });
             }
-        }
+        });
         newFeed.items = mergedItems;
     } else {
-        newFeed.items.forEach(item => {
+        newFeed.items.forEach((item, i) => {
             if (!item.readerId) {
                 item.readerId = uuidv4();
             }
+            if (!item.isoDate) {
+                item.isoDate = getIsoDateNow(i);
+            }
         });
     }
+
+    newFeed.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
+}
+
+const getIsoDateNow = index => {
+    const now = new Date();
+    now.setMilliseconds(now.getMilliseconds() - index);
+    return now.toString();
 }
 
 const persistence = (state, updated) => {
