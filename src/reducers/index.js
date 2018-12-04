@@ -47,7 +47,7 @@ const initialState = {
     channels: [],
     theme: 'light',
     maxFeedsCount: 500,
-    source: 'https://github.com/xs9627/rss-reader',
+    source: 'https://github.com/xs9627/feedpop',
     version: ChromeUtil.getVersion(),
     logs: [],
     allUnreadCount: 0,
