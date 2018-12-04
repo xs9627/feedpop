@@ -3,6 +3,8 @@ import { findDOMNode } from 'react-dom'
 import ListItem from '@material-ui/core/ListItem';
 import { ItemTypes } from '../../constants';
 import { DragSource, DropTarget } from 'react-dnd';
+import { withGesture } from 'react-with-gesture';
+import { Spring, animated } from 'react-spring';
 
 const channelItemSource = {
     beginDrag(props) {
@@ -97,17 +99,26 @@ class ChannelListItem extends Component {
         });
     }
     render() {
-        const {children, connectDragPreview, connectDragSource, isDragging, connectDropTarget, ...otherProps} = this.props;
+        const {editMode, children, connectDragPreview, connectDragSource, isDragging, connectDropTarget, xDelta, down, ...otherProps} = this.props;
         const connectChildren = this.connectChildren(children, connectDragSource);
         const opacity = isDragging ? 0 : 1;
         return connectDropTarget(connectDragPreview(
             <div style={{opacity}}>
-                <ListItem {...otherProps}>
-                    {connectChildren}
-                </ListItem>
+                <Spring native to={{ x: editMode ? 50 : down ? xDelta : 0 }}>
+                    {({ x }) => (
+                        <animated.div style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`) }}>
+                            <div>
+                                <div style={{ position: 'absolute'}}>{xDelta}</div>
+                                <ListItem {...otherProps}>
+                                    {connectChildren}
+                                </ListItem>
+                            </div>
+                        </animated.div>
+                    )}
+                </Spring>
             </div>
         ));
     }
 }
 
-export default DragSource(ItemTypes.CHANNELITEM, channelItemSource, collect)(DropTarget(ItemTypes.CHANNELITEM, channelItemTarget, dropCollecton)((ChannelListItem)));
+export default DragSource(ItemTypes.CHANNELITEM, channelItemSource, collect)(DropTarget(ItemTypes.CHANNELITEM, channelItemTarget, dropCollecton)((withGesture(ChannelListItem))));

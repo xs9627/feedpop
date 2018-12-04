@@ -72,7 +72,8 @@ const styles = theme => ({
     },
     list: {
         maxHeight: 470,
-        overflow: 'auto',
+        overflowY: 'auto',
+        overflowX: 'hidden',
     },
     actionPanel: {
         display: 'flex',
@@ -195,9 +196,12 @@ class ChannelSelector extends Component {
                             key={channel.id}
                             index={i}
                             selected={!this.props.editMode && this.props.currentChannelId == channel.id}
-                            onClick={() => !this.props.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel)}
+                            onClick={() => this.changeChannel(channel.id)}
                             moveItem={moveChannel}
+                            deleteItem={() => this.openDeleteChannelConfirm(channel.id)}
+                            editItem={() => this.handleEditClick(channel)}
                             className={classNames({ [classes.channelItemEditMode]: this.props.editMode })}
+                            editMode={this.props.editMode}
                         >
                             <ListItemText primary={channel.name} primaryTypographyProps={{noWrap: true}} />
                             {this.props.editMode && <Typography>
