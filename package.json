@@ -12,8 +12,6 @@
     "lodash.range": "^3.2.0",
     "npm": "^6.4.1",
     "react": "^16.6.1",
-    "react-dnd": "^5.0.0",
-    "react-dnd-html5-backend": "^5.0.1",
     "react-dom": "^16.6.1",
     "react-i18next": "^8.3.8",
     "react-scripts-chrome-extension": "2.1.1-rc.0",

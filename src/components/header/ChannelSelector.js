@@ -120,18 +120,7 @@ const styles = theme => ({
 
 class ChannelSelector extends Component {
     state = {};
-    
-    
-    handleEditClick = channel => {
-        this.props.setComponentState(state => ({ 
-            editOpen: true, 
-            isAdd: false,
-            editChannelId: channel.id,
-            editName: channel.name,
-            editUrl: channel.url,
-        }));
-    };
-    
+
     handleAddClick = () => {
         this.props.setComponentState(state => ({
             isAdd: true,

@@ -7,14 +7,15 @@ import { connect } from "react-redux"
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import ListItem from '@material-ui/core/ListItem';
-import List from '@material-ui/core/List';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import DragHandle from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Remove';
+import EditIcon from '@material-ui/icons/Edit';
 import { withStyles } from '@material-ui/core/styles';
 import Badge from '@material-ui/core/Badge';
 import Tooltip from '@material-ui/core/Tooltip';
-import { selectChannel, closeActionMenu, setCurrentFeeds } from "../../actions/index"
+import { selectChannel, closeActionMenu, setCurrentFeeds, setComponentState } from "../../actions/index"
 
 const actionPanelWidth = 85
 const mapStateToProps = state => {
@@ -29,6 +30,7 @@ const mapDispatchToProps = dispatch => {
         selectChannel: id => dispatch(selectChannel(id)),
         closeActionMenu: () => dispatch(closeActionMenu()),
         setCurrentFeeds: () => dispatch(setCurrentFeeds()),
+        setComponentState: state => dispatch(setComponentState('channelSelector', state)),
     };
 };
 
@@ -72,6 +74,9 @@ const styles = theme => ({
     itemBadge: {
         marginRight: theme.spacing.unit * 2,
     },
+    editItemIcon: {
+        marginRight: 0,
+    }
 })
 
 class ChannelGestureListItem extends React.Component {
@@ -95,14 +100,29 @@ class ChannelGestureListItem extends React.Component {
     closeDeleteChannelConfirm = () => {
         this.setState({deleteChannelConfirm: false});
     }
+    handleEditClick = channel => {
+        this.props.setComponentState(state => ({ 
+            editOpen: true, 
+            isAdd: false,
+            editChannelId: channel.id,
+            editName: channel.name,
+            editUrl: channel.url,
+        }));
+    };
+    componentWillReceiveProps(newProps) {
+        if (newProps.xDelta !==0 && this.props.down && !newProps.down && (!this.state.editMode || newProps.xInitial >= actionPanelWidth)) {
+            this.state.editMode = newProps.xDelta > actionPanelWidth / 2;
+        }
+        if (this.props.editMode && !newProps.editMode) {
+            this.state.editMode = false
+        } else if (!this.props.editMode && newProps.editMode) {
+            this.state.editMode = true
+        }
+    }
     render() {
         const { classes, xInitial, xDelta, down, onMouseDown, onTouchStart, channel, isSorting, editMode, currentChannelId } = this.props
-        if (!down && (!this.state.editMode || xInitial >= actionPanelWidth)) {
-            this.state.editMode = xDelta > actionPanelWidth / 2;
-        }
-
         return (
-            <Spring native to={{ x: editMode ? actionPanelWidth : !isSorting && down ? this.getOffSet(xDelta) : this.state.editMode ? actionPanelWidth : 0 }}>
+            <Spring native to={{ x: !isSorting && down ? this.getOffSet(xDelta) : this.state.editMode ? actionPanelWidth : 0 }}>
                 {({ x }) => (
                     <div>
                         <ListItem className={classes.actionPanel}>
@@ -117,9 +137,12 @@ class ChannelGestureListItem extends React.Component {
                             <ListItem button
                                 key={channel.id}
                                 className={classes.listItem}
-                                selected={!editMode && !this.state.editMode && this.props.currentChannelId == channel.id}
-                                onClick={() => (xDelta === 0) && this.changeChannel(channel.id)}
+                                selected={!this.state.editMode && this.props.currentChannelId == channel.id}
+                                onClick={() => (xDelta === 0) && (!this.state.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel))}
                             >
+                                { this.state.editMode && <ListItemIcon className={classes.editItemIcon}>
+                                    <EditIcon />
+                                </ListItemIcon> }
                                 <ListItemText primary={channel.name} primaryTypographyProps={{noWrap: true}} />
                                 {
                                     channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
