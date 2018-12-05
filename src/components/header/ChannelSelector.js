@@ -138,17 +138,8 @@ const styles = theme => ({
 
 class ChannelSelector extends Component {
     state = {};
-    changeChannel = channelId => {
-        this.props.selectChannel(channelId);
-        this.props.setCurrentFeeds();
-        this.props.closeActionMenu();
-    }
-    openDeleteChannelConfirm = channelId => {
-        this.setState({deleteChannelConfirm: true, deleteChannelId: channelId});
-    }
-    closeDeleteChannelConfirm = () => {
-        this.setState({deleteChannelConfirm: false});
-    }
+    
+    
     handleEditClick = channel => {
         this.props.setComponentState(state => ({ 
             editOpen: true, 
@@ -158,10 +149,7 @@ class ChannelSelector extends Component {
             editUrl: channel.url,
         }));
     };
-    handleRemoveClick = channelId => {
-        this.props.deleteChannel(this.state.deleteChannelId);
-        this.closeDeleteChannelConfirm();
-    };
+    
     handleAddClick = () => {
         this.props.setComponentState(state => ({
             isAdd: true,
@@ -279,22 +267,7 @@ class ChannelSelector extends Component {
                         </div>
                     </DialogActions>
                 </Dialog>
-                <Dialog open={this.state.deleteChannelConfirm}>
-                    <DialogTitle id="delete-channel-dialog-title">{t("Confirm")}</DialogTitle>
-                    <DialogContent>
-                        <DialogContentText id="delete-channel-description">
-                        {t("Delete this channel?")}
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.closeDeleteChannelConfirm} color="primary">
-                        {t("Cancel")}
-                        </Button>
-                        <Button onClick={this.handleRemoveClick} color="primary" autoFocus>
-                        {t("OK")}
-                        </Button>
-                    </DialogActions>
-                </Dialog>
+                
             </div>
         );
     }

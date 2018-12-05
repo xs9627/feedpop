@@ -12,24 +12,34 @@ import ListItemText from '@material-ui/core/ListItemText';
 import DragHandle from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Remove';
 import { withStyles } from '@material-ui/core/styles';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
-import ChannelGestureListItem from './ChannelGestureListItem'
+import { deleteChannel } from "../../actions/index"
 
+import ChannelGestureListItem from './ChannelGestureListItem';
+import { withNamespaces } from 'react-i18next';
+
+const listItemHeight = 46
 const mapStateToProps = state => {
   return {
     channels: state.channels
   }
 }
+const mapDispatchToProps = dispatch => {
+  return {
+    deleteChannel: id => dispatch(deleteChannel(id)),
+  };
+};
 
 const styles = theme => ({
-  root: {
-    height:500
-  },
   list: {
-    height: 500,
-      maxHeight: 470,
-      overflowY: 'auto',
-      overflowX: 'hidden',
+    maxHeight: 470,
+    overflowY: 'auto',
+    overflowX: 'hidden',
   },
   listItem: {
     position: 'absolute',
@@ -51,8 +61,7 @@ function reinsert(arr, from, to) {
 }
 
 class ChannelGestureList extends React.Component {
-  itemsCount = 10
-  state = { mouseY: 0, topDeltaY: 0, isPressed: false, originalPosOfLastPressed: 0, order: range(this.itemsCount) }
+  state = { mouseY: 0, topDeltaY: 0, isPressed: false, originalPosOfLastPressed: 0, order: range(this.props.channels.length) }
 
   componentDidMount() {
     window.addEventListener('touchmove', this.handleTouchMove)
@@ -70,7 +79,7 @@ class ChannelGestureList extends React.Component {
     const { isPressed, topDeltaY, order, originalPosOfLastPressed } = this.state
     if (isPressed) {
       const mouseY = pageY - topDeltaY
-      const currentRow = clamp(Math.round(mouseY / 54), 0, this.itemsCount - 1)
+      const currentRow = clamp(Math.round(mouseY / listItemHeight), 0, this.props.channels.length - 1)
       let newOrder = order
       if (currentRow !== order.indexOf(originalPosOfLastPressed))
         newOrder = reinsert(order, order.indexOf(originalPosOfLastPressed), currentRow)
@@ -78,18 +87,33 @@ class ChannelGestureList extends React.Component {
     }
   }
 
+  openDeleteChannelConfirm = channelId => {
+    this.setState({deleteChannelConfirm: true, deleteChannelId: channelId});
+  }
+  closeDeleteChannelConfirm = () => {
+      this.setState({deleteChannelConfirm: false});
+  }
+  handleRemoveClick = channelId => {
+    this.props.deleteChannel(this.state.deleteChannelId);
+    this.closeDeleteChannelConfirm();
+  };
+
   render() {
     const { mouseY, isPressed, originalPosOfLastPressed, order } = this.state
-    const { classes } = this.props
+    const { channels, classes, t } = this.props
+    if (order.length < channels.length) {
+      order.push(order.length);
+    } else if (order.length > channels.length) {
+      const removed = 
+    }
     console.log(order)
     return (
-      <List className={classes.list}>
-        {range(this.itemsCount).map(i => {
-          const channel = this.props.channels[i]
+      <List className={classes.list} style={{height: (channels.length <= 10 ? channels.length : 10) * listItemHeight}}>
+        {this.props.channels.map((channel, i) => {
           const active = originalPosOfLastPressed === i && isPressed
           const style = active
             ? { scale: 1, shadow: 16, y: mouseY }
-            : { scale: 1, shadow: 0, y: order.indexOf(i) * 54 }
+            : { scale: 1, shadow: 0, y: order.indexOf(i) * listItemHeight }
           return (
             <Spring immediate={name => active && name === 'y'} to={style} key={i}>
               {({ scale, shadow, y }) => (
@@ -101,17 +125,36 @@ class ChannelGestureList extends React.Component {
                   zIndex: i === originalPosOfLastPressed ? 99 : i,
                 }}>
                   <ChannelGestureListItem
+                      channel = {channel}
                       isSorting = {active}
                       onMouseDown={this.handleMouseDown.bind(null, i, y)}
-                      onTouchStart={this.handleTouchStart.bind(null, i, y)} />
+                      onTouchStart={this.handleTouchStart.bind(null, i, y)}
+                      deleteItem={() => this.openDeleteChannelConfirm(channel.id)}
+                      editItem={() => this.handleEditClick(channel)} />
                 </div>
               )}
             </Spring>
           )
         })}
+        <Dialog open={this.state.deleteChannelConfirm}>
+            <DialogTitle id="delete-channel-dialog-title">{t("Confirm")}</DialogTitle>
+            <DialogContent>
+                <DialogContentText id="delete-channel-description">
+                {t("Delete this channel?")}
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={this.closeDeleteChannelConfirm} color="primary">
+                {t("Cancel")}
+                </Button>
+                <Button onClick={this.handleRemoveClick} color="primary" autoFocus>
+                {t("OK")}
+                </Button>
+            </DialogActions>
+        </Dialog>
       </List>
     )
   }
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(ChannelGestureList))
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(ChannelGestureList)))

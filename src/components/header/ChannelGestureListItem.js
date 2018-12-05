@@ -12,13 +12,23 @@ import ListItemText from '@material-ui/core/ListItemText';
 import DragHandle from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Remove';
 import { withStyles } from '@material-ui/core/styles';
+import { selectChannel, closeActionMenu, setCurrentFeeds } from "../../actions/index"
 
-
+const actionPanelWidth = 75
 const mapStateToProps = state => {
     return {
         editMode: state.channelSelectorEditMode,
+        currentChannelId: state.currentChannelId,
     }
 }
+
+const mapDispatchToProps = dispatch => {
+    return {
+        selectChannel: id => dispatch(selectChannel(id)),
+        closeActionMenu: () => dispatch(closeActionMenu()),
+        setCurrentFeeds: () => dispatch(setCurrentFeeds()),
+    };
+};
 
 const styles = theme => ({
     root: {
@@ -30,32 +40,75 @@ const styles = theme => ({
         overflowY: 'auto',
         overflowX: 'hidden',
     },
-    listItem: {
+    ListItemPanel: {
         backgroundColor: theme.palette.background.paper,
     },
     actionPanel: {
         position: 'absolute'
-    }
+    },
+    draggableHandle: {
+        display: 'inline-flex', 
+        verticalAlign: 'middle',
+        cursor: 'move',
+        '& p': {
+            display: 'inherit',
+        },
+        borderRight: `2px solid ${theme.palette.divider}`,
+        padding: theme.spacing.unit,
+    },
+    removeButton: {
+        width: 20,
+        height: 20,
+        minHeight: 20,
+        marginLeft: theme.spacing.unit,
+
+    },
 })
 
 class ChannelGestureListItem extends React.Component {
+    state = {
+        xPosition: 0
+    }
+    getOffSet = xDelta => {
+        let offset = this.state.xPosition + xDelta;
+        offset = offset > actionPanelWidth ? actionPanelWidth : offset;
+        offset = offset < 0 ? 0 : offset;
+        return offset;
+    }
+    changeChannel = channelId => {
+        this.props.selectChannel(channelId);
+        this.props.setCurrentFeeds();
+        this.props.closeActionMenu();
+    }
+    openDeleteChannelConfirm = channelId => {
+        this.setState({deleteChannelConfirm: true, deleteChannelId: channelId});
+    }
+    closeDeleteChannelConfirm = () => {
+        this.setState({deleteChannelConfirm: false});
+    }
     render() {
-        const { classes, xDelta, down, onMouseDown, onTouchStart, isSorting, editMode } = this.props
+        const { classes, xInitial, xDelta, down, onMouseDown, onTouchStart, channel, isSorting, editMode, currentChannelId } = this.props
+        if (!down && (this.state.xPosition === 0 || xInitial > actionPanelWidth)) {
+            this.state.xPosition = xDelta > actionPanelWidth / 2 ? actionPanelWidth : 0;
+        }
         return (
-            <Spring native to={{ x: editMode ? 50 : !isSorting && down ? xDelta : 0 }}>
+            <Spring native to={{ x: editMode ? actionPanelWidth : !isSorting && down ? this.getOffSet(xDelta) : this.state.xPosition }}>
                 {({ x }) => (
                     <div>
                         <div className={classes.actionPanel}>
-                            <Typography onMouseDown={onMouseDown} onTouchStart={onTouchStart}>
+                            <Typography className={classes.draggableHandle} onMouseDown={onMouseDown} onTouchStart={onTouchStart}>
                                 <DragHandle fontSize="small" />
                             </Typography>
-                            <Button variant="fab" mini color="secondary" aria-label="Add">
+                            <Button className={classes.removeButton} variant="fab" mini color="secondary" aria-label="Delete" onClick={() => this.props.deleteItem()}>
                                 <RemoveIcon fontSize="small" />
                             </Button>
                         </div>
-                        <animated.div style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`) }}>
-                            <ListItem className={classes.listItem}>
-                                <ListItemText primary={'channel.name'} primaryTypographyProps={{noWrap: true}} />
+                        <animated.div className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`) }}>
+                            <ListItem button className={classes.listItem}
+                                selected={!editMode && this.props.currentChannelId == channel.id}
+                                onClick={() => (xDelta === 0) && this.changeChannel(channel.id)}
+                            >
+                                <ListItemText primary={channel.name} primaryTypographyProps={{noWrap: true}} />
                             </ListItem>
                         </animated.div>
                     </div> 
@@ -65,4 +118,4 @@ class ChannelGestureListItem extends React.Component {
     }
 }
 
-export default connect(mapStateToProps)(withStyles(styles)(withGesture(ChannelGestureListItem)))
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withGesture(ChannelGestureListItem)))
