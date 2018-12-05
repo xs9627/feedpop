@@ -32,7 +32,8 @@ const styles = theme => ({
       overflowX: 'hidden',
   },
   listItem: {
-    position: 'absolute'
+    position: 'absolute',
+    width: '100%'
   },
   actionPanel: {
     position: 'absolute'
@@ -50,7 +51,7 @@ function reinsert(arr, from, to) {
 }
 
 class ChannelGestureList extends React.Component {
-  itemsCount = this.props.channels.length
+  itemsCount = 10
   state = { mouseY: 0, topDeltaY: 0, isPressed: false, originalPosOfLastPressed: 0, order: range(this.itemsCount) }
 
   componentDidMount() {
@@ -69,7 +70,7 @@ class ChannelGestureList extends React.Component {
     const { isPressed, topDeltaY, order, originalPosOfLastPressed } = this.state
     if (isPressed) {
       const mouseY = pageY - topDeltaY
-      const currentRow = clamp(Math.round(mouseY / 100), 0, this.itemsCount - 1)
+      const currentRow = clamp(Math.round(mouseY / 54), 0, this.itemsCount - 1)
       let newOrder = order
       if (currentRow !== order.indexOf(originalPosOfLastPressed))
         newOrder = reinsert(order, order.indexOf(originalPosOfLastPressed), currentRow)
@@ -99,7 +100,9 @@ class ChannelGestureList extends React.Component {
                   transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
                   zIndex: i === originalPosOfLastPressed ? 99 : i,
                 }}>
-                  <ChannelGestureListItem onMouseDown={this.handleMouseDown.bind(null, i, y)}
+                  <ChannelGestureListItem
+                      isSorting = {active}
+                      onMouseDown={this.handleMouseDown.bind(null, i, y)}
                       onTouchStart={this.handleTouchStart.bind(null, i, y)} />
                 </div>
               )}
