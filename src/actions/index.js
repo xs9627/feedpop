@@ -76,7 +76,7 @@ export const deleteChannel = id => async (dispatch, getState) => {
         await dispatch(setCurrentFeeds()); 
     }
 }
-export const moveChannel = (from, to) => ({ type: types.MOVE_CHANNEL, payload: { from, to } });
+export const moveChannel = order => ({ type: types.MOVE_CHANNEL, payload: order });
 export const updateChannelFeed = id => async (dispatch, getState) => {
     const channel = getState().channels.find(c => c.id === id);
     let feeds;

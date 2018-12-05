@@ -14,7 +14,7 @@ import RemoveIcon from '@material-ui/icons/Remove';
 import { withStyles } from '@material-ui/core/styles';
 import { selectChannel, closeActionMenu, setCurrentFeeds } from "../../actions/index"
 
-const actionPanelWidth = 75
+const actionPanelWidth = 85
 const mapStateToProps = state => {
     return {
         editMode: state.channelSelectorEditMode,
@@ -44,7 +44,11 @@ const styles = theme => ({
         backgroundColor: theme.palette.background.paper,
     },
     actionPanel: {
-        position: 'absolute'
+        position: 'absolute',
+        height: 46,
+        backgroundColor: theme.palette.background.default,
+        paddingLeft: theme.spacing.unit
+
     },
     draggableHandle: {
         display: 'inline-flex', 
@@ -67,10 +71,10 @@ const styles = theme => ({
 
 class ChannelGestureListItem extends React.Component {
     state = {
-        xPosition: 0
+        editMode: false
     }
     getOffSet = xDelta => {
-        let offset = this.state.xPosition + xDelta;
+        let offset = (this.state.editMode ? actionPanelWidth : 0) + xDelta;
         offset = offset > actionPanelWidth ? actionPanelWidth : offset;
         offset = offset < 0 ? 0 : offset;
         return offset;
@@ -88,24 +92,27 @@ class ChannelGestureListItem extends React.Component {
     }
     render() {
         const { classes, xInitial, xDelta, down, onMouseDown, onTouchStart, channel, isSorting, editMode, currentChannelId } = this.props
-        if (!down && (this.state.xPosition === 0 || xInitial > actionPanelWidth)) {
-            this.state.xPosition = xDelta > actionPanelWidth / 2 ? actionPanelWidth : 0;
+        if (!down && (!this.state.editMode || xInitial >= actionPanelWidth)) {
+            this.state.editMode = xDelta > actionPanelWidth / 2;
         }
+
         return (
-            <Spring native to={{ x: editMode ? actionPanelWidth : !isSorting && down ? this.getOffSet(xDelta) : this.state.xPosition }}>
+            <Spring native to={{ x: editMode ? actionPanelWidth : !isSorting && down ? this.getOffSet(xDelta) : this.state.editMode ? actionPanelWidth : 0 }}>
                 {({ x }) => (
                     <div>
-                        <div className={classes.actionPanel}>
+                        <ListItem className={classes.actionPanel}>
                             <Typography className={classes.draggableHandle} onMouseDown={onMouseDown} onTouchStart={onTouchStart}>
                                 <DragHandle fontSize="small" />
                             </Typography>
                             <Button className={classes.removeButton} variant="fab" mini color="secondary" aria-label="Delete" onClick={() => this.props.deleteItem()}>
                                 <RemoveIcon fontSize="small" />
                             </Button>
-                        </div>
+                        </ListItem>
                         <animated.div className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`) }}>
-                            <ListItem button className={classes.listItem}
-                                selected={!editMode && this.props.currentChannelId == channel.id}
+                            <ListItem button
+                                key={channel.id}
+                                className={classes.listItem}
+                                selected={!editMode && !this.state.editMode && this.props.currentChannelId == channel.id}
                                 onClick={() => (xDelta === 0) && this.changeChannel(channel.id)}
                             >
                                 <ListItemText primary={channel.name} primaryTypographyProps={{noWrap: true}} />

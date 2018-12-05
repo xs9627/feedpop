@@ -186,12 +186,10 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, { ...updated, allUnreadCount: updated.channels.reduce((r, a) => (r + a.unreadCount), 0) });
         }
         case types.MOVE_CHANNEL: {
-            const { from, to } = action.payload;
-            const movedChannel = state.channels[from];
             const channels = [...state.channels];
-            channels.splice(from, 1);
-            channels.splice(to, 0, movedChannel);
-            return persistence(state, { channels });
+            const newChannels = [];
+            action.payload.forEach(index => newChannels.push(channels[index]));
+            return persistence(state, { channels: newChannels });
         }
         case types.SET_CHANNEL_SELECTOR_EDITMODE: {
             const updated = { channelSelectorEditMode: action.payload };
