@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import ChannelGestureList from './ChannelGestureList'
 import ChannelList from './ChannelList';
 import ChannelListItem from './ChannelListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -190,7 +191,8 @@ class ChannelSelector extends Component {
         const { classes, isCheckingUrl, isAdd, isUrlInvalid, urlErrorMessage, moveChannel, t } = this.props;
         return (
             <div className={classes.root}>
-                <ChannelList component="nav" className={classes.list}>
+                <ChannelGestureList />
+                {/* <ChannelList component="nav" className={classes.list}>
                     {this.props.channel.map((channel, i) => (
                         <ChannelListItem button
                             key={channel.id}
@@ -226,7 +228,7 @@ class ChannelSelector extends Component {
                             )}
                         </ChannelListItem>
                     ))}
-                </ChannelList>
+                </ChannelList> */}
                 <div className={classes.actionPanel}>
                     <div className={classes.actionRight}>
                         <IconButton className={classes.actionButton} onClick={this.handleAddClick}>
