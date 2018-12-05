@@ -12,6 +12,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import DragHandle from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Remove';
 import { withStyles } from '@material-ui/core/styles';
+import Badge from '@material-ui/core/Badge';
+import Tooltip from '@material-ui/core/Tooltip';
 import { selectChannel, closeActionMenu, setCurrentFeeds } from "../../actions/index"
 
 const actionPanelWidth = 85
@@ -67,6 +69,9 @@ const styles = theme => ({
         marginLeft: theme.spacing.unit,
 
     },
+    itemBadge: {
+        marginRight: theme.spacing.unit * 2,
+    },
 })
 
 class ChannelGestureListItem extends React.Component {
@@ -116,6 +121,13 @@ class ChannelGestureListItem extends React.Component {
                                 onClick={() => (xDelta === 0) && this.changeChannel(channel.id)}
                             >
                                 <ListItemText primary={channel.name} primaryTypographyProps={{noWrap: true}} />
+                                {
+                                    channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
+                                        <Tooltip title={channel.unreadCount} enterDelay={100}>
+                                            <span>...</span>
+                                        </Tooltip>
+                                    )} color="primary" /> : null
+                                }
                             </ListItem>
                         </animated.div>
                     </div> 

@@ -2,10 +2,6 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import ChannelGestureList from './ChannelGestureList'
-import ChannelList from './ChannelList';
-import ChannelListItem from './ChannelListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
 import Add from '@material-ui/icons/Add';
@@ -14,19 +10,8 @@ import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
-import DragHandle from '@material-ui/icons/DragHandle';
-import RemoveIcon from '@material-ui/icons/Remove';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import Badge from '@material-ui/core/Badge';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Typography from '@material-ui/core/Typography';
-import Portal from '@material-ui/core/Portal';
-import Tooltip from '@material-ui/core/Tooltip';
 
 import { connect } from "react-redux";
 import { addChannel, editChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds, toggleTourOpen} from "../../actions/index"
@@ -90,9 +75,6 @@ const styles = theme => ({
     },
     actionButtonIconActive: {
         color: theme.palette.primary.main,
-    },
-    itemBadge: {
-        marginRight: theme.spacing.unit * 2,
     },
     draggableHandle: {
         display: 'inline-flex', 
