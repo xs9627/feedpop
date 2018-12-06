@@ -140,9 +140,16 @@ class ChannelGestureListItem extends React.Component {
                                 selected={!this.state.editMode && this.props.currentChannelId == channel.id}
                                 onClick={() => (xDelta === 0) && (!this.state.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel))}
                             >
-                                { this.state.editMode && <ListItemIcon className={classes.editItemIcon}>
-                                    <EditIcon />
-                                </ListItemIcon> }
+                                <animated.div
+                                    style={{
+                                        transform: x.interpolate(x => `scale(${x / actionPanelWidth})`),
+                                        width: x.interpolate(x => `${x * 2 / actionPanelWidth}em`),
+                                    }}
+                                >
+                                    <ListItemIcon className={classes.editItemIcon}>
+                                        <EditIcon />
+                                    </ListItemIcon>
+                                </animated.div>
                                 <ListItemText primary={channel.name} primaryTypographyProps={{noWrap: true}} />
                                 {
                                     channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
