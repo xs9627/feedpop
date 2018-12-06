@@ -144,6 +144,7 @@ class ChannelGestureListItem extends React.Component {
                                     style={{
                                         transform: x.interpolate(x => `scale(${x / actionPanelWidth})`),
                                         width: x.interpolate(x => `${x * 2 / actionPanelWidth}em`),
+                                        height: '2em'
                                     }}
                                 >
                                     <ListItemIcon className={classes.editItemIcon}>
