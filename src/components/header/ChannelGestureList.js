@@ -88,8 +88,9 @@ class ChannelGestureList extends React.Component {
                 this.state.orderUpdated = true;
             }
             this.setState({ mouseY: mouseY, order: newOrder })
-            if (mouseY - channelListContainerTop > listItemHeight * 9) {
-                this.channelListContainer.scrollTop =  mouseY - 9 * listItemHeight
+            const topOffset = (this.getShowChannelCount() - 1) * listItemHeight;
+            if (mouseY - channelListContainerTop > topOffset) {
+                this.channelListContainer.scrollTop =  mouseY - topOffset
             } else if (mouseY - channelListContainerTop < -10) {
                 this.channelListContainer.scrollTop = mouseY + 10
             }
@@ -107,6 +108,9 @@ class ChannelGestureList extends React.Component {
         this.closeDeleteChannelConfirm();
     };
 
+    getShowChannelCount = () => {
+        return this.props.channels.length <= 10 ? this.props.channels.length : 10;
+    }
     componentWillReceiveProps(newProps) {
         if (newProps.channels) {
             this.state.order = range(newProps.channels.length)
@@ -118,8 +122,8 @@ class ChannelGestureList extends React.Component {
         const { channels, classes, t } = this.props
         
         return (
-            <div className={classes.list} style={{height: (channels.length <= 10 ? channels.length : 10) * listItemHeight}} ref={node => this.channelListContainer = node}>
-                <List>
+            <div className={classes.list} ref={node => this.channelListContainer = node}>
+                <List style={{height: this.getShowChannelCount() * listItemHeight}} >
                     {this.props.channels.map((channel, i) => {
                         const active = originalPosOfLastPressed === i && isPressed
                         const style = active
