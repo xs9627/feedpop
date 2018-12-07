@@ -76,9 +76,9 @@ class ChannelGestureList extends React.Component {
         this.setState({ isPressed: false, topDeltaY: 0,  orderUpdated: false })
     }
     handleMouseDown = (pos, pressY, { pageY }) =>
-        this.setState({ topDeltaY: pageY - pressY, mouseY: pressY, isPressed: true, originalPosOfLastPressed: pos })
+        this.setState({ topDeltaY: pageY - pressY, mouseY: pressY, isPressed: true, originalPosOfLastPressed: pos, channelListContainerTop: this.channelListContainer.scrollTop })
     handleMouseMove = ({ pageY }) => {
-        const { isPressed, topDeltaY, order, originalPosOfLastPressed } = this.state
+        const { isPressed, topDeltaY, order, originalPosOfLastPressed, channelListContainerTop } = this.state
         if (isPressed) {
             const mouseY = pageY - topDeltaY
             const currentRow = clamp(Math.round(mouseY / listItemHeight), 0, this.props.channels.length - 1)
@@ -88,6 +88,11 @@ class ChannelGestureList extends React.Component {
                 this.state.orderUpdated = true;
             }
             this.setState({ mouseY: mouseY, order: newOrder })
+            if (mouseY - channelListContainerTop > listItemHeight * 9) {
+                this.channelListContainer.scrollTop =  mouseY - 9 * listItemHeight
+            } else if (mouseY - channelListContainerTop < -10) {
+                this.channelListContainer.scrollTop = mouseY + 10
+            }
         }
     }
 
@@ -113,51 +118,53 @@ class ChannelGestureList extends React.Component {
         const { channels, classes, t } = this.props
         
         return (
-            <List className={classes.list} style={{height: (channels.length <= 10 ? channels.length : 10) * listItemHeight}}>
-                {this.props.channels.map((channel, i) => {
-                    const active = originalPosOfLastPressed === i && isPressed
-                    const style = active
-                        ? { scale: 1, shadow: 16, y: mouseY }
-                        : { scale: 1, shadow: 0, y: order.indexOf(i) * listItemHeight }
-                    return (
-                        <Spring immediate={name => active && name === 'y'} to={style} key={channel.id}>
-                            {({ scale, shadow, y }) => (
-                                <div 
-                                className={classes.listItem}
-                                style={{
-                                    boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
-                                    transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
-                                    zIndex: i === originalPosOfLastPressed ? 99 : i,
-                                }}>
-                                    <ChannelGestureListItem
-                                            channel = {channel}
-                                            isSorting = {active}
-                                            onMouseDown={this.handleMouseDown.bind(null, i, y)}
-                                            onTouchStart={this.handleTouchStart.bind(null, i, y)}
-                                            deleteItem={() => this.openDeleteChannelConfirm(channel.id)}
-                                            editItem={() => this.handleEditClick(channel)} />
-                                </div>
-                            )}
-                        </Spring>
-                    )
-                })}
-                <Dialog open={this.state.deleteChannelConfirm}>
-                        <DialogTitle id="delete-channel-dialog-title">{t("Confirm")}</DialogTitle>
-                        <DialogContent>
-                                <DialogContentText id="delete-channel-description">
-                                {t("Delete this channel?")}
-                                </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
-                                <Button onClick={this.closeDeleteChannelConfirm} color="primary">
-                                {t("Cancel")}
-                                </Button>
-                                <Button onClick={this.handleRemoveClick} color="primary" autoFocus>
-                                {t("OK")}
-                                </Button>
-                        </DialogActions>
-                </Dialog>
-            </List>
+            <div className={classes.list} style={{height: (channels.length <= 10 ? channels.length : 10) * listItemHeight}} ref={node => this.channelListContainer = node}>
+                <List>
+                    {this.props.channels.map((channel, i) => {
+                        const active = originalPosOfLastPressed === i && isPressed
+                        const style = active
+                            ? { scale: 1, shadow: 16, y: mouseY }
+                            : { scale: 1, shadow: 0, y: order.indexOf(i) * listItemHeight }
+                        return (
+                            <Spring immediate={name => active && name === 'y'} to={style} key={channel.id}>
+                                {({ scale, shadow, y }) => (
+                                    <div 
+                                    className={classes.listItem}
+                                    style={{
+                                        boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
+                                        transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
+                                        zIndex: i === originalPosOfLastPressed ? 99 : i,
+                                    }}>
+                                        <ChannelGestureListItem
+                                                channel = {channel}
+                                                isSorting = {active}
+                                                onMouseDown={this.handleMouseDown.bind(null, i, y)}
+                                                onTouchStart={this.handleTouchStart.bind(null, i, y)}
+                                                deleteItem={() => this.openDeleteChannelConfirm(channel.id)}
+                                                editItem={() => this.handleEditClick(channel)} />
+                                    </div>
+                                )}
+                            </Spring>
+                        )
+                    })}
+                    <Dialog open={this.state.deleteChannelConfirm}>
+                            <DialogTitle id="delete-channel-dialog-title">{t("Confirm")}</DialogTitle>
+                            <DialogContent>
+                                    <DialogContentText id="delete-channel-description">
+                                    {t("Delete this channel?")}
+                                    </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                    <Button onClick={this.closeDeleteChannelConfirm} color="primary">
+                                    {t("Cancel")}
+                                    </Button>
+                                    <Button onClick={this.handleRemoveClick} color="primary" autoFocus>
+                                    {t("OK")}
+                                    </Button>
+                            </DialogActions>
+                    </Dialog>
+                </List>
+            </div>
         )
     }
 }
