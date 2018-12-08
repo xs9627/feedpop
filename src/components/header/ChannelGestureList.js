@@ -11,6 +11,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import RootRef from '@material-ui/core/RootRef';
 
 import { deleteChannel, moveChannel } from "../../actions/index"
 
@@ -56,6 +57,11 @@ function reinsert(arr, from, to) {
 }
 
 class ChannelGestureList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.channelListContainer = React.createRef();
+    }
+
     state = { mouseY: 0, topDeltaY: 0, isPressed: false, originalPosOfLastPressed: 0, order: range(this.props.channels.length) }
 
     componentDidMount() {
@@ -76,7 +82,7 @@ class ChannelGestureList extends React.Component {
         this.setState({ isPressed: false, topDeltaY: 0,  orderUpdated: false })
     }
     handleMouseDown = (pos, pressY, { pageY }) =>
-        this.setState({ topDeltaY: pageY - pressY, mouseY: pressY, isPressed: true, originalPosOfLastPressed: pos, channelListContainerTop: this.channelListContainer.scrollTop })
+        this.setState({ topDeltaY: pageY - pressY, mouseY: pressY, isPressed: true, originalPosOfLastPressed: pos, channelListContainerTop: this.channelListContainer.current.scrollTop })
     handleMouseMove = ({ pageY }) => {
         const { isPressed, topDeltaY, order, originalPosOfLastPressed, channelListContainerTop } = this.state
         if (isPressed) {
@@ -89,10 +95,11 @@ class ChannelGestureList extends React.Component {
             }
             this.setState({ mouseY: mouseY, order: newOrder })
             const topOffset = (this.getShowChannelCount() - 1) * listItemHeight;
-            if (mouseY - channelListContainerTop > topOffset) {
-                this.channelListContainer.scrollTop =  mouseY - topOffset
-            } else if (mouseY - channelListContainerTop < -10) {
-                this.channelListContainer.scrollTop = mouseY + 10
+            const listPadding = 8
+            if (mouseY - channelListContainerTop > topOffset + listPadding) {
+                this.channelListContainer.current.scrollTop =  mouseY - topOffset - listPadding
+            } else if (mouseY - channelListContainerTop < 0 - listPadding) {
+                this.channelListContainer.current.scrollTop = mouseY + listPadding
             }
         }
     }
@@ -122,8 +129,8 @@ class ChannelGestureList extends React.Component {
         const { channels, classes, t } = this.props
         
         return (
-            <div className={classes.list} ref={node => this.channelListContainer = node}>
-                <List style={{height: this.getShowChannelCount() * listItemHeight}} >
+            <RootRef rootRef={this.channelListContainer}>
+                <List className={classes.list} style={{height: this.getShowChannelCount() * listItemHeight}} >
                     {this.props.channels.map((channel, i) => {
                         const active = originalPosOfLastPressed === i && isPressed
                         const style = active
@@ -168,7 +175,7 @@ class ChannelGestureList extends React.Component {
                             </DialogActions>
                     </Dialog>
                 </List>
-            </div>
+            </RootRef>
         )
     }
 }
