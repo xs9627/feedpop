@@ -7,5 +7,5 @@ Install in chrome web store: https://chrome.google.com/webstore/detail/feedpop-s
 
 ### Change log
 ### 1.0.1
-- Optimize sort channel list
-- Handle feed with no publish date
+- Optimize channel list sorting
+- Handle feeds with no publish date
