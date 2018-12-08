@@ -10,7 +10,7 @@ const mergeFeed = (oldFeed, newFeed) => {
                 mergedItems.push({
                     ...ni,
                     readerId: uuidv4(),
-                    isoDate: ni.isoDate || getIsoDateNow(i)
+                    isoDate: isInvalidDateStr(ni.isoDate) ? getIsoDateNow(i) : ni.isoDate
                 });
             }
         });
@@ -20,13 +20,17 @@ const mergeFeed = (oldFeed, newFeed) => {
             if (!item.readerId) {
                 item.readerId = uuidv4();
             }
-            if (!item.isoDate) {
+            if (isInvalidDateStr(item.isoDate)) {
                 item.isoDate = getIsoDateNow(i);
             }
         });
     }
 
     newFeed.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
+}
+
+const isInvalidDateStr = dateStr => {
+    return isNaN(new Date(dateStr));
 }
 
 const getIsoDateNow = index => {
@@ -137,9 +141,10 @@ const rootReducer = (state = initialState, action) => {
             const updated = { channels: [...state.channels, channel], allUnreadCount: (state.allUnreadCount || 0) + channel.unreadCount };
             feeds.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
             const uuidv4 = require('uuid/v4');
-            feeds.items.forEach(item => {
+            feeds.items.forEach((item, i) => {
                 if (!item.readerId) {
                     item.readerId = uuidv4();
+                    item.isoDate = isInvalidDateStr(item.isoDate) ? getIsoDateNow(i) : item.isoDate;
                 }
             });
             if (updated.channels.length === 1) {

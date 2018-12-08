@@ -18,6 +18,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { selectChannel, closeActionMenu, setCurrentFeeds, setComponentState } from "../../actions/index"
 
 const actionPanelWidth = 85
+const clickCheckThreshold = 5
 const mapStateToProps = state => {
     return {
         editMode: state.channelSelectorEditMode,
@@ -110,7 +111,7 @@ class ChannelGestureListItem extends React.Component {
         }));
     };
     componentWillReceiveProps(newProps) {
-        if (newProps.xDelta !==0 && this.props.down && !newProps.down && (!this.state.editMode || newProps.xInitial >= actionPanelWidth)) {
+        if (Math.abs(newProps.xDelta) > clickCheckThreshold && this.props.down && !newProps.down && (!this.state.editMode || newProps.xInitial >= actionPanelWidth)) {
             this.state.editMode = newProps.xDelta > actionPanelWidth / 2;
         }
         if (this.props.editMode && !newProps.editMode) {
@@ -138,7 +139,7 @@ class ChannelGestureListItem extends React.Component {
                                 key={channel.id}
                                 className={classes.listItem}
                                 selected={!this.state.editMode && this.props.currentChannelId == channel.id}
-                                onClick={() => (xDelta === 0) && (!this.state.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel))}
+                                onClick={() => (Math.abs(xDelta) < clickCheckThreshold) && (!this.state.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel))}
                             >
                                 <animated.div
                                     style={{
