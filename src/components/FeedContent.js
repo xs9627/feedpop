@@ -86,13 +86,15 @@ class FeedContent extends Component {
                     const imgList = this.contentContainer.getElementsByTagName('img');
                     if (imgList.length > 0) {
                         let count = imgList.length;
-                        for (let img of imgList) {
-                            img.onload= () => {
-                                count--;
-                                if (count === 0) {
-                                    this.contentContainer.scrollTop = this.props.feedContentTop;
-                                }
+                        const countImg = () => {
+                            count--;
+                            if (count === 0) {
+                                this.contentContainer.scrollTop = this.props.feedContentTop;
                             }
+                        }
+                        for (let img of imgList) {
+                            img.onload = countImg;
+                            img.onerror = countImg;
                         }
                     } else {
                         this.contentContainer.scrollTop = this.props.feedContentTop;
