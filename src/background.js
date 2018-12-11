@@ -7,7 +7,8 @@ import ChromeUtil from './utils/ChromeUtil';
 const ports = [];
 
 chrome.runtime.onInstalled.addListener(() => {
-    store.dispatch(syncState()).then(state => {
+    store.dispatch(syncState()).then(() => {
+        const state = store.getState();
         chrome.browserAction.setBadgeText({text: state && state.allUnreadCount > 0 ? `${state.allUnreadCount}` : ''});
         chrome.browserAction.setBadgeBackgroundColor({ color: '#424242' });
         ChromeUtil.recreateAlarm("refreshAll", state.refreshPeriod);
