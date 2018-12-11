@@ -48,6 +48,14 @@ let ChromeUtil = {
     },
     getVersion: () => {
         return chrome.runtime.getManifest().version;
+    },
+    recreateAlarm: (name, periodInMinutes, delayInMinutes = 1) => {
+        chrome.alarms.clear(name, (wasCleared) => {
+            chrome.alarms.create(name, {
+                delayInMinutes,
+                periodInMinutes,
+            });
+        })
     }
 };
 

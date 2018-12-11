@@ -25,9 +25,9 @@ import { setSettins, cleanCache } from "../../actions/index"
 import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
-    const { theme, maxFeedsCount, source, version } = state;
+    const { theme, maxFeedsCount, refreshPeriod, source, version } = state;
     return {
-        config: { theme, maxFeedsCount, source, version },
+        config: { theme, maxFeedsCount, refreshPeriod, source, version },
         logs: state.logs,
     };
 };
@@ -46,7 +46,7 @@ const styles = theme => ({
     nested: {
         paddingLeft: theme.spacing.unit * 4,
     },
-    maxFeedsCountSelect: {
+    select: {
         paddingRight: theme.spacing.unit,
     }
 });
@@ -61,6 +61,12 @@ class Settings extends Component {
 
     handleChangeMaxFeedsCount = event => {
         this.props.setSettins({ maxFeedsCount: event.target.value });
+    }
+
+    handleChangeRefreshPeriod = event => {
+        const refreshPeriod = event.target.value
+        this.props.setSettins({ refreshPeriod });
+        ChromeUtil.recreateAlarm("refreshAll", refreshPeriod);
     }
 
     doSkr = () => {
@@ -116,7 +122,7 @@ class Settings extends Component {
                     </ListItem>
                     <ListItem>
                         <ListItemText primary={t("Channel maximum feeds")}></ListItemText>
-                        <ListItemSecondaryAction className={classes.maxFeedsCountSelect}>
+                        <ListItemSecondaryAction className={classes.select}>
                             <Select
                                 value={this.props.config.maxFeedsCount}
                                 onChange={this.handleChangeMaxFeedsCount}
@@ -128,6 +134,22 @@ class Settings extends Component {
                                 <MenuItem value={500}>500</MenuItem>
                                 <MenuItem value={1000}>1000</MenuItem>
                                 <MenuItem value={-1}>Unlimite</MenuItem>
+                            </Select>
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                    <ListItem>
+                        <ListItemText primary={t("Update period (mins)")}></ListItemText>
+                        <ListItemSecondaryAction className={classes.select}>
+                            <Select
+                                value={this.props.config.refreshPeriod}
+                                onChange={this.handleChangeRefreshPeriod}
+                                displayEmpty
+                                name="refreshPeriod"
+                            >
+                                <MenuItem value={10}>10</MenuItem>
+                                <MenuItem value={15}>15</MenuItem>
+                                <MenuItem value={30}>30</MenuItem>
+                                <MenuItem value={60}>60</MenuItem>
                             </Select>
                         </ListItemSecondaryAction>
                     </ListItem>

@@ -2,18 +2,15 @@
 import store from './store/index';
 import { syncState, updateChannelFeed, setSettins, log, updateLastActiveTime } from './actions/index';
 import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
+import ChromeUtil from './utils/ChromeUtil';
 
 const ports = [];
 
 chrome.runtime.onInstalled.addListener(() => {
-    store.dispatch(syncState()).then(stage => {
-        chrome.browserAction.setBadgeText({text: stage && stage.allUnreadCount > 0 ? `${stage.allUnreadCount}` : ''});
-        chrome.browserAction.setBadgeBackgroundColor({ color: '#424242' }); 
-    });
-    
-    chrome.alarms.create("refreshAll", {
-        delayInMinutes: 1,
-        periodInMinutes: 10,
+    store.dispatch(syncState()).then(state => {
+        chrome.browserAction.setBadgeText({text: state && state.allUnreadCount > 0 ? `${state.allUnreadCount}` : ''});
+        chrome.browserAction.setBadgeBackgroundColor({ color: '#424242' });
+        ChromeUtil.recreateAlarm("refreshAll", state.refreshPeriod);
     });
 });
 

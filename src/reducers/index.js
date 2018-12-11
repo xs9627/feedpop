@@ -55,6 +55,7 @@ const initialState = {
     version: ChromeUtil.getVersion(),
     logs: [],
     allUnreadCount: 0,
+    refreshPeriod: 15,
     ...defaultState,
     getComponentState(componentName, stateName) {
         return this[componentName] ? this[componentName][stateName] : null;
