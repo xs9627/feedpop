@@ -88,15 +88,15 @@ class FeedList extends Component {
     arrangeFeeds = feeds => {
         if (feeds) {
             this.state.arrangedFeeds = feeds.items
-            .filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate)])
+            .filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate).index])
             .slice(0, this.state.page * 20)
             .reduce((r, a) => {
-                let dateStr = this.getDateStr(a.isoDate);
-                r[dateStr] = r[dateStr] || [];
-                if (!r[dateStr].find(f => f.readerId === a.readerId)) {
-                    r[dateStr].push(a);
+                let result = this.getDateStr(a.isoDate);
+                r[result.index] = r[result.index] || { dateString: result.dateString, items: [] };
+                if (!r[result.index].items.find(f => f.readerId === a.readerId)) {
+                    r[result.index].items.push(a);
                 } else {
-                    r[dateStr] = r[dateStr].map(i => (i.readerId === a.readerId) ? a : i);
+                    r[result.index].items = r[result.index].items.map(i => (i.readerId === a.readerId) ? a : i);
                 }
                 return r;
             }, this.state.arrangedFeeds);
@@ -105,8 +105,35 @@ class FeedList extends Component {
         }
     }
     getDateStr = date => {
-        const result = new Date(date).toLocaleDateString();
-        return result !== 'Invalid Date' ? result : 'All';
+        if (!isNaN(new Date(date))) {
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const diff = new Date().setHours(0,0,0,0) - new Date(date).setHours(0,0,0,0);
+            const dayMilliseconds = 1000 * 60 * 60 * 24;
+
+            if (diff < dayMilliseconds * 7) {
+                if (diff < dayMilliseconds) {
+                    return { index: 1, dateString: "Today" };
+                } else if (diff < dayMilliseconds * 2) {
+                    return { index: 2, dateString: "Yestoday" };
+                } else {
+                    return { index: (diff / dayMilliseconds) + 1, dateString: days[new Date(date).getDay()] };
+                }
+            } else if (diff < dayMilliseconds * 14) {
+                return { index: 8, dateString: "Last Week" };
+            } else if (diff < dayMilliseconds * 21) {
+                return { index: 9, dateString: "2 Weed Ago" };
+            } else if (diff < dayMilliseconds * 28) {
+                return { index: 10, dateString: "3 Weed Ago" };
+            } else if (diff < dayMilliseconds * 60) {
+                return { index: 11, dateString: "Last Month" };
+            } else if (diff < dayMilliseconds * 365) {
+                return { index: 12, dateString: "This Year" };
+            } else {
+                return { index: 13, dateString: "Older" };
+            }
+        } else {
+            return { index: 13, dateString: "Older" };
+        }
     }
     initCollapseStatus = currentChannelId => {
         if (currentChannelId !== this.state.currentChannelId) {
@@ -116,28 +143,35 @@ class FeedList extends Component {
             this.setState({ currentChannelId, collapseStatus: {}, arrangedFeeds: {}, page: 1 });
         }
     }
-    handleSubheaderClick = dateStr => {
+    handleSubheaderClick = index => {
         const collapseStatus = this.state.collapseStatus;
-        collapseStatus[dateStr] = !collapseStatus[dateStr];
-        if (!collapseStatus[dateStr] && this.state.arrangedFeeds[dateStr].length < this.props.feeds.items.reduce((r, a) => (r += this.getDateStr(a.isoDate) === dateStr ? 1 : 0), 0)) {
+        collapseStatus[index] = !collapseStatus[index];
+        if (!collapseStatus[index] && this.state.arrangedFeeds[index].items.length < this.props.feeds.items.reduce((r, a) => (r += this.getDateStr(a.isoDate).index === index ? 1 : 0), 0)) {
             const keys = Object.keys(this.state.arrangedFeeds);
             for (let i = keys.length - 1; i >=0; i--) {
-                if (keys[i] !== dateStr) {
+                if (keys[i] !== index) {
                     delete this.state.arrangedFeeds[keys[i]];
                     collapseStatus[keys[i]] = false;
                 } else {
                     break;
                 }
             }
-            this.state.page = Math.ceil(this.state.arrangedFeeds[dateStr].length / 20);
+            this.state.page = Math.ceil(this.state.arrangedFeeds[index].items.length / 20);
         } else {
-            this.state.page -= Math.ceil(this.state.arrangedFeeds[dateStr].length / 20) - 1;
+            this.state.page -= Math.ceil(this.state.arrangedFeeds[index].items.length / 20) - 1;
         }
         this.setState({ collapseStatus: collapseStatus });
     }
-    getTime = isoDate => {
-        const result = new Date(isoDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        return result != 'Invalid Date' ? result : null;
+    getTime = (isoDate, groupIndex) => {
+        if (!isNaN(new Date(isoDate))) {
+            const date = new Date(isoDate);
+            let result = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            if (groupIndex > 7) {
+                const dateString = groupIndex < 13 ? date.toLocaleDateString([], {month:"2-digit", day:"2-digit"}) : date.toLocaleDateString();
+                result = `${dateString} ${result}`;
+            }
+            return result;
+        }
     }
     testFaiconsApi = () => {
         const request = new XMLHttpRequest();
@@ -200,19 +234,19 @@ class FeedList extends Component {
                     <Typography variant="caption">{t("No feeds loaded")}</Typography> 
                 </div>}
                 <List subheader={<li />}>
-                    {Object.keys(arranged).sort((a, b) => (a === 'All' ? 1 : b === 'All' ? -1 : new Date(b) - new Date(a))).map(dateStr => (
-                        <li key={`dateStr-${dateStr}`} className={classes.listSection}>
+                    {Object.keys(arranged).sort().map(index => (
+                        <li key={`dateStr-${index}`} className={classes.listSection}>
                             <ul className={classes.ul}>
                                 <ListItem>
-                                    <ListItemText primary={dateStr}></ListItemText>
+                                    <ListItemText primary={t(arranged[index].dateString)}></ListItemText>
                                     <ListItemSecondaryAction>
-                                        <IconButton className={classes.collapseIcon} onClick={() => this.handleSubheaderClick(dateStr)}>
-                                            {this.state.collapseStatus[dateStr] ? <ExpandLess /> : <ExpandMore />}
+                                        <IconButton className={classes.collapseIcon} onClick={() => this.handleSubheaderClick(index)}>
+                                            {this.state.collapseStatus[index] ? <ExpandLess /> : <ExpandMore />}
                                         </IconButton>
                                     </ListItemSecondaryAction>
                                 </ListItem>
-                                <Collapse in={!this.state.collapseStatus[dateStr]} timeout="auto" unmountOnExit>
-                                    {arranged[dateStr].map(feed => (
+                                <Collapse in={!this.state.collapseStatus[index]} timeout="auto" unmountOnExit>
+                                    {arranged[index].items.map(feed => (
                                         <ListItem 
                                             button  
                                             dense={true} 
@@ -222,7 +256,7 @@ class FeedList extends Component {
                                                 this.props.openFeed(feed.readerId);
                                             }}
                                         >
-                                            <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={this.getTime(feed.isoDate)} />
+                                            <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={this.getTime(feed.isoDate, index)} />
                                         </ListItem>
                                     ))}
                                 </Collapse>
