@@ -5,7 +5,4 @@ A simple way to read RSS feeds in a popup window.
 
 Install in chrome web store: https://chrome.google.com/webstore/detail/feedpop-simple-rss-feed-r/nleicnolldoamnpiekcpifpimpolkelo
 
-### Change log
-### 1.0.1
-- Optimaze sort channel list
-- Handle feed with no publish date
+Install crx file manually: https://github.com/xs9627/feedpop/releases
