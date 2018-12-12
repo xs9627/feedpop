@@ -105,9 +105,12 @@ class FeedList extends Component {
         }
     }
     getDateStr = date => {
-        if (!isNaN(new Date(date))) {
-            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            const diff = new Date().setHours(0,0,0,0) - new Date(date).setHours(0,0,0,0);
+        const itemDate = new Date(date);
+        if (!isNaN(itemDate)) {
+            let compareDate = new Date();
+            compareDate.setHours(0,0,0,0); //Today
+            itemDate.setHours(0,0,0,0);
+            const diff = compareDate - itemDate;
             const dayMilliseconds = 1000 * 60 * 60 * 24;
 
             if (diff < dayMilliseconds * 7) {
@@ -116,7 +119,8 @@ class FeedList extends Component {
                 } else if (diff < dayMilliseconds * 2) {
                     return { index: 2, dateString: "Yestoday" };
                 } else {
-                    return { index: (diff / dayMilliseconds) + 1, dateString: days[new Date(date).getDay()] };
+                    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    return { index: (diff / dayMilliseconds) + 1, dateString: days[itemDate.getDay()] };
                 }
             } else if (diff < dayMilliseconds * 14) {
                 return { index: 8, dateString: "Last Week" };
@@ -124,12 +128,20 @@ class FeedList extends Component {
                 return { index: 9, dateString: "2 Weed Ago" };
             } else if (diff < dayMilliseconds * 28) {
                 return { index: 10, dateString: "3 Weed Ago" };
-            } else if (diff < dayMilliseconds * 60) {
-                return { index: 11, dateString: "Last Month" };
-            } else if (diff < dayMilliseconds * 365) {
-                return { index: 12, dateString: "This Year" };
             } else {
-                return { index: 13, dateString: "Older" };
+                compareDate.setDate(1); //Last month
+                compareDate.setMonth(compareDate.getMonth() - 1);
+                if (itemDate >= compareDate) {
+                    return { index: 11, dateString: "Last Month" };
+                }
+                else {
+                    compareDate.setMonth(0) //This year
+                    if (itemDate >= compareDate) {
+                        return { index: 11, dateString: "This Year" };
+                    } else {
+                        return { index: 13, dateString: "Older" };
+                    }
+                }
             }
         } else {
             return { index: 13, dateString: "Older" };
@@ -234,7 +246,7 @@ class FeedList extends Component {
                     <Typography variant="caption">{t("No feeds loaded")}</Typography> 
                 </div>}
                 <List subheader={<li />}>
-                    {Object.keys(arranged).sort().map(index => (
+                    {Object.keys(arranged).sort((a,b)=> (parseInt(a) - parseInt(b))).map(index => (
                         <li key={`dateStr-${index}`} className={classes.listSection}>
                             <ul className={classes.ul}>
                                 <ListItem>

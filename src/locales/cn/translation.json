@@ -29,5 +29,14 @@
     "First open the channel list": "打开源列表",
     "And, add a feed": "新增RSS源",
     "No feeds here, start to ": "未添加RSS源 ",
-    "add one": "开始添加"
+    "add one": "开始添加",
+
+    "Today": "今天",
+    "Yestoday": "昨天",
+    "Last Week": "上周",
+    "2 Weed Ago": "两周前",
+    "3 Weed Ago": "三周前",
+    "Last Month": "上个月",
+    "This Year": "今年",
+    "Older": "更早"
 }

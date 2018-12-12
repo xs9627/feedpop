@@ -29,6 +29,14 @@
     "First open the channel list": "First open the channel list",
     "And, add a feed": "And, add a feed",
     "No feeds here, start to ": "No feeds here, start to ",
-    "add one": "add one"
+    "add one": "add one",
 
+    "Today": "Today",
+    "Yestoday": "Yestoday",
+    "Last Week": "Last Week",
+    "2 Weed Ago": "2 Weed Ago",
+    "3 Weed Ago": "3 Weed Ago",
+    "Last Month": "Last Month",
+    "This Year": "This Year",
+    "Older": "Older"
 }
