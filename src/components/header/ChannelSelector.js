@@ -14,7 +14,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { connect } from "react-redux";
-import { addChannel, editChannel, toggleChannelSelectorEditMode, deleteChannel, selectChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds, toggleTourOpen} from "../../actions/index"
+import { addChannel, editChannel, toggleChannelSelectorEditMode, deleteChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds, toggleTourOpen} from "../../actions/index"
 
 import { withNamespaces } from 'react-i18next';
 
@@ -43,7 +43,6 @@ const mapDispatchToProps = dispatch => {
         editChannel: channel => dispatch(editChannel(channel)),
         toggleEditMode: () => dispatch(toggleChannelSelectorEditMode()),
         deleteChannel: id => dispatch(deleteChannel(id)),
-        selectChannel: id => dispatch(selectChannel(id)),
         closeActionMenu: () => dispatch(closeActionMenu()),
         setComponentState: state => dispatch(setComponentState(componentStateName, state)),
         moveChannel: (from, to) => dispatch(moveChannel(from, to)),
@@ -151,43 +150,6 @@ class ChannelSelector extends Component {
         return (
             <div className={classes.root}>
                 <ChannelGestureList />
-                {/* <ChannelList component="nav" className={classes.list}>
-                    {this.props.channel.map((channel, i) => (
-                        <ChannelListItem button
-                            key={channel.id}
-                            index={i}
-                            selected={!this.props.editMode && this.props.currentChannelId == channel.id}
-                            onClick={() => this.changeChannel(channel.id)}
-                            moveItem={moveChannel}
-                            deleteItem={() => this.openDeleteChannelConfirm(channel.id)}
-                            editItem={() => this.handleEditClick(channel)}
-                            className={classNames({ [classes.channelItemEditMode]: this.props.editMode })}
-                            editMode={this.props.editMode}
-                        >
-                            <ListItemText primary={channel.name} primaryTypographyProps={{noWrap: true}} />
-                            {this.props.editMode && <Typography>
-                                <KeyboardArrowRight fontSize="small" />
-                            </Typography>}
-                            {this.props.editMode ?
-                            (
-                                <ListItemSecondaryAction className={classes.channelItemActionPanel}>
-                                    <Typography draggable-handle draggable-classname={this.props.classes.draggableHandle}>
-                                        <DragHandle fontSize="small" />
-                                    </Typography>
-                                    <Button variant="fab" mini color="secondary" aria-label="Add" className={classes.removeButton} onClick={() => this.openDeleteChannelConfirm(channel.id)}>
-                                        <RemoveIcon fontSize="small" />
-                                    </Button>
-                                </ListItemSecondaryAction>
-                            ) : (
-                                channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
-                                    <Tooltip title={channel.unreadCount} enterDelay={100}>
-                                        <span>...</span>
-                                    </Tooltip>
-                                )} color="primary" /> : null
-                            )}
-                        </ChannelListItem>
-                    ))}
-                </ChannelList> */}
                 <div className={classes.actionPanel}>
                     <div className={classes.actionRight}>
                         <IconButton className={classes.actionButton} onClick={this.handleAddClick}>

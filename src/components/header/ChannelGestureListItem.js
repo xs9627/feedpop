@@ -91,8 +91,10 @@ class ChannelGestureListItem extends React.Component {
         return offset;
     }
     changeChannel = channelId => {
-        this.props.selectChannel(channelId);
-        this.props.setCurrentFeeds();
+        if (channelId !== this.props.currentChannelId) {
+            this.props.selectChannel(channelId);
+            this.props.setCurrentFeeds();
+        }
         this.props.closeActionMenu();
     }
     openDeleteChannelConfirm = channelId => {
