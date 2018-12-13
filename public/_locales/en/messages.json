@@ -1,0 +1,8 @@
+{
+    "appName": {
+      "message": "FeedPop: Simple RSS feed reader"
+    },
+    "appDesc": {
+      "message": "Read RSS in a popup window."
+    }
+  }
