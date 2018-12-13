@@ -101,7 +101,10 @@ class FeedList extends Component {
                 return r;
             }, this.state.arrangedFeeds);
         } else {
-            this.state.arrangedFeeds = {};
+            Object.assign(this.state, {arrangedFeeds: {}, collapseStatus: {}, page: 1});
+            if (this.feedList) {
+                this.feedList.scrollTop = 0;
+            }
         }
     }
     getDateStr = date => {
@@ -145,14 +148,6 @@ class FeedList extends Component {
             }
         } else {
             return { index: 13, dateString: "Older" };
-        }
-    }
-    initCollapseStatus = currentChannelId => {
-        if (currentChannelId !== this.state.currentChannelId) {
-            if (this.feedList) {
-                this.feedList.scrollTop = 0;
-            }
-            this.setState({ currentChannelId, collapseStatus: {}, arrangedFeeds: {}, page: 1 });
         }
     }
     handleSubheaderClick = index => {
@@ -222,7 +217,6 @@ class FeedList extends Component {
     };
     render() {
         const { classes, feeds, currentChannelId, currentChannel, t } = this.props;
-        this.initCollapseStatus(currentChannelId);
         this.arrangeFeeds(feeds);
         const arranged = this.state.arrangedFeeds;
         return (
