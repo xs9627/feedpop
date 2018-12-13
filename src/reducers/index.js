@@ -207,7 +207,7 @@ const rootReducer = (state = initialState, action) => {
             if (state.maxFeedsCount && state.maxFeedsCount > 0) {
                 feeds.items = feeds.items.slice(0, state.maxFeedsCount);
             }
-            return persistence(state, { mergedFeed: feeds, ...updateUnreadCount(feeds, state.channels, channelId) });
+            return persistence(state, { currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds, mergedFeed: feeds, ...updateUnreadCount(feeds, state.channels, channelId) });
         }
         case types.SET_FEED_READ_STATUS: {
             const items = state.currentFeeds.items.map(i => (i.readerId === action.payload.feedId ? { ...i, isRead: true } : i));

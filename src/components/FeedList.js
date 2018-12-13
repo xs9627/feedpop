@@ -244,7 +244,7 @@ class FeedList extends Component {
                                     </ListItemSecondaryAction>
                                 </ListItem>
                                 <Collapse in={!this.state.collapseStatus[index]} timeout="auto" unmountOnExit>
-                                    {arranged[index].items.map(feed => (
+                                    {arranged[index].items.sort((a, b)=> (new Date(b.isoDate) - new Date(a.isoDate))).map(feed => (
                                         <ListItem 
                                             button  
                                             dense={true} 
