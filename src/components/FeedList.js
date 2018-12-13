@@ -101,7 +101,7 @@ class FeedList extends Component {
                 return r;
             }, this.state.arrangedFeeds);
         } else {
-            this.state.arrangedFeeds = [];
+            this.state.arrangedFeeds = {};
         }
     }
     getDateStr = date => {
@@ -214,14 +214,6 @@ class FeedList extends Component {
     }
     componentWillUnmount() {
         this.feedList.removeEventListener('scroll', this.trackScrolling);
-    }
-    componentWillReceiveProps(newProps) {
-        if (this.props.feeds && newProps.feeds && newProps.feeds.items.length !== this.props.feeds.items.length) {
-            this.state.arrangedFeeds = Object.keys(this.state.arrangedFeeds).reduce((r, a) => {
-                r[a] = [];
-                return r;
-            }, {});
-        }
     }
     trackScrolling = (e) => {
         if (this.isBottom(e) && this.props.feeds) {

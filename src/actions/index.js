@@ -89,6 +89,10 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
     }
     const oldFeeds = await getChannelFeeds(id);
     dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
+    if (id === getState().currentChannelId) {
+        dispatch({ type: types.SET_CURRENT_FEEDS_BEGIN });
+        dispatch({ type: types.SET_CURRENT_FEEDS, payload: getState().mergedFeed });
+    }
     await saveChannelFeeds(id, getState().mergedFeed);
 }
 export const setFeedReadStatus = (channelId, feedId) => async (dispatch, getState) => {
