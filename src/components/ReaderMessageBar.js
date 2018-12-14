@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
 import { withStyles } from '@material-ui/core/styles';
+import { withNamespaces } from 'react-i18next';
 
 import { triggerAction, closeMessageBar } from '../actions/index';
 import Button from '@material-ui/core/Button';
@@ -48,13 +49,13 @@ class readerMessageBar extends Component {
         this.props.closeMessageBar();
     }
     render() {
-        const { classes, config } = this.props;
+        const { classes, config, t } = this.props;
         const { open, mainActionName, mainActionType, cloaseActionType, message, autoHideDuration } = config;
         const action = [];
         if (mainActionType) {
             action.push(
                 <Button key="mainAction" color="inherit" size="small" onClick={ () => this.triggerAction(mainActionType) }>
-                    { mainActionName }
+                    { t(mainActionName) }
                 </Button>
             );
         }
@@ -77,7 +78,7 @@ class readerMessageBar extends Component {
                     message={
                         <span id="message-id" className={classes.message}>
                             <InfoIcon className={classes.icon} />
-                            { message }
+                            { t(message) }
                         </span>
                     }
                     action={ action }
@@ -92,4 +93,4 @@ readerMessageBar.propTypes = {
     config: PropTypes.object.isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(readerMessageBar));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(readerMessageBar)));
