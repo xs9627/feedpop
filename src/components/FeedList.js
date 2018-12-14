@@ -82,26 +82,29 @@ class FeedList extends Component {
         faviconsReachable: false,
         collapseStatus: {},
         page: 1,
-        arrangedFeeds: {}
+        arrangedFeeds: new Map()
     }
     faviconsApi = 'https://www.google.com/s2/favicons?domain=';
     arrangeFeeds = feeds => {
         if (feeds) {
-            this.state.arrangedFeeds = feeds.items
+            const arrangedMap = feeds.items
             .filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate).index])
             .slice(0, this.state.page * 20)
             .reduce((r, a) => {
                 let result = this.getDateStr(a.isoDate);
-                r[result.index] = r[result.index] || { dateString: result.dateString, items: [] };
-                if (!r[result.index].items.find(f => f.readerId === a.readerId)) {
-                    r[result.index].items.push(a);
+                if (!r.has(result.index)) {
+                    r.set(result.index, { dateString: result.dateString, items: [] });
+                }
+                if (!r.get(result.index).items.find(f => f.readerId === a.readerId)) {
+                    r.get(result.index).items.push(a);
                 } else {
-                    r[result.index].items = r[result.index].items.map(i => (i.readerId === a.readerId) ? a : i);
+                    r.get(result.index).items = r.get(result.index).items.map(i => (i.readerId === a.readerId) ? a : i);
                 }
                 return r;
             }, this.state.arrangedFeeds);
+            this.state.arrangedFeeds = new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]));
         } else {
-            Object.assign(this.state, {arrangedFeeds: {}, collapseStatus: {}, page: 1});
+            Object.assign(this.state, {arrangedFeeds: new Map(), collapseStatus: {}, page: 1});
             if (this.feedList) {
                 this.feedList.scrollTop = 0;
             }
@@ -153,19 +156,18 @@ class FeedList extends Component {
     handleSubheaderClick = index => {
         const collapseStatus = this.state.collapseStatus;
         collapseStatus[index] = !collapseStatus[index];
-        if (!collapseStatus[index] && this.state.arrangedFeeds[index].items.length < this.props.feeds.items.reduce((r, a) => (r += this.getDateStr(a.isoDate).index === index ? 1 : 0), 0)) {
+        if (!collapseStatus[index] && this.state.arrangedFeeds.get(index).items.length < this.props.feeds.items.reduce((r, a) => (r += this.getDateStr(a.isoDate).index === index ? 1 : 0), 0)) {
             const keys = Object.keys(this.state.arrangedFeeds);
-            for (let i = keys.length - 1; i >=0; i--) {
-                if (keys[i] !== index) {
-                    delete this.state.arrangedFeeds[keys[i]];
-                    collapseStatus[keys[i]] = false;
-                } else {
-                    break;
+            
+            this.state.arrangedFeeds.forEach((value, key) => {
+                if (key > index) {
+                    this.state.arrangedFeeds.delete(key);
+                    collapseStatus[key] = false;
                 }
-            }
-            this.state.page = Math.ceil(this.state.arrangedFeeds[index].items.length / 20);
+            });
+            this.state.page = Math.ceil(this.state.arrangedFeeds.get(index).items.length / 20);
         } else {
-            this.state.page -= Math.ceil(this.state.arrangedFeeds[index].items.length / 20) - 1;
+            this.state.page -= Math.ceil(this.state.arrangedFeeds.get(index).items.length / 20) - 1;
         }
         this.setState({ collapseStatus: collapseStatus });
     }
@@ -232,11 +234,11 @@ class FeedList extends Component {
                     <Typography variant="caption">{t("No feeds loaded")}</Typography> 
                 </div>}
                 <List subheader={<li />}>
-                    {Object.keys(arranged).sort((a,b)=> (parseInt(a) - parseInt(b))).map(index => (
+                    {[...arranged].map(([index, value]) => (
                         <li key={`dateStr-${index}`} className={classes.listSection}>
                             <ul className={classes.ul}>
                                 <ListItem>
-                                    <ListItemText primary={t(arranged[index].dateString)}></ListItemText>
+                                    <ListItemText primary={t(value.dateString)}></ListItemText>
                                     <ListItemSecondaryAction>
                                         <IconButton className={classes.collapseIcon} onClick={() => this.handleSubheaderClick(index)}>
                                             {this.state.collapseStatus[index] ? <ExpandLess /> : <ExpandMore />}
@@ -244,7 +246,7 @@ class FeedList extends Component {
                                     </ListItemSecondaryAction>
                                 </ListItem>
                                 <Collapse in={!this.state.collapseStatus[index]} timeout="auto" unmountOnExit>
-                                    {arranged[index].items.sort((a, b)=> (new Date(b.isoDate) - new Date(a.isoDate))).map(feed => (
+                                    {value.items.sort((a, b)=> (new Date(b.isoDate) - new Date(a.isoDate))).map(feed => (
                                         <ListItem 
                                             button  
                                             dense={true} 
