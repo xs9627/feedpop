@@ -37,16 +37,17 @@ const mapDispatchToProps = dispatch => {
 
 const styles = theme => ({
     root: {
-        height:500
-    },
-    list: {
-        height: 500,
-        maxHeight: 470,
-        overflowY: 'auto',
-        overflowX: 'hidden',
+        '&:active': {
+            cursor: 'grabbing'
+        }
     },
     ListItemPanel: {
         backgroundColor: theme.palette.background.paper,
+    },
+    listItem: {
+        '&:active': {
+            cursor: 'grabbing'
+        }
     },
     actionPanel: {
         position: 'absolute',
@@ -58,12 +59,15 @@ const styles = theme => ({
     draggableHandle: {
         display: 'inline-flex', 
         verticalAlign: 'middle',
-        cursor: 'move',
+        cursor: 'grab',
         '& p': {
             display: 'inherit',
         },
         borderRight: `2px solid ${theme.palette.divider}`,
         padding: theme.spacing.unit,
+        '&:active': {
+            cursor: 'grabbing'
+        }
     },
     removeButton: {
         width: 20,
@@ -127,7 +131,7 @@ class ChannelGestureListItem extends React.Component {
         return (
             <Spring native to={{ x: !isSorting && down ? this.getOffSet(xDelta) : this.state.editMode ? actionPanelWidth : 0 }}>
                 {({ x }) => (
-                    <div>
+                    <div className={classes.root}>
                         <ListItem className={classes.actionPanel}>
                             <Typography className={classes.draggableHandle} onMouseDown={onMouseDown} onTouchStart={onTouchStart}>
                                 <DragHandle fontSize="small" />
