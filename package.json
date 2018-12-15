@@ -14,7 +14,7 @@
     "react": "^16.6.1",
     "react-dom": "^16.6.1",
     "react-i18next": "^8.3.8",
-    "react-scripts-chrome-extension": "2.1.1-rc.0",
+    "react-scripts-chrome-extension": "^2.1.1-rc.1",
     "react-spring": "^6.1.10",
     "react-transition-group": "^1.2.1",
     "react-with-gesture": "^2.0.4",
@@ -28,7 +28,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env INLINE_RUNTIME_CHUNK=false react-scripts build && npm run build:chrome",
-    "publish": "cross-env GENERATE_SOURCEMAP=false npm run build",
+    "publish": "cross-env GENERATE_SOURCEMAP=false cross-env PUBLISH_BUILD=true npm run build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "build:chrome": "node scripts/update-chrome-extensions-prop.js"

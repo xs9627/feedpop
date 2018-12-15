@@ -51,7 +51,7 @@ const initialState = {
     channels: [],
     theme: 'light',
     maxFeedsCount: 500,
-    source: 'https://github.com/xs9627/feedpop',
+    source: require('Config').sourceRepository,
     version: ChromeUtil.getVersion(),
     logs: [],
     allUnreadCount: 0,
