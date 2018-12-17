@@ -144,7 +144,7 @@ class FeedList extends Component {
                 else {
                     compareDate.setMonth(0) //This year
                     if (itemDate >= compareDate) {
-                        return { index: 11, dateString: "This Year" };
+                        return { index: 12, dateString: "This Year" };
                     } else {
                         return { index: 13, dateString: "Older" };
                     }

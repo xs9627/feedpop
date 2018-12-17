@@ -1,6 +1,8 @@
 /* global chrome */
 chrome.runtime.getManifest.returns({version: "1.*.*"});
 chrome.runtime.connect.returns({onMessage: { addListener: () => {}}});
+chrome.storage.local.get.yields({});
+chrome.storage.local.set.yields({});
 chrome.storage.local.get.withArgs('state').yields({state: {
     "actionName": "List",
     "allUnreadCount": 136,
@@ -11,6 +13,12 @@ chrome.storage.local.get.withArgs('state').yields({state: {
     },
     "channelSelectorEditMode": false,
     "channels": [
+      {
+        "id": "fa9bb137-90f9-4ad0-8170-feb2592b8741",
+        "name": "知乎日报",
+        "unreadCount": 18,
+        "url": "http://zhihurss.miantiao.me/dailyrss"
+      },
       {
         "id": "2b97dbed-3d78-4f08-9970-e9c5afd4e493",
         "name": "爱范儿",
@@ -36,10 +44,10 @@ chrome.storage.local.get.withArgs('state').yields({state: {
         "url": "https://36kr.com/feed"
       },
       {
-        "id": "fa9bb137-90f9-4ad0-8170-feb2592b8741",
-        "name": "知乎日报",
-        "unreadCount": 18,
-        "url": "http://zhihurss.miantiao.me/dailyrss"
+        "id": "f1f7de3e-c879-43de-af5c-7889937d30e1",
+        "name": "Arrow OS",
+        "unreadCount": 13,
+        "url": "https://sourceforge.net/projects/arrow-os/rss?path=/arrow-9.x/whyred"
       }
     ],
     "currentChannelId": "2b97dbed-3d78-4f08-9970-e9c5afd4e493",
@@ -53,7 +61,7 @@ chrome.storage.local.get.withArgs('state').yields({state: {
       "feedContentTop": 0,
       "showContent": false
     },
-    "lastActiveTime": "2018-12-15T13:20:04.448Z",
+    "lastActiveTime": "2018-12-17T09:18:11.210Z",
     "logs": [
       {
         "date": "2018/12/12 上午7:45:40",
@@ -65,7 +73,7 @@ chrome.storage.local.get.withArgs('state').yields({state: {
       "open": false
     },
     "refreshPeriod": 30,
-    "showContent": false,
+    "showContent": true,
     "theme": "light"
   }});
 
@@ -279,6 +287,149 @@ chrome.storage.local.get.withArgs('f-fa9bb137-90f9-4ad0-8170-feb2592b8741').yiel
         "link": "https://daily.zhihu.com/",
         "title": "知乎日报"
       }
+});
+
+chrome.storage.local.get.withArgs('f-f1f7de3e-c879-43de-af5c-7889937d30e1').yields({
+  "f-f1f7de3e-c879-43de-af5c-7889937d30e1": {
+    "description": "Files from Arrow OS ArrowOS is an AOSP based open source project started with the aim of keeping things simple, clean and neat, both for the Android system and users. We understand the pain of unnecessary and sometimes rarely used mods/features being shipped with custom roms nowadays which may end up causing battery drains and/or memory leaks. This is being strictly avoided on our side keeping everything to a bare minimum, delivering the stable performance all the time without destroying the AOSP interface. With users getting more used to tweaks and features, we added just the right stuff that will be actually USEFUL at the end of the day.",
+    "docs": "http://blogs.law.harvard.edu/tech/rss",
+    "items": [
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181210.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181210.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181210.zip/download",
+        "isoDate": "2018-12-10T11:09:57.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181210.zip/download",
+        "pubDate": "Mon, 10 Dec 2018 11:09:57 UT",
+        "readerId": "6b1843a0-e88c-40a2-8128-85be541c83d2",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181210.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181201.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181201.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181201.zip/download",
+        "isoDate": "2018-12-01T22:48:55.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181201.zip/download",
+        "pubDate": "Sat, 01 Dec 2018 22:48:55 UT",
+        "readerId": "1f65e6a5-c32b-4450-a277-afa9ae582dd1",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181201.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181118.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181118.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181118.zip/download",
+        "isoDate": "2018-11-18T09:43:41.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181118.zip/download",
+        "pubDate": "Sun, 18 Nov 2018 09:43:41 UT",
+        "readerId": "afd10507-fcef-433f-a140-d9f5ce1c2533",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181118.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181111.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181111.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181111.zip/download",
+        "isoDate": "2018-11-12T00:38:09.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181111.zip/download",
+        "pubDate": "Mon, 12 Nov 2018 00:38:09 UT",
+        "readerId": "b5477214-6312-45a4-bcc5-2231ff9d7237",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181111.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-SPOOKIFIED-20181101.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-SPOOKIFIED-20181101.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-SPOOKIFIED-20181101.zip/download",
+        "isoDate": "2018-11-02T00:30:23.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-SPOOKIFIED-20181101.zip/download",
+        "pubDate": "Fri, 02 Nov 2018 00:30:23 UT",
+        "readerId": "27fce384-d399-407d-8a5d-8e842f98ad44",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-SPOOKIFIED-20181101.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181029.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181029.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181029.zip/download",
+        "isoDate": "2018-10-29T10:37:36.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181029.zip/download",
+        "pubDate": "Mon, 29 Oct 2018 10:37:36 UT",
+        "readerId": "9229758d-79c5-4c78-8487-719b86137370",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181029.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181021.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181021.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181021.zip/download",
+        "isoDate": "2018-10-21T21:47:22.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181021.zip/download",
+        "pubDate": "Sun, 21 Oct 2018 21:47:22 UT",
+        "readerId": "b884078f-139a-45c7-b985-584f5a09b0b0",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181021.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181015.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181015.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181015.zip/download",
+        "isoDate": "2018-10-15T16:10:01.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181015.zip/download",
+        "pubDate": "Mon, 15 Oct 2018 16:10:01 UT",
+        "readerId": "c9b31bd5-7eb4-4ba3-b2f4-0b74a5434ee5",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181015.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181007.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181007.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181007.zip/download",
+        "isoDate": "2018-10-07T18:36:14.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181007.zip/download",
+        "pubDate": "Sun, 07 Oct 2018 18:36:14 UT",
+        "readerId": "271465e8-8090-446d-9ead-2b191b52437c",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181007.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180930.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180930.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180930.zip/download",
+        "isoDate": "2018-09-30T11:14:50.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180930.zip/download",
+        "pubDate": "Sun, 30 Sep 2018 11:14:50 UT",
+        "readerId": "ce03a4db-901e-4e65-91df-070539b6df9a",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180930.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180923.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180923.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180923.zip/download",
+        "isoDate": "2018-09-23T12:31:25.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180923.zip/download",
+        "pubDate": "Sun, 23 Sep 2018 12:31:25 UT",
+        "readerId": "51ca2109-9211-42e9-bdee-693c642e58f3",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180923.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180914.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180914.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180914.zip/download",
+        "isoDate": "2018-09-14T20:56:12.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180914.zip/download",
+        "pubDate": "Fri, 14 Sep 2018 20:56:12 UT",
+        "readerId": "e46d57c4-ffa4-41c4-93ba-3bcf96ad8c62",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180914.zip"
+      },
+      {
+        "content": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180908.zip",
+        "contentSnippet": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180908.zip",
+        "guid": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180908.zip/download",
+        "isoDate": "2018-09-08T17:22:29.000Z",
+        "link": "https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180908.zip/download",
+        "pubDate": "Sat, 08 Sep 2018 17:22:29 UT",
+        "readerId": "5c9a7b4e-d605-4109-b2ec-4565ec169043",
+        "title": "/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20180908.zip"
+      }
+    ],
+    "link": "https://sourceforge.net",
+    "managingEditor": "noreply@sourceforge.net (SourceForge.net)",
+    "pubDate": "Mon, 17 Dec 2018 08:47:40 UT",
+    "title": "Arrow OS"
+  },
 });
 
 /* global analytics */
