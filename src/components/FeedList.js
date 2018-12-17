@@ -17,6 +17,7 @@ import Avatar from '@material-ui/core/Avatar';
 
 import { setFeedReadStatus, openFeed } from '../actions/index';
 import { withNamespaces } from 'react-i18next';
+import GA from '../utils/GA';
 
 const mapStateToProps = state => {
     return {
@@ -254,6 +255,7 @@ class FeedList extends Component {
                                             onClick={() => {
                                                 this.props.setFeedReadStatus(currentChannelId, feed.readerId);
                                                 this.props.openFeed(feed.readerId);
+                                                GA.sendAppView('ContentView');
                                             }}
                                         >
                                             <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={this.getTime(feed.isoDate, index)} />

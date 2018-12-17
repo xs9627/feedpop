@@ -4,7 +4,8 @@ const service = analytics.getService('feedpop');
 //     console.log(config.isTrackingPermitted());
 //     config.setTrackingPermitted(true);
 // });
-const tracker = service.getTracker('UA-129361090-1');
+const Config = require('Config');
+const tracker = service.getTracker(Config.trackingId);
 
 export default {
     sendAppView: view => {
