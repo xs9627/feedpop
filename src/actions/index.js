@@ -26,14 +26,15 @@ const saveChannelFeeds = (channelId, feeds) => {
 
 export const log = msg => ({ type: types.LOG, payload: msg });
 export const syncState = () => dispatch => {
-    return ChromeUtil.get('state').then(state => {
-        //console.log(state);
-        dispatch(setSyncState(state));
-        return state;
+    return Promise.all([
+        ChromeUtil.get('state'),
+        ChromeUtil.get('recentFeeds'),
+    ]).then(values => {
+        dispatch(setSyncState(values[0], values[1]));
     });
 }
 export const selectChannel = id => ({ type: types.SELECT_CHANNEL, id: id });
-export const setSyncState = state => ({type: types.SET_SYNC_STATE, state: state });
+export const setSyncState = (state, recentFeeds) => ({type: types.SET_SYNC_STATE, state,  recentFeeds});
 export const setDefaultState = () => ({ type: types.SET_DEFAULT_STATE });
 export const addChannel = url => async (dispatch, getState) => {
     dispatch({ type: types.ADD_CHANNEL_BEGIN });
@@ -64,10 +65,15 @@ export const editChannel = channel => async (dispatch, getState) => {
     await saveChannelFeeds(channel.id, getState().mergedFeed);
     dispatch({ type: types.ADD_CHANNEL_END });
 }
-export const setCurrentFeeds = () => async (dispatch, getState) => {
-    dispatch({ type: types.SET_CURRENT_FEEDS_BEGIN });
+// export const setCurrentFeeds = () => async (dispatch, getState) => {
+//     dispatch({ type: types.SET_CURRENT_FEEDS_BEGIN });
+//     const feeds = await getChannelFeeds(getState().currentChannelId);
+//     dispatch({ type: types.SET_CURRENT_FEEDS, payload: feeds });
+// }
+export const setCurrentFeeds = () => ({ type: types.SET_CURRENT_FEEDS});
+export const loadHistoryFeeds = () => async (dispatch, getState) => {
     const feeds = await getChannelFeeds(getState().currentChannelId);
-    dispatch({ type: types.SET_CURRENT_FEEDS, payload: feeds });
+    dispatch({ type: types.LOAD_HISTORY_FEEDS, payload: feeds });
 }
 export const setChannels = channels => ({ type: types.SET_CHANNELS, payload: channels });
 export const deleteChannel = id => async (dispatch, getState) => {

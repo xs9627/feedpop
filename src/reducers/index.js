@@ -41,7 +41,7 @@ const getIsoDateNow = index => {
 
 const persistence = (state, updated) => {
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, source, version, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, source, version, recentFeeds, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -89,7 +89,7 @@ const updateUnreadCount = (feeds, channels, channelId) => {
 const rootReducer = (state = initialState, action) => {
     switch (action.type) {
         case types.SET_SYNC_STATE: {
-            return { ...state, ...action.state };
+            return { ...state, ...action.state, recentFeeds: action.recentFeeds };
         }
         case types.LOG: {
             const updated = { logs: [...state.logs, { date: (new Date()).toLocaleString(), msg: action.payload }] };
@@ -168,7 +168,11 @@ const rootReducer = (state = initialState, action) => {
             return { ...state, currentFeeds: null };
         }
         case types.SET_CURRENT_FEEDS: {
-            return { ...state, currentFeeds: action.payload };
+            const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === state.currentChannelId);
+            return { ...state, currentFeeds: recentChannelFeeds && recentChannelFeeds.feed };
+        }
+        case types.LOAD_HISTORY_FEEDS: {
+            return { ...state, currentFeeds: {...state.currentFeeds, items: [...state.currentFeeds.items, ...action.payload.items]} };
         }
         case types.SYNC_BACKGROUND_UPDATE: {
             const { channels, allUnreadCount } = action.payload.state;

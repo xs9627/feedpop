@@ -15,7 +15,7 @@ import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 
-import { setFeedReadStatus, openFeed } from '../actions/index';
+import { setFeedReadStatus, openFeed, loadHistoryFeeds } from '../actions/index';
 import { withNamespaces } from 'react-i18next';
 import GA from '../utils/GA';
 
@@ -31,6 +31,7 @@ const mapDispatchToProps = dispatch => {
     return {
         setFeedReadStatus: (channelId, feedId) => dispatch(setFeedReadStatus(channelId, feedId)),
         openFeed: feedItemId => dispatch(openFeed(feedItemId)),
+        loadHistoryFeeds: () => dispatch(loadHistoryFeeds()),
     };
 };
 
@@ -88,22 +89,29 @@ class FeedList extends Component {
     faviconsApi = 'https://www.google.com/s2/favicons?domain=';
     arrangeFeeds = feeds => {
         if (feeds) {
-            const arrangedMap = feeds.items
-            .filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate).index])
-            .slice(0, this.state.page * 20)
-            .reduce((r, a) => {
-                let result = this.getDateStr(a.isoDate);
-                if (!r.has(result.index)) {
-                    r.set(result.index, { dateString: result.dateString, items: [] });
-                }
-                if (!r.get(result.index).items.find(f => f.readerId === a.readerId)) {
-                    r.get(result.index).items.push(a);
-                } else {
-                    r.get(result.index).items = r.get(result.index).items.map(i => (i.readerId === a.readerId) ? a : i);
-                }
-                return r;
-            }, this.state.arrangedFeeds);
-            this.state.arrangedFeeds = new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]));
+            const pageSize = 20;
+            if (feeds.items.length < this.state.page * pageSize && !this.state.loadHistory) {
+                this.props.loadHistoryFeeds().then(() => {
+                    this.state.loadHistory = true;
+                });
+            } else {
+                const arrangedMap = feeds.items
+                .filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate).index])
+                .slice(0, this.state.page * 20)
+                .reduce((r, a) => {
+                    let result = this.getDateStr(a.isoDate);
+                    if (!r.has(result.index)) {
+                        r.set(result.index, { dateString: result.dateString, items: [] });
+                    }
+                    if (!r.get(result.index).items.find(f => f.readerId === a.readerId)) {
+                        r.get(result.index).items.push(a);
+                    } else {
+                        r.get(result.index).items = r.get(result.index).items.map(i => (i.readerId === a.readerId) ? a : i);
+                    }
+                    return r;
+                }, this.state.arrangedFeeds);
+                this.state.arrangedFeeds = new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]));
+            }
         } else {
             Object.assign(this.state, {arrangedFeeds: new Map(), collapseStatus: {}, page: 1});
             if (this.feedList) {

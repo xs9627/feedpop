@@ -64,7 +64,7 @@ class Reader extends Component {
     constructor(props) {
         super(props);
         this.props.setupBackgroundConnection();
-        this.props.syncState().then(state => {
+        this.props.syncState().then(() => {
             this.props.setDefaultState();
             return this.props.setCurrentFeeds();
         });
