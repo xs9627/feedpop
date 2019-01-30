@@ -90,7 +90,8 @@ class FeedList extends Component {
     arrangeFeeds = feeds => {
         if (feeds) {
             const pageSize = 20;
-            if (feeds.items.length < this.state.page * pageSize && !this.state.loadHistory) {
+            if (!this.state.loadHistory &&
+                feeds.items.filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate).index]).length < this.state.page * pageSize) {
                 this.props.loadHistoryFeeds().then(() => {
                     this.state.loadHistory = true;
                 });

@@ -40,8 +40,9 @@ const getIsoDateNow = index => {
 }
 
 const persistence = (state, updated) => {
+    console.log(updated);
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, source, version, recentFeeds, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, source, version, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -49,6 +50,7 @@ const persistence = (state, updated) => {
 
 const initialState = {
     channels: [],
+    recentFeeds: [],
     theme: 'light',
     maxFeedsCount: 500,
     source: require('Config').sourceRepository,
@@ -89,7 +91,7 @@ const updateUnreadCount = (feeds, channels, channelId) => {
 const rootReducer = (state = initialState, action) => {
     switch (action.type) {
         case types.SET_SYNC_STATE: {
-            return { ...state, ...action.state, recentFeeds: action.recentFeeds };
+            return { ...state, ...action.state };
         }
         case types.LOG: {
             const updated = { logs: [...state.logs, { date: (new Date()).toLocaleString(), msg: action.payload }] };
@@ -207,11 +209,20 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.UPDATE_CHANNEL_FEED: {
             const { feeds, oldFeeds, channelId} = action.payload;
-            mergeFeed(oldFeeds, feeds);
+            const recentCount = 30;
+            const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === state.currentChannelId);
+            const oldFeedsWithRecent = recentChannelFeeds ? {...recentChannelFeeds.feed, items: [...recentChannelFeeds.feed.items, ...oldFeeds.items]} : oldFeeds;
+            mergeFeed(oldFeedsWithRecent, feeds);
             if (state.maxFeedsCount && state.maxFeedsCount > 0) {
                 feeds.items = feeds.items.slice(0, state.maxFeedsCount);
             }
-            return persistence(state, { currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds, mergedFeed: feeds, ...updateUnreadCount(feeds, state.channels, channelId) });
+            const recentFeeds = [...state.recentFeeds.filter(rf => (rf.channelId !== channelId)), {channelId, feed: {...feeds, items: feeds.items.slice(0, recentCount)}}];
+            return persistence(state, {
+                recentFeeds,
+                currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds,
+                mergedFeed: {items: feeds.items.slice(recentCount)},
+                ...updateUnreadCount(feeds, state.channels, channelId) 
+            });
         }
         case types.SET_FEED_READ_STATUS: {
             const items = state.currentFeeds.items.map(i => (i.readerId === action.payload.feedId ? { ...i, isRead: true } : i));
