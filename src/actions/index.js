@@ -39,10 +39,11 @@ export const addChannel = url => async (dispatch, getState) => {
         const feeds = await fetchFeed(url);
         const channel = { url, name: feeds.title };
         dispatch({ type: types.ADD_CHANNEL, payload: { channel, feeds } });
-        await saveChannelFeeds(channel.id, feeds);
+        await saveChannelFeeds(channel.id, getState().mergedFeed);
         dispatch({ type: types.ADD_CHANNEL_END });
     }
     catch (reason) {
+        console.log(reason);
         dispatch({ type: types.ADD_CHANNEL_ERROR, payload: reason });
     }
 };

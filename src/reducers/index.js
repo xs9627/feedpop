@@ -1,6 +1,7 @@
 import * as types from "../constants/action-types";
 import ChromeUtil from "../utils/ChromeUtil";
 
+const recentCount = 30;
 const mergeFeed = (oldFeed, newFeed) => {
     const uuidv4 = require('uuid/v4');
     if (oldFeed) {
@@ -37,6 +38,16 @@ const getIsoDateNow = index => {
     const now = new Date();
     now.setMilliseconds(now.getMilliseconds() - index);
     return now.toString();
+}
+
+const getCurrentFeeds = (state, historyFeeds) => {
+    return {...state.currentFeeds, items: [...state.currentFeeds.items, ...historyFeeds.items]};
+}
+
+const splitFeedsToRecent = feeds => {
+    return [{...feeds, items: feeds.items.slice(0, recentCount)},
+        {items: feeds.items.slice(recentCount)}
+    ]
 }
 
 const persistence = (state, updated) => {
@@ -141,7 +152,9 @@ const rootReducer = (state = initialState, action) => {
             const { channel, feeds } = action.payload;
             channel.id = require('uuid/v4')();
             channel.unreadCount = feeds.items.length;
-            const updated = { channels: [...state.channels, channel], allUnreadCount: (state.allUnreadCount || 0) + channel.unreadCount };
+            const splitedFeeds = splitFeedsToRecent(feeds);
+            const recentFeeds = [...state.recentFeeds, {channelId: channel.id, feed: splitedFeeds[0]}];
+            const updated = { recentFeeds, mergedFeed:splitedFeeds[1], channels: [...state.channels, channel], allUnreadCount: (state.allUnreadCount || 0) + channel.unreadCount };
             feeds.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
             const uuidv4 = require('uuid/v4');
             feeds.items.forEach((item, i) => {
@@ -174,11 +187,11 @@ const rootReducer = (state = initialState, action) => {
             return { ...state, currentFeeds: recentChannelFeeds && recentChannelFeeds.feed };
         }
         case types.LOAD_HISTORY_FEEDS: {
-            return { ...state, currentFeeds: {...state.currentFeeds, items: [...state.currentFeeds.items, ...action.payload.items]} };
+            return { ...state, currentFeeds: getCurrentFeeds(state, action.payload) };
         }
         case types.SYNC_BACKGROUND_UPDATE: {
             const { channels, allUnreadCount } = action.payload.state;
-            const currentFeeds = action.payload.currentFeeds;
+            const currentFeeds = getCurrentFeeds(action.payload.state, action.payload.currentFeeds);
             return { ...state, channels, allUnreadCount, currentFeeds };
         }
         case types.SET_CHANNELS:
@@ -209,8 +222,7 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.UPDATE_CHANNEL_FEED: {
             const { feeds, oldFeeds, channelId} = action.payload;
-            const recentCount = 30;
-            const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === state.currentChannelId);
+            const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === channelId);
             const oldFeedsWithRecent = recentChannelFeeds ? {...recentChannelFeeds.feed, items: [...recentChannelFeeds.feed.items, ...oldFeeds.items]} : oldFeeds;
             mergeFeed(oldFeedsWithRecent, feeds);
             if (state.maxFeedsCount && state.maxFeedsCount > 0) {
@@ -259,6 +271,7 @@ const rootReducer = (state = initialState, action) => {
             ChromeUtil.setUnreadCount(0);
             return {...state,
                 logs: [],
+                recentFeeds: [],
                 showContent: false,
                 currentFeeds: null,
                 allUnreadCount: 0,
