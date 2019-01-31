@@ -41,7 +41,7 @@ const getIsoDateNow = index => {
 }
 
 const getCurrentFeeds = (state, historyFeeds) => {
-    return {...state.currentFeeds, items: [...state.currentFeeds.items, ...historyFeeds.items]};
+    return historyFeeds ? {...state.currentFeeds, items: [...state.currentFeeds.items, ...historyFeeds.items]} : state.currentFeeds;
 }
 
 const splitFeedsToRecent = feeds => {
