@@ -185,7 +185,9 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.SET_CURRENT_FEEDS: {
             const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === state.currentChannelId);
-            return { ...state, currentFeeds: recentChannelFeeds && recentChannelFeeds.feed };
+            const currentFeeds = recentChannelFeeds && recentChannelFeeds.feed;
+            const tmp = {...state.tmp, needLoadHistoryFeeds: state.showContent && currentFeeds && !currentFeeds.items.some(i => i.readerId === state.currentFeedItemId)};
+            return { ...state, currentFeeds, tmp };
         }
         case types.LOAD_HISTORY_FEEDS: {
             return { ...state, currentFeeds: getCurrentFeeds(state, action.payload) };

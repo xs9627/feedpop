@@ -63,12 +63,12 @@ export const editChannel = channel => async (dispatch, getState) => {
     await saveChannelFeeds(channel.id, getState().mergedFeed);
     dispatch({ type: types.ADD_CHANNEL_END });
 }
-// export const setCurrentFeeds = () => async (dispatch, getState) => {
-//     dispatch({ type: types.SET_CURRENT_FEEDS_BEGIN });
-//     const feeds = await getChannelFeeds(getState().currentChannelId);
-//     dispatch({ type: types.SET_CURRENT_FEEDS, payload: feeds });
-// }
-export const setCurrentFeeds = () => ({ type: types.SET_CURRENT_FEEDS});
+export const setCurrentFeeds = () => async (dispatch, getState) => {
+    dispatch({ type: types.SET_CURRENT_FEEDS });
+    if (getState().tmp.needLoadHistoryFeeds) {
+        await dispatch(loadHistoryFeeds()); 
+    }
+}
 export const loadHistoryFeeds = () => async (dispatch, getState) => {
     const feeds = await getChannelFeeds(getState().currentChannelId);
     dispatch({ type: types.LOAD_HISTORY_FEEDS, payload: feeds });
