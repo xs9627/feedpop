@@ -216,8 +216,9 @@ const rootReducer = (state = initialState, action) => {
         case types.MOVE_CHANNEL: {
             const channels = [...state.channels];
             const newChannels = [];
-            action.payload.forEach(index => newChannels.push(channels[index]));
-            return persistence(state, { channels: newChannels });
+            const {channelOrder, recentChannelIndex} = action.payload;
+            channelOrder.forEach(index => newChannels.push(channels[index]));
+            return persistence(state, { channels: newChannels, recentChannelIndex });
         }
         case types.SET_CHANNEL_SELECTOR_EDITMODE: {
             const updated = { channelSelectorEditMode: action.payload };

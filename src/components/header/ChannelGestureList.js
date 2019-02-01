@@ -20,9 +20,13 @@ import { withNamespaces } from 'react-i18next';
 
 const listItemHeight = 46
 const mapStateToProps = state => {
-    return {
-        channels: state.channels
+    const recentChannelIndex = !isNaN(state.recentChannelIndex) ? state.recentChannelIndex : 0;
+    const showRecentChannel = state.showRecentChannel || true;
+    const channels = [...state.channels];
+    if (showRecentChannel) {
+        channels.splice(recentChannelIndex, 0, {name: 'Recent', id: 'recentid'});
     }
+    return {channels, recentChannelIndex, showRecentChannel};
 }
 const mapDispatchToProps = dispatch => {
     return {
@@ -76,7 +80,15 @@ class ChannelGestureList extends React.Component {
     handleMouseUp = () => {
         if (this.state.orderUpdated) {
             setTimeout(() => {
-                this.props.moveChannel(this.state.order)
+                let newChannelOrder = this.state.order;
+                let newRecentChannelIndex = this.props.recentChannelIndex;
+                if (this.props.showRecentChannel) {
+                    const {recentChannelIndex} = this.props;
+                    newRecentChannelIndex = this.state.order.indexOf(recentChannelIndex);
+                    newChannelOrder = this.state.order.filter(i => i !== recentChannelIndex).map(i => i < recentChannelIndex ? i : i - 1);
+                }
+                this.props.moveChannel({channelOrder: newChannelOrder, recentChannelIndex: newRecentChannelIndex});
+                
             }, 500);
         }
         this.setState({ isPressed: false, topDeltaY: 0,  orderUpdated: false })
@@ -127,11 +139,10 @@ class ChannelGestureList extends React.Component {
     render() {
         const { mouseY, isPressed, originalPosOfLastPressed, order } = this.state
         const { channels, classes, t } = this.props
-        
         return (
             <RootRef rootRef={this.channelListContainer}>
                 <List className={classes.list} style={{height: this.getShowChannelCount() * listItemHeight}} >
-                    {this.props.channels.map((channel, i) => {
+                    {channels.map((channel, i) => {
                         const active = originalPosOfLastPressed === i && isPressed
                         const style = active
                             ? { scale: 1, shadow: 16, y: mouseY }
