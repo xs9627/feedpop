@@ -95,9 +95,14 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
     dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
     await saveChannelFeeds(id, getState().mergedFeed);
 }
-export const setFeedReadStatus = (channelId, feedId) => async (dispatch, getState) => {
-    dispatch({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId } });
-    await saveChannelFeeds(channelId, getState().currentFeeds);
+export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (dispatch, getState) => {
+    dispatch({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId, isRead } });
+    //await saveChannelFeeds(channelId, getState().currentFeeds);
+    if (getState().tmp.needUpdateHistoryReadStatus) {
+        const historyFeeds = await getChannelFeeds(channelId);
+        dispatch({ type: types.SET_HISTORY_FEED_READ_STATUS, payload: { historyFeeds, feedId, isRead }});
+        await saveChannelFeeds(channelId, getState().mergedFeed);
+    }
 }
 export const openFeed = feedItemId => ({ type: types.OPEN_FEED, payload: feedItemId });
 export const closeFeed = () => ({ type: types.CLOSE_FEED });

@@ -41,7 +41,7 @@ const getIsoDateNow = index => {
 }
 
 const getCurrentFeeds = (state, historyFeeds) => {
-    return historyFeeds ? {...state.currentFeeds, items: [...state.currentFeeds.items, ...historyFeeds.items]} : state.currentFeeds;
+    return state.currentFeeds && historyFeeds ? {...state.currentFeeds, items: [...state.currentFeeds.items, ...historyFeeds.items]} : state.currentFeeds;
 }
 
 const splitFeedsToRecent = feeds => {
@@ -53,7 +53,7 @@ const splitFeedsToRecent = feeds => {
 const persistence = (state, updated) => {
     console.log(updated);
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, source, version, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -69,6 +69,7 @@ const initialState = {
     logs: [],
     allUnreadCount: 0,
     refreshPeriod: 15,
+    tmp: {},
     ...defaultState,
     getComponentState(componentName, stateName) {
         return this[componentName] ? this[componentName][stateName] : null;
@@ -228,18 +229,45 @@ const rootReducer = (state = initialState, action) => {
             if (state.maxFeedsCount && state.maxFeedsCount > 0) {
                 feeds.items = feeds.items.slice(0, state.maxFeedsCount);
             }
-            const recentFeeds = [...state.recentFeeds.filter(rf => (rf.channelId !== channelId)), {channelId, feed: {...feeds, items: feeds.items.slice(0, recentCount)}}];
+            const splitedFeeds = splitFeedsToRecent(feeds);
+            const recentFeeds = [...state.recentFeeds.filter(rf => (rf.channelId !== channelId)), {channelId, feed: splitedFeeds[0]}];
             return persistence(state, {
                 recentFeeds,
                 currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds,
-                mergedFeed: {items: feeds.items.slice(recentCount)},
+                mergedFeed: splitedFeeds[1],
                 ...updateUnreadCount(feeds, state.channels, channelId) 
             });
         }
         case types.SET_FEED_READ_STATUS: {
-            const items = state.currentFeeds.items.map(i => (i.readerId === action.payload.feedId ? { ...i, isRead: true } : i));
+            const {channelId, feedId, isRead} = action.payload;
+            const items = state.currentFeeds.items.map(i => (i.readerId === feedId ? { ...i, isRead } : i));
             const currentFeeds = { ...state.currentFeeds, items };
-            return persistence(state, { currentFeeds, ...updateUnreadCount(currentFeeds, state.channels, state.currentChannelId) });
+
+            const channels = state.channels.map(channel => channel.id === channelId ? { ...channel, unreadCount: channel.unreadCount - (isRead ? 1 : -1) } : channel);
+
+            let update = {currentFeeds, channels, allUnreadCount: state.allUnreadCount - (isRead ? 1 : -1)};
+
+            const recentChannelFeed = state.recentFeeds.find(rf => rf.channelId === channelId);
+            if (recentChannelFeed && recentChannelFeed.feed.items.some(i => i.readerId === feedId)) {
+                const recentFeeds = state.recentFeeds.map(rf => rf.channelId !== channelId ? rf : 
+                    {
+                        ...recentChannelFeed, 
+                        feed: {
+                            ...recentChannelFeed.feed, 
+                            items: recentChannelFeed.feed.items.map(i => (i.readerId === feedId ? { ...i, isRead } : i))
+                        }
+                    }
+                );
+                update = {...update, recentFeeds, tmp: {...state.tmp, needUpdateHistoryReadStatus: false}};
+            } else {
+                update = {...update, tmp: {...state.tmp, needUpdateHistoryReadStatus: true}};
+            }
+            
+            return persistence(state, update);
+        }
+        case types.SET_HISTORY_FEED_READ_STATUS: {
+            const {historyFeeds, feedId, isRead} = action.payload;
+            return {...state, mergedFeed: {...historyFeeds, items: historyFeeds.items.map(i => (i.readerId === feedId ? { ...i, isRead: isRead } : i))}};
         }
         case types.OPEN_FEED:
             return persistence(state, { currentFeedItemId: action.payload, showContent: true });
