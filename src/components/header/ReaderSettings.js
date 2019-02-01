@@ -133,7 +133,7 @@ class Settings extends Component {
                                 <MenuItem value={100}>100</MenuItem>
                                 <MenuItem value={500}>500</MenuItem>
                                 <MenuItem value={1000}>1000</MenuItem>
-                                <MenuItem value={-1}>Unlimite</MenuItem>
+                                <MenuItem value={-1}>{t("Unlimite")}</MenuItem>
                             </Select>
                         </ListItemSecondaryAction>
                     </ListItem>
