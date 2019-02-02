@@ -83,6 +83,7 @@ const defaultState = {
     currentFeedItemId: null,
     channelSelectorEditMode: false,
     isTourOpen: false,
+    historyFeedsLoaded: false,
     channelSelector: {
         editOpen: false,
         isCheckingUrl: false,
@@ -120,10 +121,10 @@ const rootReducer = (state = initialState, action) => {
 
             const lastActiveSpan = new Date() - new Date(lastActiveTime);
             if (lastActiveSpan > .5 * 60 * 1000) {
-                const { currentChannelId, currentFeedItemId, showContent, feedContentTop, headerChannels } = newState;
+                const { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded, headerChannels } = newState;
                 const showGoBack = showContent && lastActiveSpan <= 5 * 60 * 1000;
                 const updated = { ...defaultState,
-                    lastActiveState: { currentChannelId, currentFeedItemId, showContent, feedContentTop },
+                    lastActiveState: { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded },
                     readerMessageBar: showGoBack ? {
                         open: true,
                         mainActionName: 'GO',
@@ -150,7 +151,7 @@ const rootReducer = (state = initialState, action) => {
             if (!id) {
                 id = state.channels[0].id;
             }
-            const updated = { currentChannelId: id };
+            const updated = { currentChannelId: id, historyFeedsLoaded: false };
             return persistence(state, updated);
         }
         case types.ADD_CHANNEL_BEGIN: {
@@ -198,15 +199,13 @@ const rootReducer = (state = initialState, action) => {
             } else {
                 const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === state.currentChannelId);
                 const currentFeeds = recentChannelFeeds && recentChannelFeeds.feed;
-                const tmp = {...state.tmp, needLoadHistoryFeeds: state.showContent && currentFeeds && !currentFeeds.items.some(i => i.readerId === state.currentFeedItemId)};
-                return { ...state, currentFeeds, tmp };
+                return { ...state, currentFeeds };
             }
-           
         }
         case types.LOAD_HISTORY_FEEDS: {
             const {currentFeeds} = state;
             const historyFeeds = action.payload;
-            return { ...state, currentFeeds: historyFeeds ? {...currentFeeds, items: [...currentFeeds.items, ...historyFeeds.items]} : currentFeeds };
+            return persistence(state, { currentFeeds: historyFeeds ? {...currentFeeds, items: [...currentFeeds.items, ...historyFeeds.items]} : currentFeeds, historyFeedsLoaded: true });
         }
         case types.SYNC_BACKGROUND_UPDATE: {
             const { channels, allUnreadCount, recentFeeds } = action.payload.state;

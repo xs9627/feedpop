@@ -65,7 +65,7 @@ export const editChannel = channel => async (dispatch, getState) => {
 }
 export const setCurrentFeeds = () => async (dispatch, getState) => {
     dispatch({ type: types.SET_CURRENT_FEEDS });
-    if (getState().tmp.needLoadHistoryFeeds) {
+    if (getState().historyFeedsLoaded) {
         await dispatch(loadHistoryFeeds()); 
     }
 }

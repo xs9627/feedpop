@@ -21,6 +21,7 @@ import GA from '../utils/GA';
 
 const mapStateToProps = state => {
     return {
+        historyFeedsLoaded: state.historyFeedsLoaded,
         currentChannelId: state.currentChannelId,
         currentChannel: state.headerChannels.find(c => c.id === state.currentChannelId) || {},
         feeds: state.currentFeeds,
@@ -89,7 +90,7 @@ class FeedList extends Component {
     faviconsApi = 'https://www.google.com/s2/favicons?domain=';
     setCurrentChannelId = currentChannelId => {
         if (this.state.currentChannelId !== currentChannelId) {
-            Object.assign(this.state, {arrangedFeeds: new Map(), collapseStatus: {}, page: 1, loadHistory: false});
+            Object.assign(this.state, {arrangedFeeds: new Map(), collapseStatus: {}, page: 1});
             if (this.feedList) {
                 this.feedList.scrollTop = 0;
             }
@@ -100,11 +101,9 @@ class FeedList extends Component {
     arrangeFeeds = feeds => {
         if (feeds) {
             const pageSize = 20;
-            if (!this.state.loadHistory &&
+            if (!this.props.historyFeedsLoaded &&
                 feeds.items.filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate).index]).length < this.state.page * pageSize) {
-                this.props.loadHistoryFeeds().then(() => {
-                    this.state.loadHistory = true;
-                });
+                this.props.loadHistoryFeeds();
             }
             
             const arrangedMap = feeds.items
