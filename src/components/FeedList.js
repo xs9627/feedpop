@@ -21,6 +21,8 @@ import GA from '../utils/GA';
 
 const mapStateToProps = state => {
     return {
+        channels: state.channels,
+        recentFeeds: state.recentFeeds,
         historyFeedsLoaded: state.historyFeedsLoaded,
         currentChannelId: state.currentChannelId,
         currentChannel: state.headerChannels.find(c => c.id === state.currentChannelId) || {},
@@ -77,6 +79,9 @@ const styles = theme => ({
         textAlign: 'center',
         margin: theme.spacing.unit * 2,
         opacity: .5,
+    },
+    itemSecondaryContainer: {
+        display: 'flex',
     }
 });
 
@@ -87,7 +92,10 @@ class FeedList extends Component {
         page: 1,
         arrangedFeeds: new Map()
     }
-    faviconsApi = 'https://www.google.com/s2/favicons?domain=';
+    faviconsApis = [
+        'https://www.google.com/s2/favicons?domain=',
+        'https://www.google.cn/s2/favicons?domain=',
+    ];
     setCurrentChannelId = currentChannelId => {
         if (this.state.currentChannelId !== currentChannelId) {
             Object.assign(this.state, {arrangedFeeds: new Map(), collapseStatus: {}, page: 1});
@@ -198,25 +206,33 @@ class FeedList extends Component {
         }
     }
     testFaiconsApi = () => {
-        const request = new XMLHttpRequest();
-        request.timeout = 2000;
-        request.open('GET', this.faviconsApi + 'google.com', true);
-        request.onload = () => {
-            this.setState({ faviconsReachable: true });
-        };
-        request.send();
+        this.faviconsApis.forEach(faviconsApi => {
+            const request = new XMLHttpRequest();
+            request.timeout = 2000;
+            request.open('GET', faviconsApi + 'google.com', true);
+            request.onload = () => {
+                if (!this.state.faviconsReachable) {
+                    this.setState({ faviconsReachable: true, faviconsApi });
+                }
+            };
+            request.send();
+        });
     }
-    renderChannelIcon = () => {
-        const { feeds, classes, currentChannel } = this.props;
+    renderChannelIcon = channelId => {
+        const { classes, recentFeeds, channels } = this.props;
 
-        if (currentChannel.id === 'recent-channel') {
+        if (channelId === 'RECENT') {
             return <Avatar className={classes.avatar}>R</Avatar>;
         }
+
+        const currentChannel = channels.find(c => c.id === channelId);
+        const feeds = (recentFeeds.find(rf => rf.channelId === channelId) || {}).feed;
+
         const title = feeds ? feeds.title : currentChannel.name;
         const url = feeds ? feeds.link : currentChannel.url;
         if (this.state.faviconsReachable && url) {
             const hostName = (new URL(url)).hostname;
-            return <Avatar src={ this.faviconsApi + hostName } className={classes.avatar} />;
+            return <Avatar src={ this.state.faviconsApi + hostName } className={classes.avatar} />;
         } else {
             return <Avatar className={classes.avatar}>{ title && title.substr(0, 1)}</Avatar>;
         }
@@ -244,7 +260,7 @@ class FeedList extends Component {
         return (
             <div className={classes.root} ref={node => this.feedList = node}>
                 <div className={ classes.feedInfoContainer }>
-                    { this.renderChannelIcon() }
+                    { this.renderChannelIcon(currentChannelId) }
                     <Typography variant="body2" className={ classes.feedTitle }>
                         { currentChannel.name }
                     </Typography>
@@ -277,7 +293,8 @@ class FeedList extends Component {
                                                 GA.sendAppView('ContentView');
                                             }}
                                         >
-                                            <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={this.getTime(feed.isoDate, index)} />
+                                            <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={<div className={classes.itemSecondaryContainer}>{feed.channelId && this.renderChannelIcon(feed.channelId)} {this.getTime(feed.isoDate, index)}</div>} />
+                                            
                                         </ListItem>
                                     ))}
                                 </Collapse>
