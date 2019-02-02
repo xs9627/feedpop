@@ -20,13 +20,7 @@ import { withNamespaces } from 'react-i18next';
 
 const listItemHeight = 46
 const mapStateToProps = state => {
-    const recentChannelIndex = !isNaN(state.recentChannelIndex) ? state.recentChannelIndex : 0;
-    const showRecentChannel = state.showRecentChannel || true;
-    const channels = [...state.channels];
-    if (showRecentChannel) {
-        channels.splice(recentChannelIndex, 0, {name: 'Recent', id: 'recentid'});
-    }
-    return {channels, recentChannelIndex, showRecentChannel};
+    return {channels: state.headerChannels};
 }
 const mapDispatchToProps = dispatch => {
     return {
@@ -80,15 +74,7 @@ class ChannelGestureList extends React.Component {
     handleMouseUp = () => {
         if (this.state.orderUpdated) {
             setTimeout(() => {
-                let newChannelOrder = this.state.order;
-                let newRecentChannelIndex = this.props.recentChannelIndex;
-                if (this.props.showRecentChannel) {
-                    const {recentChannelIndex} = this.props;
-                    newRecentChannelIndex = this.state.order.indexOf(recentChannelIndex);
-                    newChannelOrder = this.state.order.filter(i => i !== recentChannelIndex).map(i => i < recentChannelIndex ? i : i - 1);
-                }
-                this.props.moveChannel({channelOrder: newChannelOrder, recentChannelIndex: newRecentChannelIndex});
-                
+                this.props.moveChannel(this.state.order);
             }, 500);
         }
         this.setState({ isPressed: false, topDeltaY: 0,  orderUpdated: false })

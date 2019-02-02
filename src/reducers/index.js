@@ -1,4 +1,5 @@
 import * as types from "../constants/action-types";
+import {ChannelFixedID} from "../constants/index";
 import ChromeUtil from "../utils/ChromeUtil";
 
 const recentCount = 30;
@@ -40,10 +41,6 @@ const getIsoDateNow = index => {
     return now.toString();
 }
 
-const getCurrentFeeds = (state, historyFeeds) => {
-    return state.currentFeeds && historyFeeds ? {...state.currentFeeds, items: [...state.currentFeeds.items, ...historyFeeds.items]} : state.currentFeeds;
-}
-
 const splitFeedsToRecent = feeds => {
     return [{...feeds, items: feeds.items.slice(0, recentCount)},
         {items: feeds.items.slice(recentCount)}
@@ -53,7 +50,7 @@ const splitFeedsToRecent = feeds => {
 const persistence = (state, updated) => {
     console.log(updated);
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, source, version, headerChannels, tmp, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -69,6 +66,9 @@ const initialState = {
     logs: [],
     allUnreadCount: 0,
     refreshPeriod: 15,
+    recentChannelIndex: 0,
+    showRecentChannel: true,
+    headerChannels: [],
     tmp: {},
     ...defaultState,
     getComponentState(componentName, stateName) {
@@ -110,10 +110,17 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, updated)
         }
         case types.SET_DEFAULT_STATE: {
-            const { lastActiveTime } = state;
+            const { showRecentChannel, lastActiveTime } = state;
+
+            const headerChannels = [...state.channels];
+            if (showRecentChannel) {
+                headerChannels.splice(state.recentChannelIndex, 0, {name: 'Recent', id: ChannelFixedID.RECENT});
+            }
+            const newState = {...state, headerChannels};
+
             const lastActiveSpan = new Date() - new Date(lastActiveTime);
             if (lastActiveSpan > .5 * 60 * 1000) {
-                const { currentChannelId, currentFeedItemId, showContent, feedContentTop } = state;
+                const { currentChannelId, currentFeedItemId, showContent, feedContentTop, headerChannels } = newState;
                 const showGoBack = showContent && lastActiveSpan <= 5 * 60 * 1000;
                 const updated = { ...defaultState,
                     lastActiveState: { currentChannelId, currentFeedItemId, showContent, feedContentTop },
@@ -128,14 +135,14 @@ const rootReducer = (state = initialState, action) => {
                         open: false,
                     }
                 };
-                if (state.channels.length > 0) {
-                    updated.currentChannelId = state.channels[0].id;
+                if (headerChannels.length > 0) {
+                    updated.currentChannelId = headerChannels[0].id;
                 } else {
                     updated.currentChannelId = null;
                 }
-                return persistence(state, updated);
+                return persistence(newState, updated);
             } else {
-                return state;
+                return newState;
             }   
         }
         case types.SELECT_CHANNEL: {
@@ -184,18 +191,26 @@ const rootReducer = (state = initialState, action) => {
             return { ...state, currentFeeds: null };
         }
         case types.SET_CURRENT_FEEDS: {
-            const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === state.currentChannelId);
-            const currentFeeds = recentChannelFeeds && recentChannelFeeds.feed;
-            const tmp = {...state.tmp, needLoadHistoryFeeds: state.showContent && currentFeeds && !currentFeeds.items.some(i => i.readerId === state.currentFeedItemId)};
-            return { ...state, currentFeeds, tmp };
+            if (state.currentChannelId === ChannelFixedID.RECENT) {
+                const allItems = state.recentFeeds.reduce((r, a) => ([...r, ...a.feed.items.map(i => ({...i, channelId: a.channelId}))]), [])
+                    .sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
+                return { ...state, currentFeeds: { items: allItems } };
+            } else {
+                const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === state.currentChannelId);
+                const currentFeeds = recentChannelFeeds && recentChannelFeeds.feed;
+                const tmp = {...state.tmp, needLoadHistoryFeeds: state.showContent && currentFeeds && !currentFeeds.items.some(i => i.readerId === state.currentFeedItemId)};
+                return { ...state, currentFeeds, tmp };
+            }
+           
         }
         case types.LOAD_HISTORY_FEEDS: {
-            return { ...state, currentFeeds: getCurrentFeeds(state, action.payload) };
+            const {currentFeeds} = state;
+            const historyFeeds = action.payload;
+            return { ...state, currentFeeds: historyFeeds ? {...currentFeeds, items: [...currentFeeds.items, ...historyFeeds.items]} : currentFeeds };
         }
         case types.SYNC_BACKGROUND_UPDATE: {
-            const { channels, allUnreadCount } = action.payload.state;
-            const currentFeeds = getCurrentFeeds(action.payload.state, action.payload.currentFeeds);
-            return { ...state, channels, allUnreadCount, currentFeeds };
+            const { channels, allUnreadCount, recentFeeds } = action.payload.state;
+            return { ...state, channels, allUnreadCount, recentFeeds };
         }
         case types.SET_CHANNELS:
             return { ...state, channels: action.payload };
@@ -214,11 +229,20 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, { ...updated, allUnreadCount: updated.channels.reduce((r, a) => (r + a.unreadCount), 0) });
         }
         case types.MOVE_CHANNEL: {
-            const channels = [...state.channels];
-            const newChannels = [];
-            const {channelOrder, recentChannelIndex} = action.payload;
-            channelOrder.forEach(index => newChannels.push(channels[index]));
-            return persistence(state, { channels: newChannels, recentChannelIndex });
+            let order = action.payload;
+            const updated = {}
+            if (state.showRecentChannel) {
+                const headerChannels = [];
+                order.forEach(i => headerChannels.push(state.headerChannels[i]));
+                updated.headerChannels = headerChannels;
+                const recentChannelIndex = state.recentChannelIndex;
+                updated.recentChannelIndex = order.indexOf(recentChannelIndex);
+                order = order.filter(i => i !== recentChannelIndex).map(i => i < recentChannelIndex ? i : i - 1);
+            }
+            const channels = [];
+            order.forEach(index => channels.push(state.channels[index]));
+            updated.channels = channels;
+            return persistence(state, updated);
         }
         case types.SET_CHANNEL_SELECTOR_EDITMODE: {
             const updated = { channelSelectorEditMode: action.payload };

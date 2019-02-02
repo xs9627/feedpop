@@ -117,15 +117,12 @@ export const setSettins = settings => ({ type: types.SET_SETTINGS, payload: sett
 
 export const connectBackground = messageCallback => ({ type: types.CONNECT_BACKGROUND, payload: messageCallback });
 export const setupBackgroundConnection = () => (dispatch, getState) => {
-    dispatch(connectBackground(msg => {
+    dispatch(connectBackground(async msg => {
         if (msg.type === types.BACKGROUND_UPDATE_CHANNEL) {
-            Promise.all([
-                ChromeUtil.get('state'),
-                getChannelFeeds(getState().currentChannelId),
-            ]).then(values => {
-                dispatch({ type: types.SYNC_BACKGROUND_UPDATE, payload: { state: values[0], currentFeeds: values[1] } });
-                dispatch(log('Update reader by background'));
-            });
+            const state = await ChromeUtil.get('state');
+            dispatch({ type: types.SYNC_BACKGROUND_UPDATE, payload: { state } });
+            await dispatch(setCurrentFeeds());
+            dispatch(log('Update reader by background'));
         }
     }));
 }

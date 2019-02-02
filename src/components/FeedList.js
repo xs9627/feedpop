@@ -22,7 +22,7 @@ import GA from '../utils/GA';
 const mapStateToProps = state => {
     return {
         currentChannelId: state.currentChannelId,
-        currentChannel: state.channels.find(c => c.id === state.currentChannelId) || {},
+        currentChannel: state.headerChannels.find(c => c.id === state.currentChannelId) || {},
         feeds: state.currentFeeds,
     };
 };
@@ -209,13 +209,17 @@ class FeedList extends Component {
     }
     renderChannelIcon = () => {
         const { feeds, classes, currentChannel } = this.props;
+
+        if (currentChannel.id === 'recent-channel') {
+            return <Avatar className={classes.avatar}>R</Avatar>;
+        }
         const title = feeds ? feeds.title : currentChannel.name;
         const url = feeds ? feeds.link : currentChannel.url;
-        if (this.state.faviconsReachable) {
+        if (this.state.faviconsReachable && url) {
             const hostName = (new URL(url)).hostname;
             return <Avatar src={ this.faviconsApi + hostName } className={classes.avatar} />;
         } else {
-            return <Avatar className={classes.avatar}>{ title.substr(0, 1)}</Avatar>;
+            return <Avatar className={classes.avatar}>{ title && title.substr(0, 1)}</Avatar>;
         }
     }
     componentDidMount() {
@@ -269,7 +273,7 @@ class FeedList extends Component {
                                             dense={true} 
                                             key={`item-${feed.readerId}`} 
                                             onClick={() => {
-                                                this.props.setFeedReadStatus(currentChannelId, feed.readerId);
+                                                this.props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId);
                                                 this.props.openFeed(feed.readerId);
                                                 GA.sendAppView('ContentView');
                                             }}
