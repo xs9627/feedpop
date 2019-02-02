@@ -1,6 +1,6 @@
 /* global chrome */
 import store from './store/index';
-import { syncState, updateChannelFeed, setSettins, log, updateLastActiveTime } from './actions/index';
+import { syncState, updateChannelFeed, setSettins, log, updateLastActiveTime, cleanCache } from './actions/index';
 import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
 import ChromeUtil from './utils/ChromeUtil';
 
@@ -21,6 +21,7 @@ chrome.runtime.onInstalled.addListener(() => {
         const state = store.getState();
         chrome.browserAction.setBadgeText({text: state && state.allUnreadCount > 0 ? `${state.allUnreadCount}` : ''});
         chrome.browserAction.setBadgeBackgroundColor({ color: '#424242' });
+        chrome.contextMenus.create({id: "cleanCache", "title": chrome.i18n.getMessage('cleanCache'), contexts: ["browser_action"]});
         refreshAll(state);
         ChromeUtil.recreateAlarm("refreshAll", state.refreshPeriod);
     });
@@ -46,3 +47,11 @@ chrome.runtime.onConnect.addListener(externalPort => {
         });
     });
 })
+
+chrome.contextMenus.onClicked.addListener(function(info, tab) {
+    if (info.menuItemId == "cleanCache") {
+        store.dispatch(syncState()).then(() => {
+            store.dispatch(cleanCache());
+        });
+    }
+});

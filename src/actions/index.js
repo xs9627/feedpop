@@ -129,7 +129,7 @@ export const setupBackgroundConnection = () => (dispatch, getState) => {
 export const cleanCache = () => async (dispatch, getState) => {
     dispatch({ type: types.CLEAN_CACHE });
     await ChromeUtil.clear();
-    await ChromeUtil.set({ state: getState() });
+    dispatch(updateLastActiveTime()); //Reset state to storage
 };
 export const updateLastActiveTime = () => ({ type: types.UPDATE_LAST_ACTIVE_TIME });
 export const closeMessageBar = () => ({ type: types.CLOSE_MESSAGE_BAR });

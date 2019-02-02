@@ -4,5 +4,8 @@
     },
     "appDesc": {
       "message": "Read RSS in a popup window."
+    },
+    "cleanCache": {
+      "message": "Clean cache"
     }
   }

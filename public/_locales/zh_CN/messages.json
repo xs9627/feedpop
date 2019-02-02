@@ -4,5 +4,8 @@
     },
     "appDesc": {
       "message": "简便快捷地订阅RSS。"
+    },
+    "cleanCache": {
+      "message": "清除缓存"
     }
   }

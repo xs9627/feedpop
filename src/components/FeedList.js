@@ -96,13 +96,15 @@ class FeedList extends Component {
         'https://www.google.com/s2/favicons?domain=',
         'https://www.google.cn/s2/favicons?domain=',
     ];
+    resetState() {
+        Object.assign(this.state, {arrangedFeeds: new Map(), collapseStatus: {}, page: 1});
+        if (this.feedList) {
+            this.feedList.scrollTop = 0;
+        }
+    }
     setCurrentChannelId = currentChannelId => {
         if (this.state.currentChannelId !== currentChannelId) {
-            Object.assign(this.state, {arrangedFeeds: new Map(), collapseStatus: {}, page: 1});
-            if (this.feedList) {
-                this.feedList.scrollTop = 0;
-            }
-
+            this.resetState();
             this.state.currentChannelId = currentChannelId;
         }
     }
@@ -130,7 +132,8 @@ class FeedList extends Component {
                 return r;
             }, this.state.arrangedFeeds);
             this.state.arrangedFeeds = new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]));
-            
+        } else {
+            this.resetState();
         }
     }
     getDateStr = date => {
