@@ -82,6 +82,7 @@ const styles = theme => ({
     },
     itemSecondaryContainer: {
         display: 'flex',
+        alignItems: 'center',
     }
 });
 

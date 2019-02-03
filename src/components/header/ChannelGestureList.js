@@ -25,6 +25,7 @@ const mapStateToProps = state => {
         channels: state.channels,
         showRecentChannel: state.showRecentChannel,
         recentChannelIndex: state.recentChannelIndex,
+        recentFeeds: state.recentFeeds,
     };
 }
 const mapDispatchToProps = dispatch => {
@@ -71,7 +72,13 @@ class ChannelGestureList extends React.Component {
     setListOrder(channels, recentChannelIndex) {
         this.state.channels = [...channels];
         if (this.props.showRecentChannel) {
-            this.state.channels.splice(recentChannelIndex, 0, {name: 'Recent', id: ChannelFixedID.RECENT});
+            this.state.channels.splice(recentChannelIndex, 0, {
+                name: 'Recent', 
+                id: ChannelFixedID.RECENT, 
+                unreadCount: this.props.recentFeeds
+                    .map(rf => rf.feed.items.filter(i => !i.isRead).length)
+                    .reduce((a, b) => a + b, 0)
+            });
         }
         this.state.order = range(this.state.channels.length)
     }
