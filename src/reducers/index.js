@@ -50,7 +50,7 @@ const splitFeedsToRecent = feeds => {
 const persistence = (state, updated) => {
     console.log(updated);
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, source, version, headerChannels, tmp, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -68,7 +68,6 @@ const initialState = {
     refreshPeriod: 15,
     recentChannelIndex: 0,
     showRecentChannel: true,
-    headerChannels: [],
     tmp: {},
     ...defaultState,
     getComponentState(componentName, stateName) {
@@ -111,17 +110,10 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, updated)
         }
         case types.SET_DEFAULT_STATE: {
-            const { showRecentChannel, lastActiveTime } = state;
-
-            const headerChannels = [...state.channels];
-            if (showRecentChannel) {
-                headerChannels.splice(state.recentChannelIndex, 0, {name: 'Recent', id: ChannelFixedID.RECENT});
-            }
-            const newState = {...state, headerChannels};
-
+            const { lastActiveTime } = state;
             const lastActiveSpan = new Date() - new Date(lastActiveTime);
             if (lastActiveSpan > .5 * 60 * 1000) {
-                const { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded, headerChannels } = newState;
+                const { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded, showRecentChannel, channels } = state;
                 const showGoBack = showContent && lastActiveSpan <= 5 * 60 * 1000;
                 const updated = { ...defaultState,
                     lastActiveState: { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded },
@@ -136,14 +128,16 @@ const rootReducer = (state = initialState, action) => {
                         open: false,
                     }
                 };
-                if (headerChannels.length > 0) {
-                    updated.currentChannelId = headerChannels[0].id;
+                if (state.showRecentChannel && state.recentChannelIndex === 0) {
+                    updated.currentChannelId = ChannelFixedID.RECENT;
+                } else if (state.channels.length > 0) {
+                    updated.currentChannelId = channels[0].id;
                 } else {
                     updated.currentChannelId = null;
                 }
-                return persistence(newState, updated);
+                return persistence(state, updated);
             } else {
-                return newState;
+                return state;
             }   
         }
         case types.SELECT_CHANNEL: {
@@ -231,9 +225,6 @@ const rootReducer = (state = initialState, action) => {
             let order = action.payload;
             const updated = {}
             if (state.showRecentChannel) {
-                const headerChannels = [];
-                order.forEach(i => headerChannels.push(state.headerChannels[i]));
-                updated.headerChannels = headerChannels;
                 const recentChannelIndex = state.recentChannelIndex;
                 updated.recentChannelIndex = order.indexOf(recentChannelIndex);
                 order = order.filter(i => i !== recentChannelIndex).map(i => i < recentChannelIndex ? i : i - 1);

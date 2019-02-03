@@ -15,6 +15,7 @@ import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 
+import { ChannelFixedID } from '../constants/index';
 import { setFeedReadStatus, openFeed, loadHistoryFeeds } from '../actions/index';
 import { withNamespaces } from 'react-i18next';
 import GA from '../utils/GA';
@@ -25,7 +26,6 @@ const mapStateToProps = state => {
         recentFeeds: state.recentFeeds,
         historyFeedsLoaded: state.historyFeedsLoaded,
         currentChannelId: state.currentChannelId,
-        currentChannel: state.headerChannels.find(c => c.id === state.currentChannelId) || {},
         feeds: state.currentFeeds,
     };
 };
@@ -256,7 +256,7 @@ class FeedList extends Component {
         }
     };
     render() {
-        const { classes, feeds, currentChannelId, currentChannel, t } = this.props;
+        const { classes, feeds, currentChannelId, channels, t } = this.props;
         this.setCurrentChannelId(currentChannelId);
         this.arrangeFeeds(feeds);
         const arranged = this.state.arrangedFeeds;
@@ -265,7 +265,7 @@ class FeedList extends Component {
                 <div className={ classes.feedInfoContainer }>
                     { this.renderChannelIcon(currentChannelId) }
                     <Typography variant="body2" className={ classes.feedTitle }>
-                        { currentChannel.name }
+                        { currentChannelId === ChannelFixedID.RECENT ? 'Recent' : channels.find(c => c.id === currentChannelId).name }
                     </Typography>
                 </div>
                 <Divider />
