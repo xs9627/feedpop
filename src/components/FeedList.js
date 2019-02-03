@@ -16,7 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 
 import { ChannelFixedID } from '../constants/index';
-import { setFeedReadStatus, openFeed, loadHistoryFeeds } from '../actions/index';
+import { setFeedReadStatus, openFeed, loadHistoryFeeds, channelListResetted } from '../actions/index';
 import { withNamespaces } from 'react-i18next';
 import GA from '../utils/GA';
 
@@ -27,6 +27,7 @@ const mapStateToProps = state => {
         historyFeedsLoaded: state.historyFeedsLoaded,
         currentChannelId: state.currentChannelId,
         feeds: state.currentFeeds,
+        needResetChannelList: state.tmp.needResetChannelList,
     };
 };
 
@@ -35,6 +36,7 @@ const mapDispatchToProps = dispatch => {
         setFeedReadStatus: (channelId, feedId) => dispatch(setFeedReadStatus(channelId, feedId)),
         openFeed: feedItemId => dispatch(openFeed(feedItemId)),
         loadHistoryFeeds: () => dispatch(loadHistoryFeeds()),
+        channelListResetted: () => dispatch(channelListResetted()),
     };
 };
 
@@ -103,10 +105,10 @@ class FeedList extends Component {
             this.feedList.scrollTop = 0;
         }
     }
-    setCurrentChannelId = currentChannelId => {
-        if (this.state.currentChannelId !== currentChannelId) {
+    setCurrentChannelId = () => {
+        if (this.props.needResetChannelList) {
             this.resetState();
-            this.state.currentChannelId = currentChannelId;
+            this.props.channelListResetted();
         }
     }
     arrangeFeeds = feeds => {
@@ -292,7 +294,7 @@ class FeedList extends Component {
                                             dense={true} 
                                             key={`item-${feed.readerId}`} 
                                             onClick={() => {
-                                                this.props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId);
+                                                !feed.isRead && this.props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId);
                                                 this.props.openFeed(feed.readerId);
                                                 GA.sendAppView('ContentView');
                                             }}

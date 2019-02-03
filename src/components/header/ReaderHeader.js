@@ -80,7 +80,7 @@ class ReaderHeader extends Component {
                     }
                 }
                 this.props.currentChannelId === ChannelFixedID.RECENT ? this.props.updateAllChannelsFeed().then(updateCallback) : 
-                this.props.updateChannelFeed(this.props.currentChannelId).then();
+                this.props.updateChannelFeed(this.props.currentChannelId).then(updateCallback);
             } else if (contentName === 'List') {
                 this.props.setChannelSelectorEditMode(false);
             }

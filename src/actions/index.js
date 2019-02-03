@@ -39,6 +39,7 @@ export const addChannel = url => async (dispatch, getState) => {
         const feeds = await fetchFeed(url);
         const channel = { url, name: feeds.title };
         dispatch({ type: types.ADD_CHANNEL, payload: { channel, feeds } });
+        await dispatch(setCurrentFeeds()); 
         await saveChannelFeeds(channel.id, getState().mergedFeed);
         dispatch({ type: types.ADD_CHANNEL_END });
     }
@@ -76,9 +77,7 @@ export const loadHistoryFeeds = () => async (dispatch, getState) => {
 export const setChannels = channels => ({ type: types.SET_CHANNELS, payload: channels });
 export const deleteChannel = id => async (dispatch, getState) => {
     dispatch({ type: types.DELETE_CHANNELS, payload: id });
-    if (getState().currentChannelId && getState().currentChannelId !== id) {
-        await dispatch(setCurrentFeeds()); 
-    }
+    await dispatch(setCurrentFeeds());
 }
 export const moveChannel = order => ({ type: types.MOVE_CHANNEL, payload: order });
 export const updateChannelFeed = id => async (dispatch, getState) => {
@@ -142,6 +141,7 @@ export const cleanCache = () => async (dispatch, getState) => {
 export const updateLastActiveTime = () => ({ type: types.UPDATE_LAST_ACTIVE_TIME });
 export const closeMessageBar = () => ({ type: types.CLOSE_MESSAGE_BAR });
 export const toggleTourOpen = isTourOpen => ({ type: types.TOGGLE_TOUR_OPEN, payload: isTourOpen });
+export const channelListResetted = () => ({ type: types.CHANNEL_LIST_RESETTED });
 
 export const triggerAction = type => async (dispatch, getState) => {
     switch(type) {
