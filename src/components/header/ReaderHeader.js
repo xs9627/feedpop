@@ -20,7 +20,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Drawer from '@material-ui/core/Drawer';
 
 import { connect } from "react-redux";
-import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed } from "../../actions/index";
+import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed, updateAllChannelsFeed } from "../../actions/index";
+import { ChannelFixedID } from "../../constants/index"
 
 import { withNamespaces } from 'react-i18next';
 
@@ -40,6 +41,7 @@ const mapDispatchToProps = dispatch => {
         openActionMenu: contentName => dispatch(openActionMenu(contentName)),
         closeActionMenu: () => dispatch(closeActionMenu()),
         updateChannelFeed: id => dispatch(updateChannelFeed(id)),
+        updateAllChannelsFeed: () => dispatch(updateAllChannelsFeed()),
     };
 };
 
@@ -72,11 +74,13 @@ class ReaderHeader extends Component {
     setHeaderContent = (event, contentName) => {
         if (!this.props.showContent || this.props.contentName != contentName) {
             if (contentName == 'Update') {
-                this.props.updateChannelFeed(this.props.currentChannelId).then(() => {
+                const updateCallback = () => {
                     if (this.props.contentName == 'Update') {
                         this.props.closeActionMenu();
                     }
-                });
+                }
+                this.props.currentChannelId === ChannelFixedID.RECENT ? this.props.updateAllChannelsFeed().then(updateCallback) : 
+                this.props.updateChannelFeed(this.props.currentChannelId).then();
             } else if (contentName === 'List') {
                 this.props.setChannelSelectorEditMode(false);
             }
