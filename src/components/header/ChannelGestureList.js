@@ -14,13 +14,18 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import RootRef from '@material-ui/core/RootRef';
 
 import { deleteChannel, moveChannel } from "../../actions/index"
+import { ChannelFixedID } from "../../constants/index"
 
 import ChannelGestureListItem from './ChannelGestureListItem';
 import { withNamespaces } from 'react-i18next';
 
 const listItemHeight = 46
 const mapStateToProps = state => {
-    return {channels: state.headerChannels};
+    return {
+        channels: state.channels,
+        showRecentChannel: state.showRecentChannel,
+        recentChannelIndex: state.recentChannelIndex,
+    };
 }
 const mapDispatchToProps = dispatch => {
     return {
@@ -58,9 +63,18 @@ class ChannelGestureList extends React.Component {
     constructor(props) {
         super(props);
         this.channelListContainer = React.createRef();
+
+        this.state = { mouseY: 0, topDeltaY: 0, isPressed: false, originalPosOfLastPressed: 0 };
+        this.setListOrder(props.channels, props.recentChannelIndex);
     }
 
-    state = { mouseY: 0, topDeltaY: 0, isPressed: false, originalPosOfLastPressed: 0, order: range(this.props.channels.length) }
+    setListOrder(channels, recentChannelIndex) {
+        this.state.channels = [...channels];
+        if (this.props.showRecentChannel) {
+            this.state.channels.splice(recentChannelIndex, 0, {name: 'Recent', id: ChannelFixedID.RECENT});
+        }
+        this.state.order = range(this.state.channels.length)
+    }
 
     componentDidMount() {
         window.addEventListener('touchmove', this.handleTouchMove)
@@ -114,17 +128,17 @@ class ChannelGestureList extends React.Component {
     };
 
     getShowChannelCount = () => {
-        return this.props.channels.length <= 10 ? this.props.channels.length : 10;
+        return this.state.channels.length <= 10 ? this.state.channels.length : 10;
     }
     componentWillReceiveProps(newProps) {
         if (newProps.channels) {
-            this.state.order = range(newProps.channels.length)
+            this.setListOrder(newProps.channels, newProps.recentChannelIndex);
         }
     }
 
     render() {
-        const { mouseY, isPressed, originalPosOfLastPressed, order } = this.state
-        const { channels, classes, t } = this.props
+        const { mouseY, isPressed, originalPosOfLastPressed, order, channels } = this.state
+        const { classes, t } = this.props
         return (
             <RootRef rootRef={this.channelListContainer}>
                 <List className={classes.list} style={{height: this.getShowChannelCount() * listItemHeight}} >
