@@ -21,13 +21,13 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
 import { connect } from "react-redux";
-import { setSettins, cleanCache } from "../../actions/index"
+import { setSettins, cleanCache, toggleShowRecentUpdate } from "../../actions/index"
 import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
-    const { theme, maxFeedsCount, refreshPeriod, source, version } = state;
+    const { theme, maxFeedsCount, refreshPeriod, source, version, showRecentChannel } = state;
     return {
-        config: { theme, maxFeedsCount, refreshPeriod, source, version },
+        config: { theme, maxFeedsCount, refreshPeriod, source, version, showRecentChannel },
         logs: state.logs,
     };
 };
@@ -36,6 +36,7 @@ const mapDispatchToProps = dispatch => {
     return {
         setSettins: settings => dispatch(setSettins(settings)),
         cleanCache: () => dispatch(cleanCache()),
+        toggleShowRecentUpdate: showRecentChannel => dispatch(toggleShowRecentUpdate(showRecentChannel)),
     };
 };
 
@@ -57,6 +58,11 @@ class Settings extends Component {
     handleChangeTheme = event => {
         let isdarkTheme = event.target.checked;
         this.props.setSettins({ theme: isdarkTheme ? 'dark' : 'light' });
+    }
+
+    handleChangeShowRecentUpdate = event => {
+        const showRecentChannel = event.target.checked;
+        this.props.toggleShowRecentUpdate(showRecentChannel);
     }
 
     handleChangeMaxFeedsCount = event => {
@@ -151,6 +157,16 @@ class Settings extends Component {
                                 <MenuItem value={30}>30</MenuItem>
                                 <MenuItem value={60}>60</MenuItem>
                             </Select>
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                    <ListItem>
+                        <ListItemText primary={t("Show recent update")}></ListItemText>
+                        <ListItemSecondaryAction>
+                            <Switch
+                                checked={this.props.config.showRecentChannel}
+                                onChange={this.handleChangeShowRecentUpdate}
+                                color="primary"
+                            />
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem button onClick={this.openCleanCacheConfirm}>

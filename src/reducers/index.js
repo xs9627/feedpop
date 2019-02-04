@@ -352,6 +352,14 @@ const rootReducer = (state = initialState, action) => {
         case types.CHANNEL_LIST_RESETTED: {
             return {...state, tmp: {...state.tmp, needResetChannelList: false}};
         }
+        case types.TOGGLE_SHOW_RECENT_UPDATE: {
+            const showRecentChannel = action.payload;
+            return persistence(state, {
+                showRecentChannel,
+                tmp: {...state.tmp, needResetChannelList: true},
+                currentChannelId: showRecentChannel ? ChannelFixedID.RECENT : state.currentChannelId === ChannelFixedID.RECENT && state.channels.length > 0 ? state.channels[0].id : state.currentChannelId
+            });
+        }
         default:
             return state;
     }
