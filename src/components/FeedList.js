@@ -11,6 +11,7 @@ import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import Subject from '@material-ui/icons/Subject';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
@@ -64,6 +65,7 @@ const styles = theme => ({
     feedInfoContainer: {
         padding: 16,
         display: 'flex',
+        alignItems: 'center',
     },
     feedTitle: {
         lineHeight: '16px',
@@ -227,8 +229,8 @@ class FeedList extends Component {
     renderChannelIcon = channelId => {
         const { classes, recentFeeds, channels } = this.props;
 
-        if (channelId === 'RECENT') {
-            return <Avatar className={classes.avatar}>R</Avatar>;
+        if (channelId === ChannelFixedID.RECENT) {
+            return <Subject className={classes.avatar} />;
         }
 
         const currentChannel = channels.find(c => c.id === channelId);
@@ -268,7 +270,7 @@ class FeedList extends Component {
                 <div className={ classes.feedInfoContainer }>
                     { this.renderChannelIcon(currentChannelId) }
                     <Typography variant="body2" className={ classes.feedTitle }>
-                        { currentChannelId === ChannelFixedID.RECENT ? 'Recent' : channels.find(c => c.id === currentChannelId).name }
+                        { currentChannelId === ChannelFixedID.RECENT ? t('Recent Updates') : channels.find(c => c.id === currentChannelId).name }
                     </Typography>
                 </div>
                 <Divider />

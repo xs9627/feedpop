@@ -67,7 +67,7 @@ const initialState = {
     allUnreadCount: 0,
     refreshPeriod: 15,
     recentChannelIndex: 0,
-    showRecentChannel: true,
+    showRecentUpdate: true,
     tmp: {},
     ...defaultState,
     getComponentState(componentName, stateName) {
@@ -113,7 +113,7 @@ const rootReducer = (state = initialState, action) => {
             const { lastActiveTime } = state;
             const lastActiveSpan = new Date() - new Date(lastActiveTime);
             if (lastActiveSpan > .5 * 60 * 1000) {
-                const { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded, showRecentChannel, channels } = state;
+                const { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded, showRecentUpdate, recentChannelIndex, channels } = state;
                 const showGoBack = showContent && lastActiveSpan <= 5 * 60 * 1000;
                 const updated = { ...defaultState,
                     lastActiveState: { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded },
@@ -128,9 +128,9 @@ const rootReducer = (state = initialState, action) => {
                         open: false,
                     }
                 };
-                if (state.showRecentChannel && state.recentChannelIndex === 0) {
+                if (showRecentUpdate && recentChannelIndex === 0) {
                     updated.currentChannelId = ChannelFixedID.RECENT;
-                } else if (state.channels.length > 0) {
+                } else if (channels.length > 0) {
                     updated.currentChannelId = channels[0].id;
                 } else {
                     updated.currentChannelId = null;
@@ -166,7 +166,7 @@ const rootReducer = (state = initialState, action) => {
                     item.isoDate = isInvalidDateStr(item.isoDate) ? getIsoDateNow(i) : item.isoDate;
                 }
             });
-            if (!state.showRecentChannel && updated.channels.length === 1) {
+            if (!state.showRecentUpdate && updated.channels.length === 1) {
                 updated.currentChannelId = channel.id;
             }
             return persistence(state, updated);
@@ -207,13 +207,17 @@ const rootReducer = (state = initialState, action) => {
         case types.SET_CHANNELS:
             return { ...state, channels: action.payload };
         case types.DELETE_CHANNELS: {
+            if (action.payload === ChannelFixedID.RECENT) {
+                return persistence(state, {showRecentUpdate: false, currentChannelId: state.channels.length > 0 ? state.channels[0].id : null, tmp: {...state.tmp, needResetChannelList: true}});
+            }
+
             const updated = {
                 channels: state.channels.filter(c => c.id !== action.payload),
                 recentFeeds: state.recentFeeds.filter(rf => rf.channelId !== action.payload),
             };
             if (state.currentChannelId === action.payload) {
                 updated.tmp = {...state.tmp, needResetChannelList: true};
-                if (state.showRecentChannel && state.recentChannelIndex === 0) {
+                if (state.showRecentUpdate && state.recentChannelIndex === 0) {
                     updated.currentChannelId = ChannelFixedID.RECENT;
                 } else if (updated.channels.length > 0) {
                     updated.currentChannelId = updated.channels[0].id;
@@ -228,7 +232,7 @@ const rootReducer = (state = initialState, action) => {
         case types.MOVE_CHANNEL: {
             let order = action.payload;
             const updated = {}
-            if (state.showRecentChannel) {
+            if (state.showRecentUpdate) {
                 const recentChannelIndex = state.recentChannelIndex;
                 updated.recentChannelIndex = order.indexOf(recentChannelIndex);
                 order = order.filter(i => i !== recentChannelIndex).map(i => i < recentChannelIndex ? i : i - 1);
@@ -353,11 +357,12 @@ const rootReducer = (state = initialState, action) => {
             return {...state, tmp: {...state.tmp, needResetChannelList: false}};
         }
         case types.TOGGLE_SHOW_RECENT_UPDATE: {
-            const showRecentChannel = action.payload;
+            const showRecentUpdate = action.payload;
             return persistence(state, {
-                showRecentChannel,
+                showRecentUpdate,
                 tmp: {...state.tmp, needResetChannelList: true},
-                currentChannelId: showRecentChannel ? ChannelFixedID.RECENT : state.currentChannelId === ChannelFixedID.RECENT && state.channels.length > 0 ? state.channels[0].id : state.currentChannelId
+                currentChannelId: showRecentUpdate ? ChannelFixedID.RECENT : state.currentChannelId === ChannelFixedID.RECENT && state.channels.length > 0 ? state.channels[0].id : state.currentChannelId,
+                recentChannelIndex: 0
             });
         }
         default:

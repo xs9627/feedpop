@@ -12,6 +12,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import RootRef from '@material-ui/core/RootRef';
+import Subject from '@material-ui/icons/Subject';
 
 import { deleteChannel, moveChannel } from "../../actions/index"
 import { ChannelFixedID } from "../../constants/index"
@@ -23,7 +24,7 @@ const listItemHeight = 46
 const mapStateToProps = state => {
     return {
         channels: state.channels,
-        showRecentChannel: state.showRecentChannel,
+        showRecentUpdate: state.showRecentUpdate,
         recentChannelIndex: state.recentChannelIndex,
         recentFeeds: state.recentFeeds,
     };
@@ -66,19 +67,24 @@ class ChannelGestureList extends React.Component {
         this.channelListContainer = React.createRef();
 
         this.state = { mouseY: 0, topDeltaY: 0, isPressed: false, originalPosOfLastPressed: 0 };
-        this.setListOrder(props.channels, props.recentChannelIndex);
+        this.setListOrder(this.props);
     }
 
-    setListOrder(channels, recentChannelIndex) {
+    setListOrder(props) {
+        const {channels, recentChannelIndex, showRecentUpdate, recentFeeds} = props;
         this.state.channels = [...channels];
-        if (this.props.showRecentChannel) {
+        if (showRecentUpdate) {
             this.state.channels.splice(recentChannelIndex, 0, {
-                name: 'Recent', 
+                name: this.props.t('Recent Updates'), 
                 id: ChannelFixedID.RECENT, 
-                unreadCount: this.props.recentFeeds
+                unreadCount: recentFeeds
                     .map(rf => rf.feed.items.filter(i => !i.isRead).length)
-                    .reduce((a, b) => a + b, 0)
+                    .reduce((a, b) => a + b, 0),
+                icon: <Subject />,
+                fixed: true
             });
+        } else {
+            this.state.channels = this.state.channels.filter(c => c.id !== ChannelFixedID.RECENT);
         }
         this.state.order = range(this.state.channels.length)
     }
@@ -137,12 +143,9 @@ class ChannelGestureList extends React.Component {
     getShowChannelCount = () => {
         return this.state.channels.length <= 10 ? this.state.channels.length : 10;
     }
-    componentWillReceiveProps(newProps) {
-        if (newProps.channels) {
-            this.setListOrder(newProps.channels, newProps.recentChannelIndex);
-        }
+    componentWillReceiveProps = newProps => {
+        this.setListOrder(newProps);
     }
-
     render() {
         const { mouseY, isPressed, originalPosOfLastPressed, order, channels } = this.state
         const { classes, t } = this.props

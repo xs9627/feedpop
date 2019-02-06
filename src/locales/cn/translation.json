@@ -13,6 +13,7 @@
     "OK": "确认",
     "Continue reading?": "继续阅读？",
     "GO": "好的",
+    "Recent Updates": "最近更新",
 
     "Dark Theme": "夜间模式",
     "Channel maximum feeds": "源订阅文章数",
@@ -23,6 +24,7 @@
     "Source": "源代码",
     "Version": "版本号",
     "Delete all saved feeds?": "是否删除缓存内容？",
+    "Show recent updates": "显示最近更新",
 
     "Open in new tab": "在新标签页打开",
     "Feed has been deleted": "内容已经被删除",

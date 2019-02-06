@@ -81,6 +81,12 @@ const styles = theme => ({
     },
     editItemIcon: {
         marginRight: 0,
+    },
+    channelName: {
+        display: 'flex',
+        '& svg': {
+            marginRight: theme.spacing.unit,
+        }
     }
 })
 
@@ -145,7 +151,7 @@ class ChannelGestureListItem extends React.Component {
                                 key={channel.id}
                                 className={classes.listItem}
                                 selected={!this.state.editMode && this.props.currentChannelId == channel.id}
-                                onClick={() => (Math.abs(xDelta) < clickCheckThreshold) && (!this.state.editMode ? this.changeChannel(channel.id) : this.handleEditClick(channel))}
+                                onClick={() => (Math.abs(xDelta) < clickCheckThreshold) && (!this.state.editMode ? this.changeChannel(channel.id) : !channel.fixed && this.handleEditClick(channel))}
                             >
                                 <animated.div
                                     style={{
@@ -155,10 +161,10 @@ class ChannelGestureListItem extends React.Component {
                                     }}
                                 >
                                     <ListItemIcon className={classes.editItemIcon}>
-                                        <EditIcon />
+                                        {!channel.fixed && <EditIcon />}
                                     </ListItemIcon>
                                 </animated.div>
-                                <ListItemText primary={channel.name} primaryTypographyProps={{noWrap: true}} />
+                                <ListItemText primary={<div className={classes.channelName}>{channel.icon} {channel.name}</div>} primaryTypographyProps={{noWrap: true}} />
                                 {
                                     channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
                                         <Tooltip title={channel.unreadCount} enterDelay={100}>

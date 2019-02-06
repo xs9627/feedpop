@@ -25,9 +25,9 @@ import { setSettins, cleanCache, toggleShowRecentUpdate } from "../../actions/in
 import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
-    const { theme, maxFeedsCount, refreshPeriod, source, version, showRecentChannel } = state;
+    const { theme, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate } = state;
     return {
-        config: { theme, maxFeedsCount, refreshPeriod, source, version, showRecentChannel },
+        config: { theme, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate },
         logs: state.logs,
     };
 };
@@ -36,7 +36,7 @@ const mapDispatchToProps = dispatch => {
     return {
         setSettins: settings => dispatch(setSettins(settings)),
         cleanCache: () => dispatch(cleanCache()),
-        toggleShowRecentUpdate: showRecentChannel => dispatch(toggleShowRecentUpdate(showRecentChannel)),
+        toggleShowRecentUpdate: showRecentUpdate => dispatch(toggleShowRecentUpdate(showRecentUpdate)),
     };
 };
 
@@ -61,8 +61,8 @@ class Settings extends Component {
     }
 
     handleChangeShowRecentUpdate = event => {
-        const showRecentChannel = event.target.checked;
-        this.props.toggleShowRecentUpdate(showRecentChannel);
+        const showRecentUpdate = event.target.checked;
+        this.props.toggleShowRecentUpdate(showRecentUpdate);
     }
 
     handleChangeMaxFeedsCount = event => {
@@ -160,10 +160,10 @@ class Settings extends Component {
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>
-                        <ListItemText primary={t("Show recent update")}></ListItemText>
+                        <ListItemText primary={t("Show recent updates")}></ListItemText>
                         <ListItemSecondaryAction>
                             <Switch
-                                checked={this.props.config.showRecentChannel}
+                                checked={this.props.config.showRecentUpdate}
                                 onChange={this.handleChangeShowRecentUpdate}
                                 color="primary"
                             />
