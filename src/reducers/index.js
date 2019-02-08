@@ -67,6 +67,7 @@ const initialState = {
     refreshPeriod: 15,
     recentChannelIndex: 0,
     showRecentUpdate: true,
+    currentChannelId: ChannelFixedID.RECENT,
     tmp: {},
     ...defaultState,
     getComponentState(componentName, stateName) {
