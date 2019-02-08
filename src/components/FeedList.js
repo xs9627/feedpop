@@ -268,7 +268,7 @@ class FeedList extends Component {
         this.setState({ menuOpen: true, currentFeedItem, menuLeft: e.clientX, menuTop: e.clientY });
     }
     handleCloseContextMenu = () => {
-        this.setState({ menuOpen: false, currentFeedItem: null });
+        this.setState({ menuOpen: false });
     }
     handleToggleIsRead = () => {
         const {currentFeedItem} = this.state;
