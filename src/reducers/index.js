@@ -48,7 +48,6 @@ const splitFeedsToRecent = feeds => {
 }
 
 const persistence = (state, updated) => {
-    console.log(updated);
     const newState = { ...state,  ...updated };
     const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
