@@ -25,6 +25,8 @@
     "Version": "版本号",
     "Delete all saved feeds?": "是否删除缓存内容？",
     "Show recent updates": "显示最近更新",
+    "Mark as unread": "标记为未读",
+    "Mark as read": "标记为已读",
 
     "Open in new tab": "在新标签页打开",
     "Feed has been deleted": "内容已经被删除",

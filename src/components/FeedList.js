@@ -15,6 +15,8 @@ import Subject from '@material-ui/icons/Subject';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import { ChannelFixedID } from '../constants/index';
 import { setFeedReadStatus, openFeed, loadHistoryFeeds, channelListResetted } from '../actions/index';
@@ -34,7 +36,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        setFeedReadStatus: (channelId, feedId) => dispatch(setFeedReadStatus(channelId, feedId)),
+        setFeedReadStatus: (channelId, feedId, isRead) => dispatch(setFeedReadStatus(channelId, feedId, isRead)),
         openFeed: feedItemId => dispatch(openFeed(feedItemId)),
         loadHistoryFeeds: () => dispatch(loadHistoryFeeds()),
         channelListResetted: () => dispatch(channelListResetted()),
@@ -95,7 +97,8 @@ class FeedList extends Component {
         faviconsReachable: false,
         collapseStatus: {},
         page: 1,
-        arrangedFeeds: new Map()
+        arrangedFeeds: new Map(),
+        menuOpen: false,
     }
     faviconsApis = [
         'https://www.google.com/s2/favicons?domain=',
@@ -260,19 +263,42 @@ class FeedList extends Component {
             this.setState(state => ({ page: state.page + 1 }));
         }
     };
+    handleItemContextMenu = (e, currentFeedItem) => {
+        e.preventDefault();
+        this.setState({ menuOpen: true, currentFeedItem, menuLeft: e.clientX, menuTop: e.clientY });
+    }
+    handleCloseContextMenu = () => {
+        this.setState({ menuOpen: false, currentFeedItem: null });
+    }
+    handleToggleIsRead = () => {
+        const {currentFeedItem} = this.state;
+        const {setFeedReadStatus, currentChannelId} = this.props
+        setFeedReadStatus(currentFeedItem.channelId || currentChannelId, currentFeedItem.readerId, !currentFeedItem.isRead);
+        this.handleCloseContextMenu();
+    }
     render() {
+        const { menuOpen, menuLeft, menuTop } = this.state;
         const { classes, feeds, currentChannelId, channels, t } = this.props;
         this.setCurrentChannelId(currentChannelId);
         this.arrangeFeeds(feeds);
         const arranged = this.state.arrangedFeeds;
         return (
             <div className={classes.root} ref={node => this.feedList = node}>
-                <div className={ classes.feedInfoContainer }>
-                    { this.renderChannelIcon(currentChannelId) }
-                    <Typography variant="body2" className={ classes.feedTitle }>
+                <Menu
+                    id="simple-menu"
+                    open={menuOpen}
+                    onClose={this.handleCloseContextMenu}
+                    anchorReference="anchorPosition"
+                    anchorPosition={{left: menuLeft, top: menuTop}}
+                    >
+                    <MenuItem onClick={this.handleToggleIsRead}>{this.state.currentFeedItem && this.state.currentFeedItem.isRead ? t('Mark as unread') : t('Mark as read')}</MenuItem>
+                </Menu>
+                <Typography variant="body2" className={ classes.feedTitle }>
+                    <div className={ classes.feedInfoContainer }>
+                        { this.renderChannelIcon(currentChannelId) }
                         { currentChannelId === ChannelFixedID.RECENT ? t('Recent Updates') : channels.find(c => c.id === currentChannelId).name }
-                    </Typography>
-                </div>
+                    </div>
+                </Typography>
                 <Divider />
                 { !feeds && <div class={classes.emptyMsg}>
                     <Typography variant="caption">{t("No feeds loaded")}</Typography> 
@@ -296,10 +322,11 @@ class FeedList extends Component {
                                             dense={true} 
                                             key={`item-${feed.readerId}`} 
                                             onClick={() => {
-                                                !feed.isRead && this.props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId);
+                                                !feed.isRead && this.props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId, true);
                                                 this.props.openFeed(feed.readerId);
                                                 GA.sendAppView('ContentView');
                                             }}
+                                            onContextMenu={e => this.handleItemContextMenu(e, feed)}
                                         >
                                             <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={<div className={classes.itemSecondaryContainer}>{feed.channelId && this.renderChannelIcon(feed.channelId)} {this.getTime(feed.isoDate, index)}</div>} />
                                             
