@@ -14,11 +14,13 @@ import Slide from '@material-ui/core/Slide';
 import blue from '@material-ui/core/colors/blue';
 import yellow from '@material-ui/core/colors/yellow';
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
     return {
         channels: state.channels,
         showContent: state.showContent,
         theme: state.theme,
+        contentPath: ownProps.match.params.content,
+        history: ownProps.history,
     };
 };
 
@@ -66,6 +68,11 @@ class Reader extends Component {
         this.props.setupBackgroundConnection();
         this.props.syncState().then(() => {
             this.props.setDefaultState();
+            if (this.props.showContent && !props.contentPath) {
+                props.history.push('/content');
+            } else if (!this.props.showContent && props.contentPath) {
+                props.history.push('/');
+            }
             return this.props.setCurrentFeeds();
         });
     }
@@ -104,7 +111,7 @@ class Reader extends Component {
                     { this.props.channels.length > 0 ? <FeedList /> : <Guide/> }                    
                     <Dialog
                         fullScreen
-                        open={this.props.showContent}
+                        open={this.props.showContent && this.props.contentPath}
                         //TransitionComponent={Transition}
                     >
                         <FeedContent />

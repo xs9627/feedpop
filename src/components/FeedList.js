@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
+import { withRouter } from 'react-router-dom';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -317,6 +318,7 @@ class FeedList extends Component {
                                             onClick={() => {
                                                 !feed.isRead && this.props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId, true);
                                                 this.props.openFeed(feed.readerId);
+                                                this.props.history.push('/content');
                                                 GA.sendAppView('ContentView');
                                             }}
                                             onContextMenu={e => this.handleItemContextMenu(e, feed)}
@@ -336,4 +338,4 @@ class FeedList extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(FeedList)));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(withRouter(FeedList))));
