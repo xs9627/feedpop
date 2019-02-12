@@ -2,6 +2,7 @@
 import 'rss-parser/dist/rss-parser.min.js';
 import * as types from "../constants/action-types";
 import ChromeUtil from '../utils/ChromeUtil';
+import history from '../utils/History';
 
 const fetchFeed = url => {
     return new Promise((resolve, reject) => {
@@ -32,7 +33,10 @@ export const syncState = () => dispatch => {
 }
 export const selectChannel = id => ({ type: types.SELECT_CHANNEL, id: id });
 export const setSyncState = state => ({type: types.SET_SYNC_STATE, state});
-export const setDefaultState = () => ({ type: types.SET_DEFAULT_STATE });
+export const setDefaultState = () => (dispatch, getState) => {
+    dispatch({ type: types.SET_DEFAULT_STATE });
+    history.replace(getState().showContent ? '/content' : '');
+};
 export const addChannel = url => async (dispatch, getState) => {
     dispatch({ type: types.ADD_CHANNEL_BEGIN });
     try {
@@ -111,8 +115,14 @@ export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (di
         await saveChannelFeeds(channelId, getState().mergedFeed);
     }
 }
-export const openFeed = feedItemId => ({ type: types.OPEN_FEED, payload: feedItemId });
-export const closeFeed = () => ({ type: types.CLOSE_FEED });
+export const openFeed = feedItemId => dispatch => {
+    dispatch({ type: types.OPEN_FEED, payload: feedItemId });
+    history.push('/content')
+};
+export const closeFeed = () => dispatch => {
+    dispatch({ type: types.CLOSE_FEED });
+    history.push('/')
+}
 export const scrollFeedContent = top => ({ type: types.SCROLL_FEED_CONTENT, payload: top });
 
 export const openActionMenu = actionName => ({ type: types.OPEN_ACTION_MENU, payload: actionName });
@@ -151,6 +161,7 @@ export const triggerAction = type => async (dispatch, getState) => {
         case types.GO_BACK_LAST_READ: {
             dispatch({ type });
             await dispatch(setCurrentFeeds());
+            history.push('/content')
             break;
         }
         default:

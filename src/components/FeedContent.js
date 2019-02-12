@@ -1,6 +1,5 @@
 import React, { Component }  from 'react'
 import { connect } from "react-redux";
-import { withRouter } from 'react-router-dom';
 import { withStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
 import { closeFeed, scrollFeedContent } from '../actions/index'
@@ -144,10 +143,7 @@ class FeedContent extends Component {
                 <Paper square={true} className={classes.actionContainer}>
                     <Grid container wrap="nowrap">
                         <Grid item xs zeroMinWidth>
-                            <IconButton key="close" className={classes.icon} onClick={() => {
-                                this.props.closeFeed();
-                                this.props.history.push('/');
-                            }}>
+                            <IconButton key="close" className={classes.icon} onClick={this.props.closeFeed}>
                                 <ArrowBackIcon />
                             </IconButton>
                         </Grid>
@@ -195,4 +191,4 @@ class FeedContent extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(withRouter(FeedContent))));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(FeedContent)));
