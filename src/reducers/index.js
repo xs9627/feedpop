@@ -145,7 +145,7 @@ const rootReducer = (state = initialState, action) => {
             if (!id) {
                 id = state.channels[0].id;
             }
-            const updated = { currentChannelId: id, historyFeedsLoaded: false, tmp: {...state.tmp, needResetChannelList: id !== state.currentChannelId} };
+            const updated = { currentChannelId: id, historyFeedsLoaded: false };
             return persistence(state, updated);
         }
         case types.ADD_CHANNEL_BEGIN: {
@@ -208,7 +208,7 @@ const rootReducer = (state = initialState, action) => {
             return { ...state, channels: action.payload };
         case types.DELETE_CHANNELS: {
             if (action.payload === ChannelFixedID.RECENT) {
-                return persistence(state, {showRecentUpdate: false, currentChannelId: state.channels.length > 0 ? state.channels[0].id : null, tmp: {...state.tmp, needResetChannelList: true}});
+                return persistence(state, {showRecentUpdate: false, currentChannelId: state.channels.length > 0 ? state.channels[0].id : null});
             }
 
             const updated = {
@@ -216,7 +216,6 @@ const rootReducer = (state = initialState, action) => {
                 recentFeeds: state.recentFeeds.filter(rf => rf.channelId !== action.payload),
             };
             if (state.currentChannelId === action.payload) {
-                updated.tmp = {...state.tmp, needResetChannelList: true};
                 if (state.showRecentUpdate && state.recentChannelIndex === 0) {
                     updated.currentChannelId = ChannelFixedID.RECENT;
                 } else if (updated.channels.length > 0) {
@@ -224,8 +223,6 @@ const rootReducer = (state = initialState, action) => {
                 } else {
                     updated.currentChannelId = null;
                 }
-            } else if (state.currentChannelId === ChannelFixedID.RECENT) {
-                updated.tmp = {...state.tmp, needResetChannelList: true};
             }
             return persistence(state, { ...updated, allUnreadCount: updated.channels.reduce((r, a) => (r + a.unreadCount), 0) });
         }
@@ -353,14 +350,10 @@ const rootReducer = (state = initialState, action) => {
         case types.TOGGLE_TOUR_OPEN: {
             return persistence(state, { isTourOpen: action.payload });
         }
-        case types.CHANNEL_LIST_RESETTED: {
-            return {...state, tmp: {...state.tmp, needResetChannelList: false}};
-        }
         case types.TOGGLE_SHOW_RECENT_UPDATE: {
             const showRecentUpdate = action.payload;
             return persistence(state, {
                 showRecentUpdate,
-                tmp: {...state.tmp, needResetChannelList: true},
                 currentChannelId: showRecentUpdate ? ChannelFixedID.RECENT : state.currentChannelId === ChannelFixedID.RECENT && state.channels.length > 0 ? state.channels[0].id : state.currentChannelId,
                 recentChannelIndex: 0
             });

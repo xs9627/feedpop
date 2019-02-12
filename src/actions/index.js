@@ -141,7 +141,6 @@ export const cleanCache = () => async (dispatch, getState) => {
 export const updateLastActiveTime = () => ({ type: types.UPDATE_LAST_ACTIVE_TIME });
 export const closeMessageBar = () => ({ type: types.CLOSE_MESSAGE_BAR });
 export const toggleTourOpen = isTourOpen => ({ type: types.TOGGLE_TOUR_OPEN, payload: isTourOpen });
-export const channelListResetted = () => ({ type: types.CHANNEL_LIST_RESETTED });
 export const toggleShowRecentUpdate = showRecentUpdate => async (dispatch, getState) => {
     dispatch({ type: types.TOGGLE_SHOW_RECENT_UPDATE, payload: showRecentUpdate });
     await dispatch(setCurrentFeeds());
