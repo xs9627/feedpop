@@ -73,7 +73,7 @@ const styles = theme => ({
     },
     '@keyframes rotate': {
         to: {
-          transform: 'rotate(360deg)',
+          transform: 'rotate(-360deg)',
         }
     },
     updating: {

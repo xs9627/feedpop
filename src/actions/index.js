@@ -16,6 +16,22 @@ const fetchFeed = url => {
     });
 }
 
+const updateSingleChannelFeed = async (id, dispatch, getState) => {
+    dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
+    const channel = getState().channels.find(c => c.id === id);
+    let feeds;
+    try {
+        feeds = await fetchFeed(channel.url);
+    }
+    catch (reason) {
+        console.log(reason);
+        return;
+    }
+    const oldFeeds = await getChannelFeeds(id);
+    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
+    await saveChannelFeeds(id, getState().mergedFeed);
+}
+
 const getChannelFeeds = channelId => {
     return ChromeUtil.get('f-' + channelId);
 }
@@ -82,25 +98,14 @@ export const deleteChannel = id => async (dispatch, getState) => {
 export const moveChannel = order => ({ type: types.MOVE_CHANNEL, payload: order });
 export const updateChannelFeed = id => async (dispatch, getState) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
-    const channel = getState().channels.find(c => c.id === id);
-    let feeds;
-    try {
-        feeds = await fetchFeed(channel.url);
-    }
-    catch (reason) {
-        console.log(reason);
-        return;
-    }
-    const oldFeeds = await getChannelFeeds(id);
-    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
-    await saveChannelFeeds(id, getState().mergedFeed);
+    await updateSingleChannelFeed(id, dispatch, getState);
     dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
 export const updateAllChannelsFeed = () => async (dispatch, getState) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
     const promises = [];
     getState().channels.forEach(channel => {
-        promises.push(dispatch(updateChannelFeed(channel.id)));
+        promises.push(updateSingleChannelFeed(channel.id, dispatch, getState));
     });
     await Promise.all(promises);
     await dispatch(setCurrentFeeds());
