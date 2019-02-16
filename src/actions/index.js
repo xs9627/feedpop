@@ -81,6 +81,7 @@ export const deleteChannel = id => async (dispatch, getState) => {
 }
 export const moveChannel = order => ({ type: types.MOVE_CHANNEL, payload: order });
 export const updateChannelFeed = id => async (dispatch, getState) => {
+    dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
     const channel = getState().channels.find(c => c.id === id);
     let feeds;
     try {
@@ -93,14 +94,17 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
     const oldFeeds = await getChannelFeeds(id);
     dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
     await saveChannelFeeds(id, getState().mergedFeed);
+    dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
 export const updateAllChannelsFeed = () => async (dispatch, getState) => {
+    dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
     const promises = [];
     getState().channels.forEach(channel => {
         promises.push(dispatch(updateChannelFeed(channel.id)));
     });
     await Promise.all(promises);
     await dispatch(setCurrentFeeds());
+    dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
 export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (dispatch, getState) => {
     dispatch({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId, isRead } });

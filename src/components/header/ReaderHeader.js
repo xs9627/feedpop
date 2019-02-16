@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import classNames from 'classnames';
 import ChannelSelector from './ChannelSelector';
 import ReaderSettings from './ReaderSettings';
 
@@ -32,6 +33,7 @@ const mapStateToProps = state => {
         contentName: state.actionName,
         currentChannelId: state.currentChannelId,
         isTourOpen: state.isTourOpen,
+        channelFeedUpdating: state.channelFeedUpdating,
     };
 };
 
@@ -68,6 +70,16 @@ const styles = theme => ({
     },
     cancelLoading: {
         marginTop: theme.spacing.unit,
+    },
+    '@keyframes rotate': {
+        to: {
+          transform: 'rotate(360deg)',
+        }
+    },
+    updating: {
+        '& svg': {
+            animation: 'rotate 1.5s ease infinite',
+        },
     }
 });
 class ReaderHeader extends Component {
@@ -96,21 +108,21 @@ class ReaderHeader extends Component {
         switch(this.props.contentName){
             case 'List': 
                 return <ChannelSelector onChange={() => { this.closeActionMenu(); }} />;
-            case 'Update': 
-                return (
-                    <Dialog open={this.props.showContent}>
-                        <DialogContent>
-                            <div className={this.props.classes.loadingContainer}>
-                                <CircularProgress />
-                            </div>
-                            <div>
-                                <Button className={this.props.classes.cancelLoading} onClick={this.props.closeActionMenu} color="primary">
-                                    {this.props.t("Cancel")}
-                                </Button>
-                            </div>
-                        </DialogContent>
-                    </Dialog>
-                );
+            // case 'Update': 
+            //     return (
+            //         <Dialog open={this.props.showContent}>
+            //             <DialogContent>
+            //                 <div className={this.props.classes.loadingContainer}>
+            //                     <CircularProgress />
+            //                 </div>
+            //                 <div>
+            //                     <Button className={this.props.classes.cancelLoading} onClick={this.props.closeActionMenu} color="primary">
+            //                         {this.props.t("Cancel")}
+            //                     </Button>
+            //                 </div>
+            //             </DialogContent>
+            //         </Dialog>
+            //     );
             case 'Settings':
                 return <ReaderSettings />;
             default:
@@ -118,7 +130,7 @@ class ReaderHeader extends Component {
         };
     }
     render () {
-        const { classes, allUnreadCount, showContent, contentName, isTourOpen, t } = this.props;
+        const { classes, allUnreadCount, showContent, contentName, isTourOpen, channelFeedUpdating, t } = this.props;
         return (
             <Paper square={true} className={classes.readerHeader}>
                 <BottomNavigation value={ showContent ? contentName : null } onChange={this.setHeaderContent} className={classes.actionPanel}>
@@ -133,14 +145,14 @@ class ReaderHeader extends Component {
                             </Badge>
                         ) : <List className='ListAction' />
                     } />
-                    <BottomNavigationAction label={t('Update')} value="Update" icon={<Sync />} />
+                    <BottomNavigationAction label={t('Update')} value="Update" icon={<Sync />} className={classNames({[classes.updating]: channelFeedUpdating})} />
                     {/* <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} /> */}
                     <BottomNavigationAction label={t('Settings')} value="Settings" icon={<Settings />} />
                 </BottomNavigation>
                 <Drawer
                     className={classes.menuDrawer}
                     anchor="top"
-                    open={showContent}
+                    open={showContent && contentName != 'Update'}
                     onClose={this.closeActionMenu}
                     transitionDuration={isTourOpen ? 0 : 200}
                 >

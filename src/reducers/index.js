@@ -83,6 +83,7 @@ const defaultState = {
     channelSelectorEditMode: false,
     isTourOpen: false,
     historyFeedsLoaded: false,
+    channelFeedUpdating: false,
     channelSelector: {
         editOpen: false,
         isCheckingUrl: false,
@@ -242,6 +243,12 @@ const rootReducer = (state = initialState, action) => {
         case types.SET_CHANNEL_SELECTOR_EDITMODE: {
             const updated = { channelSelectorEditMode: action.payload };
             return persistence(state, updated);
+        }
+        case types.UPDATE_CHANNEL_FEED_BEGIN: {
+            return persistence(state, {channelFeedUpdating: true});
+        }
+        case types.UPDATE_CHANNEL_FEED_END: {
+            return persistence(state, {channelFeedUpdating: false});
         }
         case types.UPDATE_CHANNEL_FEED: {
             const { feeds, oldFeeds, channelId} = action.payload;
