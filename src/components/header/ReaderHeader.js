@@ -86,13 +86,17 @@ class ReaderHeader extends Component {
     setHeaderContent = (event, contentName) => {
         if (!this.props.showContent || this.props.contentName != contentName) {
             if (contentName == 'Update') {
-                const updateCallback = () => {
-                    if (this.props.contentName == 'Update') {
-                        this.props.closeActionMenu();
+                if (!this.props.channelFeedUpdating) {
+                    const updateCallback = () => {
+                        if (this.props.contentName == 'Update') {
+                            this.props.closeActionMenu();
+                        }
                     }
+                    this.props.currentChannelId === ChannelFixedID.RECENT ? this.props.updateAllChannelsFeed().then(updateCallback) : 
+                    this.props.updateChannelFeed(this.props.currentChannelId).then(updateCallback);
+                } else {
+                    return;
                 }
-                this.props.currentChannelId === ChannelFixedID.RECENT ? this.props.updateAllChannelsFeed().then(updateCallback) : 
-                this.props.updateChannelFeed(this.props.currentChannelId).then(updateCallback);
             } else if (contentName === 'List') {
                 this.props.setChannelSelectorEditMode(false);
             }
