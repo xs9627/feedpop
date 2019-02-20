@@ -290,6 +290,13 @@ class FeedList extends Component {
                     onClose={this.handleCloseContextMenu}
                     anchorReference="anchorPosition"
                     anchorPosition={{left: menuLeft, top: menuTop}}
+                    BackdropProps={{
+                        onContextMenu: e => {
+                            e.preventDefault();
+                            this.handleCloseContextMenu();
+                        },
+                        invisible: true
+                    }}
                     >
                     <MenuItem onClick={this.handleToggleIsRead}>{this.state.currentFeedItem && this.state.currentFeedItem.isRead ? t('Mark as unread') : t('Mark as read')}</MenuItem>
                 </Menu>
