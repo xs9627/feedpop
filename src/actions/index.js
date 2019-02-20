@@ -16,6 +16,22 @@ const fetchFeed = url => {
     });
 }
 
+const updateSingleChannelFeed = async (id, dispatch, getState) => {
+    dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
+    const channel = getState().channels.find(c => c.id === id);
+    let feeds;
+    try {
+        feeds = await fetchFeed(channel.url);
+    }
+    catch (reason) {
+        console.log(reason);
+        return;
+    }
+    const oldFeeds = await getChannelFeeds(id);
+    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
+    await saveChannelFeeds(id, getState().mergedFeed);
+}
+
 const getChannelFeeds = channelId => {
     return ChromeUtil.get('f-' + channelId);
 }
@@ -81,26 +97,19 @@ export const deleteChannel = id => async (dispatch, getState) => {
 }
 export const moveChannel = order => ({ type: types.MOVE_CHANNEL, payload: order });
 export const updateChannelFeed = id => async (dispatch, getState) => {
-    const channel = getState().channels.find(c => c.id === id);
-    let feeds;
-    try {
-        feeds = await fetchFeed(channel.url);
-    }
-    catch (reason) {
-        console.log(reason);
-        return;
-    }
-    const oldFeeds = await getChannelFeeds(id);
-    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
-    await saveChannelFeeds(id, getState().mergedFeed);
+    dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
+    await updateSingleChannelFeed(id, dispatch, getState);
+    dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
 export const updateAllChannelsFeed = () => async (dispatch, getState) => {
+    dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
     const promises = [];
     getState().channels.forEach(channel => {
-        promises.push(dispatch(updateChannelFeed(channel.id)));
+        promises.push(updateSingleChannelFeed(channel.id, dispatch, getState));
     });
     await Promise.all(promises);
     await dispatch(setCurrentFeeds());
+    dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
 export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (dispatch, getState) => {
     dispatch({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId, isRead } });
@@ -141,7 +150,6 @@ export const cleanCache = () => async (dispatch, getState) => {
 export const updateLastActiveTime = () => ({ type: types.UPDATE_LAST_ACTIVE_TIME });
 export const closeMessageBar = () => ({ type: types.CLOSE_MESSAGE_BAR });
 export const toggleTourOpen = isTourOpen => ({ type: types.TOGGLE_TOUR_OPEN, payload: isTourOpen });
-export const channelListResetted = () => ({ type: types.CHANNEL_LIST_RESETTED });
 export const toggleShowRecentUpdate = showRecentUpdate => async (dispatch, getState) => {
     dispatch({ type: types.TOGGLE_SHOW_RECENT_UPDATE, payload: showRecentUpdate });
     await dispatch(setCurrentFeeds());

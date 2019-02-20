@@ -19,7 +19,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 
 import { ChannelFixedID } from '../constants/index';
-import { setFeedReadStatus, openFeed, loadHistoryFeeds, channelListResetted } from '../actions/index';
+import { setFeedReadStatus, openFeed, loadHistoryFeeds } from '../actions/index';
 import { withNamespaces } from 'react-i18next';
 import GA from '../utils/GA';
 
@@ -39,7 +39,6 @@ const mapDispatchToProps = dispatch => {
         setFeedReadStatus: (channelId, feedId, isRead) => dispatch(setFeedReadStatus(channelId, feedId, isRead)),
         openFeed: feedItemId => dispatch(openFeed(feedItemId)),
         loadHistoryFeeds: () => dispatch(loadHistoryFeeds()),
-        channelListResetted: () => dispatch(channelListResetted()),
     };
 };
 
@@ -104,20 +103,17 @@ class FeedList extends Component {
         'https://www.google.com/s2/favicons?domain=',
         'https://www.google.cn/s2/favicons?domain=',
     ];
-    resetState() {
-        Object.assign(this.state, {arrangedFeeds: new Map(), collapseStatus: {}, page: 1});
-        if (this.feedList) {
-            this.feedList.scrollTop = 0;
+    static getDerivedStateFromProps(props, state) {
+        if (props.currentChannelId !== state.lastChannelId || props.currentChannelId === ChannelFixedID.RECENT && props.channels.length !== state.channelsCount) {
+            return {...state, arrangedFeeds: new Map(), collapseStatus: {}, page: 1, lastChannelId: props.currentChannelId, channelsCount: props.channels && props.channels.length};       
         }
-    }
-    setCurrentChannelId = () => {
-        if (this.props.needResetChannelList) {
-            this.resetState();
-            this.props.channelListResetted();
-        }
+        return null;
     }
     arrangeFeeds = feeds => {
         if (feeds) {
+            if (this.state.arrangedFeeds.size === 0 && this.feedList) {
+                this.feedList.scrollTop = 0;
+            }
             const pageSize = 20;
             if (!this.props.historyFeedsLoaded &&
                 feeds.items.filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate).index]).length < this.state.page * pageSize) {
@@ -140,8 +136,6 @@ class FeedList extends Component {
                 return r;
             }, this.state.arrangedFeeds);
             this.state.arrangedFeeds = new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]));
-        } else {
-            this.resetState();
         }
     }
     getDateStr = date => {
@@ -279,7 +273,6 @@ class FeedList extends Component {
     render() {
         const { menuOpen, menuLeft, menuTop } = this.state;
         const { classes, feeds, currentChannelId, channels, t } = this.props;
-        this.setCurrentChannelId(currentChannelId);
         this.arrangeFeeds(feeds);
         const arranged = this.state.arrangedFeeds;
         return (
