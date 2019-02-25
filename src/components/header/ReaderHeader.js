@@ -140,11 +140,11 @@ class ReaderHeader extends Component {
                 <BottomNavigation value={ showContent ? contentName : null } onChange={this.setHeaderContent} className={classes.actionPanel}>
                     <BottomNavigationAction label={t('List')} value="List" icon={
                         !(showContent && contentName === "List") && allUnreadCount > 0 ? (
-                            <Badge badgeContent={allUnreadCount < 1000 ? allUnreadCount : (
+                            <Badge badgeContent={allUnreadCount < 10000 ? allUnreadCount : (
                                 <Tooltip title={allUnreadCount} enterDelay={100}>
-                                    <span>...</span>
+                                    <span>9999+</span>
                                 </Tooltip>
-                            )} color="primary">
+                            )} max={9999} color="primary">
                                 <List className='ListAction' />
                             </Badge>
                         ) : <List className='ListAction' />

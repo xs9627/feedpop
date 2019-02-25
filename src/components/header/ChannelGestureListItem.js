@@ -168,9 +168,9 @@ class ChannelGestureListItem extends React.Component {
                                 {
                                     channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
                                         <Tooltip title={channel.unreadCount} enterDelay={100}>
-                                            <span>...</span>
+                                            <span>999+</span>
                                         </Tooltip>
-                                    )} color="primary" /> : null
+                                    )} max={999} color="primary" /> : null
                                 }
                             </ListItem>
                         </animated.div>
