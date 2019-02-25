@@ -49,7 +49,7 @@ const splitFeedsToRecent = feeds => {
 
 const persistence = (state, updated) => {
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, tourOption, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -68,6 +68,7 @@ const initialState = {
     recentChannelIndex: 0,
     showRecentUpdate: true,
     currentChannelId: ChannelFixedID.RECENT,
+    tourOption: {},
     tmp: {},
     ...defaultState,
     getComponentState(componentName, stateName) {
@@ -81,7 +82,6 @@ const defaultState = {
     isShowActionMenu: false,
     currentFeedItemId: null,
     channelSelectorEditMode: false,
-    isTourOpen: false,
     historyFeedsLoaded: false,
     channelFeedUpdating: false,
     channelSelector: {
@@ -138,7 +138,7 @@ const rootReducer = (state = initialState, action) => {
                 }
                 return persistence(state, updated);
             } else {
-                return {...state, channelFeedUpdating: false, isShowActionMenu: false};
+                return {...state, channelFeedUpdating: false};
             }   
         }
         case types.SELECT_CHANNEL: {
@@ -355,7 +355,7 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, updated);
         }
         case types.TOGGLE_TOUR_OPEN: {
-            return persistence(state, { isTourOpen: action.payload });
+            return persistence(state, {tourOption: {...state.tourOption, ...action.payload}});
         }
         case types.TOGGLE_SHOW_RECENT_UPDATE: {
             const showRecentUpdate = action.payload;

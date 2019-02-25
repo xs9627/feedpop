@@ -10,15 +10,15 @@ import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
     return {
-        isTourOpen: state.isTourOpen,
-        isShowActionMenu: state.isShowActionMenu,
+        isTourOpen: state.tourOption.isTourOpen,
         editOpen: state.getComponentState('channelSelector', 'editOpen'),
+        tourStep: state.tourOption.tourStep,
     };
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        toggleTourOpen: isTourOpen => dispatch(toggleTourOpen(isTourOpen)),
+        toggleTourOpen: option => dispatch(toggleTourOpen(option)),
     }
 };
 
@@ -63,26 +63,26 @@ class Guide extends Component {
         isTourOpen: false,
     }
     render() {
-        const { classes, theme, isShowActionMenu, toggleTourOpen, isTourOpen, t } = this.props;
+        const { classes, theme, tourStep, toggleTourOpen, isTourOpen, t } = this.props;
         
         return (
             <div className={classes.root}>
                 <Typography variant="body1">
                     {t("No feeds here, start to ")}
                 </Typography>
-                <Button variant="contained" size="small" color="primary" className={classes.button} onClick={() => toggleTourOpen(true)}>
+                <Button variant="contained" size="small" color="primary" className={classes.button} onClick={() => toggleTourOpen({isTourOpen: true, tourStep: 0})}>
                     {t("add one")}
                     <AddIcon className={classes.extendedIcon} />
                 </Button>
                 <Tour
                     steps={steps(theme, t)}
                     isOpen={isTourOpen}
-                    onRequestClose={() => toggleTourOpen(false)}
-                    goToStep={isShowActionMenu ? 1 : 0} 
+                    onRequestClose={() => toggleTourOpen({isTourOpen: false})}
+                    goToStep={tourStep}
                     showButtons={false}
                     showNavigation={false}
                     showNumber={false}
-                    startAt={isShowActionMenu ? 1 : 0}
+                    startAt={tourStep}
                     rounded={4}
                 />
             </div>

@@ -32,7 +32,7 @@ const mapStateToProps = state => {
         showContent: state.isShowActionMenu,
         contentName: state.actionName,
         currentChannelId: state.currentChannelId,
-        isTourOpen: state.isTourOpen,
+        isTourOpen: state.tourOption.isTourOpen,
         channelFeedUpdating: state.channelFeedUpdating,
     };
 };

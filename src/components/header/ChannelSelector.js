@@ -34,6 +34,7 @@ const mapStateToProps = state => {
         currentEditChannel: state.getComponentState(componentStateName, 'currentEditChannel'),
         isUrlInvalid: state.getComponentState(componentStateName, 'isUrlInvalid'),
         urlErrorMessage: state.getComponentState(componentStateName, 'urlErrorMessage'),
+        isTourOpen: state.tourOption.isTourOpen,
     };
 };
 
@@ -47,7 +48,7 @@ const mapDispatchToProps = dispatch => {
         setComponentState: state => dispatch(setComponentState(componentStateName, state)),
         moveChannel: (from, to) => dispatch(moveChannel(from, to)),
         setCurrentFeeds: () => dispatch(setCurrentFeeds()),
-        toggleTourOpen: isTourOpen => dispatch(toggleTourOpen(isTourOpen)),
+        toggleTourOpen: option => dispatch(toggleTourOpen(option)),
     };
 };
 
@@ -127,7 +128,7 @@ class ChannelSelector extends Component {
             editName: '',
             editUrl: '',
         }));
-        this.props.toggleTourOpen(false);
+        this.props.toggleTourOpen({isTourOpen: false});
     }
     handleEditClose = () => {
         this.props.setComponentState({ editOpen: false, isCheckingUrl: false, isUrlInvalid: false, });
@@ -144,6 +145,9 @@ class ChannelSelector extends Component {
                 url: withHttp(this.props.editUrl),
             });
         }
+    }
+    componentDidMount = () => {
+        this.props.isTourOpen && this.props.toggleTourOpen({tourStep: 1});
     }
     render () {
         const { classes, isCheckingUrl, isAdd, isUrlInvalid, urlErrorMessage, moveChannel, t } = this.props;
