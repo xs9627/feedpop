@@ -13,6 +13,7 @@ import ShareVariantIcon from '@material-ui/icons/Share';
 import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
+import Divider from '@material-ui/core/Divider';
 import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
@@ -54,6 +55,7 @@ const styles = theme => ({
         '& *': {
             color: theme.palette.type === 'dark' ? 'inherit !important' : 'auto',
         },
+        marginTop: theme.spacing.unit,
         background: 'inherit',
         fontFamily: 'Roboto',
         fontSize: 13,
@@ -74,6 +76,9 @@ const styles = theme => ({
         margin: theme.spacing.unit * 2,
         opacity: .5,
     },
+    feedInfo: {
+        marginBottom: theme.spacing.unit * 2,
+    }
 });
 
 class FeedContent extends Component {
@@ -159,32 +164,35 @@ class FeedContent extends Component {
                         </Grid>
                     </Grid>
                 </Paper>
-                { feed.deleted && <div class={classes.emptyMsg}>
-                    <Typography variant="caption">{t("Feed has been deleted")}</Typography> 
-                </div>}
                 <div className={ classes.contentContainer } ref={node => this.contentContainer = node}>
-                    <Grid container wrap="nowrap" direction="column">
-                        <Grid item xs={12}>
-                            <Typography variant="h6">
-                                {feed.title}
-                            </Typography>
-                        </Grid>
-                        <Grid item container>
-                            <Grid item xs>
-                                <Typography variant="subtitle2">
-                                    {feed.isoDate ? (new Date(feed.isoDate)).toLocaleString() : null}
+                    { feed.deleted ? <div class={classes.emptyMsg}>
+                        <Typography variant="caption">{t("Feed has been deleted")}</Typography> 
+                    </div> :
+                    <React.Fragment>
+                        <Grid className={classes.feedInfo} container wrap="nowrap" direction="column">
+                            <Grid item xs={12}>
+                                <Typography variant="h6">
+                                    {feed.title}
                                 </Typography>
                             </Grid>
-                            <Grid item>
-                                <Typography variant="subtitle2">
-                                    {feed.creator}
-                                </Typography>
+                            <Grid item container>
+                                <Grid item xs>
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        {feed.isoDate ? (new Date(feed.isoDate)).toLocaleString() : null}
+                                    </Typography>
+                                </Grid>
+                                <Grid item>
+                                    <Typography variant="subtitle2" color="textSecondary">
+                                        {feed.creator}
+                                    </Typography>
+                                </Grid>
                             </Grid>
                         </Grid>
-                    </Grid>
-                    <Typography>
-                        <div className={classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
-                    </Typography>
+                        <Divider />
+                        <Typography>
+                            <div className={classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
+                        </Typography>
+                    </React.Fragment> }
                 </div>
             </div>
         );
