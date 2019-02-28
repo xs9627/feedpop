@@ -1,3 +1,10 @@
+## [1.0.4] - 2019-02-28
+### Changed
+- Fix feed list shows item in other channel
+- New updating channel animation
+- Optimize feed content view display
+- Optimize unread count badge display
+- Update dependences
 ## [1.0.3] - 2019-02-08
 ### Added
 - Recent Updates, show latest 30 post in each feed channel.
@@ -13,5 +20,6 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.0.4]:https://github.com/xs9627/feedpop/compare/v1.0.3...v1.0.4
 [1.0.3]:https://github.com/xs9627/feedpop/compare/v1.0.2...v1.0.3
 [1.0.2]:https://github.com/xs9627/feedpop/compare/1.0.1...v1.0.2
