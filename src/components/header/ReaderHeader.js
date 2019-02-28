@@ -9,7 +9,7 @@ import Collapse from '@material-ui/core/Collapse';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import List from '@material-ui/icons/List';
-import Sync from '@material-ui/icons/Sync';
+import Autorenew from '@material-ui/icons/Autorenew';
 import Edit from '@material-ui/icons/Edit';
 import Settings from '@material-ui/icons/Settings';
 import Paper from '@material-ui/core/Paper';
@@ -73,7 +73,7 @@ const styles = theme => ({
     },
     '@keyframes rotate': {
         to: {
-          transform: 'rotate(-360deg)',
+          transform: 'rotate(360deg)',
         }
     },
     updating: {
@@ -149,7 +149,7 @@ class ReaderHeader extends Component {
                             </Badge>
                         ) : <List className='ListAction' />
                     } />
-                    <BottomNavigationAction label={t('Update')} value="Update" icon={<Sync />} className={classNames({[classes.updating]: channelFeedUpdating})} />
+                    <BottomNavigationAction label={t('Update')} value="Update" icon={<Autorenew />} className={classNames({[classes.updating]: channelFeedUpdating})} />
                     {/* <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} /> */}
                     <BottomNavigationAction label={t('Settings')} value="Settings" icon={<Settings />} />
                 </BottomNavigation>
