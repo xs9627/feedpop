@@ -109,10 +109,10 @@ class ChannelGestureList extends React.Component {
     handleMouseDown = (pos, pressY, { pageY }) =>
         this.setState({ topDeltaY: pageY - pressY, mouseY: pressY, isPressed: true, originalPosOfLastPressed: pos, channelListContainerTop: this.channelListContainer.current.scrollTop })
     handleMouseMove = ({ pageY }) => {
-        const { isPressed, topDeltaY, order, originalPosOfLastPressed, channelListContainerTop } = this.state
+        const { isPressed, topDeltaY, order, originalPosOfLastPressed, channelListContainerTop, channels } = this.state
         if (isPressed) {
             const mouseY = pageY - topDeltaY
-            const currentRow = clamp(Math.round(mouseY / listItemHeight), 0, this.props.channels.length - 1)
+            const currentRow = clamp(Math.round(mouseY / listItemHeight), 0, channels.length - 1)
             let newOrder = order
             if (currentRow !== order.indexOf(originalPosOfLastPressed)) {
                 newOrder = reinsert(order, order.indexOf(originalPosOfLastPressed), currentRow)
