@@ -151,7 +151,7 @@ class FeedList extends Component {
                 if (diff < dayMilliseconds) {
                     return { index: 1, dateString: "Today" };
                 } else if (diff < dayMilliseconds * 2) {
-                    return { index: 2, dateString: "Yestoday" };
+                    return { index: 2, dateString: "Yesterday" };
                 } else {
                     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                     return { index: (diff / dayMilliseconds) + 1, dateString: days[itemDate.getDay()] };
