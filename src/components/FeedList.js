@@ -17,9 +17,10 @@ import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import { ChannelFixedID } from '../constants/index';
-import { setFeedReadStatus, openFeed, loadHistoryFeeds } from '../actions/index';
+import { setFeedReadStatus, openFeed, loadHistoryFeeds, markAllAsRead } from '../actions/index';
 import { withNamespaces } from 'react-i18next';
 import GA from '../utils/GA';
 
@@ -39,6 +40,7 @@ const mapDispatchToProps = dispatch => {
         setFeedReadStatus: (channelId, feedId, isRead) => dispatch(setFeedReadStatus(channelId, feedId, isRead)),
         openFeed: feedItemId => dispatch(openFeed(feedItemId)),
         loadHistoryFeeds: () => dispatch(loadHistoryFeeds()),
+        markAllAsRead: channelId => dispatch(markAllAsRead(channelId)),
     };
 };
 
@@ -64,7 +66,7 @@ const styles = theme => ({
         },
     },
     feedInfoContainer: {
-        padding: 16,
+        padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
         display: 'flex',
         alignItems: 'center',
     },
@@ -88,7 +90,11 @@ const styles = theme => ({
     itemSecondaryContainer: {
         display: 'flex',
         alignItems: 'center',
-    }
+    },
+    channelMenuButton: {
+        marginLeft: 'auto',
+        padding: theme.spacing.unit,
+    },
 });
 
 class FeedList extends Component {
@@ -270,11 +276,22 @@ class FeedList extends Component {
         setFeedReadStatus(currentFeedItem.channelId || currentChannelId, currentFeedItem.readerId, !currentFeedItem.isRead);
         this.handleCloseContextMenu();
     }
+    handleChannelMenuClick = event => {
+        this.setState({ anchorEl: event.currentTarget });
+    };
+    handleChannelMenuClose = () => {
+        this.setState({ anchorEl: null });
+    };
+    handleMarkAllAsReadClick = () => {
+        this.props.markAllAsRead(this.props.currentChannelId);
+        this.handleChannelMenuClose();
+    };
     render() {
-        const { menuOpen, menuLeft, menuTop } = this.state;
+        const { menuOpen, menuLeft, menuTop, anchorEl } = this.state;
         const { classes, feeds, currentChannelId, channels, t } = this.props;
         this.arrangeFeeds(feeds);
         const arranged = this.state.arrangedFeeds;
+        const channelMenuOpen = Boolean(anchorEl);
         return (
             <div className={classes.root} ref={node => this.feedList = node}>
                 <Menu
@@ -293,10 +310,29 @@ class FeedList extends Component {
                     >
                     <MenuItem onClick={this.handleToggleIsRead}>{this.state.currentFeedItem && this.state.currentFeedItem.isRead ? t('Mark as unread') : t('Mark as read')}</MenuItem>
                 </Menu>
+                <Menu
+                    id="channel-menu"
+                    anchorEl={anchorEl}
+                    open={channelMenuOpen}
+                    onClose={this.handleChannelMenuClose}
+                    >
+                    <MenuItem onClick={this.handleMarkAllAsReadClick}>
+                        {t('Mark all as read')}
+                    </MenuItem>
+                </Menu>
                 <Typography variant="body2" className={ classes.feedTitle }>
                     <div className={ classes.feedInfoContainer }>
                         { this.renderChannelIcon(currentChannelId) }
                         { currentChannelId === ChannelFixedID.RECENT ? t('Recent Updates') : channels.find(c => c.id === currentChannelId).name }
+                        <IconButton
+                            className={classes.channelMenuButton}
+                            aria-label="More"
+                            aria-owns={channelMenuOpen ? 'long-menu' : undefined}
+                            aria-haspopup="true"
+                            onClick={this.handleChannelMenuClick}
+                            >
+                            <MoreVertIcon />
+                        </IconButton>
                     </div>
                 </Typography>
                 <Divider />

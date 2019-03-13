@@ -120,6 +120,15 @@ export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (di
         await saveChannelFeeds(channelId, getState().mergedFeed);
     }
 }
+export const markAllAsRead = channelId => async (dispatch, getState) => {
+    dispatch({ type: types.MARK_ALL_AS_READ, payload: { channelId } });
+    await dispatch(markAllHistoryAsRead(channelId));
+};
+export const markAllHistoryAsRead = channelId => async (dispatch, getState) => {
+    const historyFeeds = await getChannelFeeds(channelId);
+    dispatch({ type: types.MARK_History_ALL_AS_READ, payload: { historyFeeds } });
+    await saveChannelFeeds(channelId, getState().mergedFeed);
+};
 export const openFeed = feedItemId => ({ type: types.OPEN_FEED, payload: feedItemId });
 export const closeFeed = () => ({ type: types.CLOSE_FEED });
 export const scrollFeedContent = top => ({ type: types.SCROLL_FEED_CONTENT, payload: top });

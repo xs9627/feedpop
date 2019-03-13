@@ -298,6 +298,36 @@ const rootReducer = (state = initialState, action) => {
             const {historyFeeds, feedId, isRead} = action.payload;
             return {...state, mergedFeed: {...historyFeeds, items: historyFeeds.items.map(i => (i.readerId === feedId ? { ...i, isRead: isRead } : i))}};
         }
+        case types.MARK_ALL_AS_READ: {
+            const {channelId} = action.payload;
+            let update = {};
+            if (channelId) {
+                update = {
+                    channels: state.channels.map(channel => channel.id === channelId ? {...channel, unreadCount: 0} : channel),
+                    recentFeeds: state.recentFeeds.map(rf => rf.channelId === channelId ? {
+                        ...rf,
+                        feed: {
+                            ...rf.feed,
+                            items: rf.feed.items.map(i => ({
+                                ...i,
+                                isRead: true
+                            }))
+                        }
+                    } : rf),
+                    allUnreadCount: state.channels.filter(c => c.id !== channelId).reduce((r, a) => (r + a.unreadCount), 0),
+                    currentFeeds: {
+                        ...state.currentFeeds,
+                        items: state.currentFeeds.items.map(i => ({ ...i, isRead: true }))
+                    }
+                }
+            }
+
+            return persistence(state, update);
+        }
+        case types.MARK_History_ALL_AS_READ: {
+            const {historyFeeds} = action.payload;
+            return {...state, mergedFeed: {...historyFeeds, items: historyFeeds.items.map(i => ({ ...i, isRead: true }))}};      
+        }
         case types.OPEN_FEED:
             return persistence(state, { currentFeedItemId: action.payload, showContent: true });
         case types.CLOSE_FEED:
