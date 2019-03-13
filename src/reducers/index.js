@@ -300,9 +300,38 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.MARK_ALL_AS_READ: {
             const {channelId} = action.payload;
-            let update = {};
-            if (channelId) {
+            let update = {
+                currentFeeds: {
+                    ...state.currentFeeds,
+                    items: state.currentFeeds.items.map(i => ({ ...i, isRead: true }))
+                }
+            };
+            if (ChannelFixedID.RECENT === channelId) {
                 update = {
+                    ...update,
+                    channels: state.channels.map(channel => {
+                        const recentFeed = state.recentFeeds.find(rf => rf.channelId === channel.id)
+                        return {
+                            ...channel,
+                            unreadCount: recentFeed ? (channel.unreadCount - recentFeed.feed.items.length) : channel.unreadCount
+                        };
+                    }),
+                    recentFeeds: state.recentFeeds.map(rf => ({
+                        ...rf,
+                        feed: {
+                            ...rf.feed,
+                            items: rf.feed.items.map(i => ({
+                                ...i,
+                                isRead: true
+                            }))
+                        }
+                    })),
+                    allUnreadCount: state.channels.reduce((r, a) => (r + a.unreadCount), 0),
+                    tmp: {...state.tmp, needUpdateHistoryReadStatus: false}
+                }
+            } else {
+                update = {
+                    ...update,
                     channels: state.channels.map(channel => channel.id === channelId ? {...channel, unreadCount: 0} : channel),
                     recentFeeds: state.recentFeeds.map(rf => rf.channelId === channelId ? {
                         ...rf,
@@ -315,10 +344,7 @@ const rootReducer = (state = initialState, action) => {
                         }
                     } : rf),
                     allUnreadCount: state.channels.filter(c => c.id !== channelId).reduce((r, a) => (r + a.unreadCount), 0),
-                    currentFeeds: {
-                        ...state.currentFeeds,
-                        items: state.currentFeeds.items.map(i => ({ ...i, isRead: true }))
-                    }
+                    tmp: {...state.tmp, needUpdateHistoryReadStatus: false}
                 }
             }
 

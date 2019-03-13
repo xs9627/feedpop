@@ -122,7 +122,9 @@ export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (di
 }
 export const markAllAsRead = channelId => async (dispatch, getState) => {
     dispatch({ type: types.MARK_ALL_AS_READ, payload: { channelId } });
-    await dispatch(markAllHistoryAsRead(channelId));
+    if (getState().tmp.needUpdateHistoryReadStatus) {
+        await dispatch(markAllHistoryAsRead(channelId));
+    }
 };
 export const markAllHistoryAsRead = channelId => async (dispatch, getState) => {
     const historyFeeds = await getChannelFeeds(channelId);
