@@ -67,6 +67,7 @@ const styles = theme => ({
     },
     feedInfoContainer: {
         padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+        paddingRight: '4px',
         display: 'flex',
         alignItems: 'center',
     },

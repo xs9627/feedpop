@@ -307,15 +307,16 @@ const rootReducer = (state = initialState, action) => {
                 }
             };
             if (ChannelFixedID.RECENT === channelId) {
+                const newChannels = state.channels.map(channel => {
+                    const recentFeed = state.recentFeeds.find(rf => rf.channelId === channel.id)
+                    return {
+                        ...channel,
+                        unreadCount: recentFeed ? (channel.unreadCount - recentFeed.feed.items.filter(i => !i.isRead).length) : channel.unreadCount
+                    };
+                });
                 update = {
                     ...update,
-                    channels: state.channels.map(channel => {
-                        const recentFeed = state.recentFeeds.find(rf => rf.channelId === channel.id)
-                        return {
-                            ...channel,
-                            unreadCount: recentFeed ? (channel.unreadCount - recentFeed.feed.items.length) : channel.unreadCount
-                        };
-                    }),
+                    channels: newChannels,
                     recentFeeds: state.recentFeeds.map(rf => ({
                         ...rf,
                         feed: {
@@ -326,7 +327,7 @@ const rootReducer = (state = initialState, action) => {
                             }))
                         }
                     })),
-                    allUnreadCount: state.channels.reduce((r, a) => (r + a.unreadCount), 0),
+                    allUnreadCount: newChannels.reduce((r, a) => (r + a.unreadCount), 0),
                     tmp: {...state.tmp, needUpdateHistoryReadStatus: false}
                 }
             } else {
@@ -344,7 +345,7 @@ const rootReducer = (state = initialState, action) => {
                         }
                     } : rf),
                     allUnreadCount: state.channels.filter(c => c.id !== channelId).reduce((r, a) => (r + a.unreadCount), 0),
-                    tmp: {...state.tmp, needUpdateHistoryReadStatus: false}
+                    tmp: {...state.tmp, needUpdateHistoryReadStatus: true}
                 }
             }
 
