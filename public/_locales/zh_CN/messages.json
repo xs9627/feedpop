@@ -5,6 +5,9 @@
     "appDesc": {
       "message": "简便快捷地订阅RSS。"
     },
+    "markAllAsRead": {
+      "message": "全部标为已读"
+    },
     "cleanCache": {
       "message": "清除缓存"
     }

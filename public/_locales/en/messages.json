@@ -5,6 +5,9 @@
     "appDesc": {
       "message": "Read RSS in a popup window."
     },
+    "markAllAsRead": {
+      "message": "Mark all as read"
+    },
     "cleanCache": {
       "message": "Clean cache"
     }

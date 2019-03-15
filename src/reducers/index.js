@@ -300,12 +300,14 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.MARK_ALL_AS_READ: {
             const {channelId} = action.payload;
-            let update = {
-                currentFeeds: {
+            let update = {};
+            if (state.currentFeeds) {
+                // For update in background
+                update.currentFeeds = {
                     ...state.currentFeeds,
                     items: state.currentFeeds.items.map(i => ({ ...i, isRead: true }))
-                }
-            };
+                };
+            }
             if (ChannelFixedID.RECENT === channelId) {
                 const newChannels = state.channels.map(channel => {
                     const recentFeed = state.recentFeeds.find(rf => rf.channelId === channel.id)
