@@ -1,3 +1,9 @@
+## [1.0.5] - 2019-03-18
+### Added
+- Add mark all as read in feed list menu
+- Add mark all as read in context menu of extension icon
+### Changed
+- Fix typo
 ## [1.0.4] - 2019-02-28
 ### Changed
 - Fix feed list shows item in other channel
@@ -20,6 +26,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.0.5]:https://github.com/xs9627/feedpop/compare/v1.0.4...v1.0.5
 [1.0.4]:https://github.com/xs9627/feedpop/compare/v1.0.3...v1.0.4
 [1.0.3]:https://github.com/xs9627/feedpop/compare/v1.0.2...v1.0.3
 [1.0.2]:https://github.com/xs9627/feedpop/compare/1.0.1...v1.0.2
