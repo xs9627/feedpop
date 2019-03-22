@@ -4,7 +4,7 @@ import { Spring, animated } from 'react-spring'
 import { withGesture } from 'react-with-gesture'
 import range from 'lodash/range'
 import { connect } from "react-redux"
-import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
 import Typography from '@material-ui/core/Typography';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -142,9 +142,9 @@ class ChannelGestureListItem extends React.Component {
                             <Typography className={classes.draggableHandle} onMouseDown={onMouseDown} onTouchStart={onTouchStart}>
                                 <DragHandle fontSize="small" />
                             </Typography>
-                            <Button className={classes.removeButton} variant="fab" mini color="secondary" aria-label="Delete" onClick={() => this.props.deleteItem()}>
+                            <Fab className={classes.removeButton} color="secondary" aria-label="Delete" onClick={() => this.props.deleteItem()}>
                                 <RemoveIcon fontSize="small" />
-                            </Button>
+                            </Fab>
                         </ListItem>
                         <animated.div className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`) }}>
                             <ListItem button
@@ -164,7 +164,7 @@ class ChannelGestureListItem extends React.Component {
                                         {!channel.fixed && <EditIcon />}
                                     </ListItemIcon>
                                 </animated.div>
-                                <ListItemText primary={<div className={classes.channelName}>{channel.icon} {channel.name}</div>} primaryTypographyProps={{noWrap: true}} />
+                                <ListItemText primary={<div className={classes.channelName}>{channel.icon} <Typography noWrap variant="body1">{channel.name}</Typography></div>} />
                                 {
                                     channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
                                         <Tooltip title={channel.unreadCount} enterDelay={100}>

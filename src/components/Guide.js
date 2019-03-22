@@ -90,4 +90,4 @@ class Guide extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTheme()(withNamespaces()(Guide))));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTheme(withNamespaces()(Guide))));
