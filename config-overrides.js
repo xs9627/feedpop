@@ -26,6 +26,10 @@ module.exports = {
 		const isEnvDevelopment = 'development' === env;
 		const isEnvProduction = 'production' === env;
 
+		if (process.env.PUBLISH_BUILD !== 'true') {
+			config.devtool = config.devtool != 'source-map' ? config.devtool : 'eval-source-map';
+		}
+		
 		config.entry = {
 			main: [
 				isEnvDevelopment && paths.globalMocker,
