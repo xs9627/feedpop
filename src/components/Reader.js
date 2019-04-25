@@ -8,6 +8,7 @@ import ReaderHeader from './header/ReaderHeader';
 import ReaderMessageBar from './ReaderMessageBar';
 import Guide from './Guide';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { CssBaseline } from "@material-ui/core";
 import { withStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import Slide from '@material-ui/core/Slide';
@@ -99,6 +100,7 @@ class Reader extends Component {
                 //     },
                 // },
             })}>
+                <CssBaseline />
                 <div className={this.props.classes.root}>
                     <ReaderHeader />
                     { this.props.channels.length > 0 ? <FeedList /> : <Guide/> }                    
