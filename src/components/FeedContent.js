@@ -81,7 +81,7 @@ const styles = theme => ({
         marginBottom: theme.spacing.unit * 2,
     },
     qrCodeTip: {
-        height: 128,
+        display: 'flex',
         padding: `${theme.spacing.unit}px`,
     }
 });
