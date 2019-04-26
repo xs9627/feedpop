@@ -163,7 +163,7 @@ class FeedContent extends Component {
                                     <QRCode value={this.props.feed.link} />
                                 </React.Fragment>
                             }  enterDelay={100}>
-                                <IconButton key="more" className={classes.icon} onClick={this.props.closeFeed}>
+                                <IconButton key="more" className={classes.icon}>
                                     <QRCodeIcon />
                                 </IconButton>
                             </Tooltip>
