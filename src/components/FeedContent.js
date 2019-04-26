@@ -59,7 +59,7 @@ const styles = theme => ({
         marginTop: theme.spacing.unit,
         background: 'inherit',
         fontFamily: 'Roboto',
-        fontSize: 13,
+        fontSize: 'inherit',
         lineHeight: '20px',
         '& img': {
             maxWidth: '100% !important',
@@ -200,7 +200,7 @@ class FeedContent extends Component {
                             </Grid>
                         </Grid>
                         <Divider />
-                        <Typography>
+                        <Typography variant="body2">
                             <div className={classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
                         </Typography>
                     </React.Fragment> }

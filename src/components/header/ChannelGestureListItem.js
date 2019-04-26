@@ -51,7 +51,7 @@ const styles = theme => ({
     },
     actionPanel: {
         position: 'absolute',
-        height: 46,
+        height: theme.typography.fontSize + 32,
         backgroundColor: theme.palette.background.default,
         paddingLeft: theme.spacing.unit
 

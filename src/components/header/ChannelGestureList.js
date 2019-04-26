@@ -20,13 +20,13 @@ import { ChannelFixedID } from "../../constants/index"
 import ChannelGestureListItem from './ChannelGestureListItem';
 import { withNamespaces } from 'react-i18next';
 
-const listItemHeight = 46
 const mapStateToProps = state => {
     return {
         channels: state.channels,
         showRecentUpdate: state.showRecentUpdate,
         recentChannelIndex: state.recentChannelIndex,
         recentFeeds: state.recentFeeds,
+        listItemHeight: state.fontSize + 32,
     };
 }
 const mapDispatchToProps = dispatch => {
@@ -112,14 +112,14 @@ class ChannelGestureList extends React.Component {
         const { isPressed, topDeltaY, order, originalPosOfLastPressed, channelListContainerTop, channels } = this.state
         if (isPressed) {
             const mouseY = pageY - topDeltaY
-            const currentRow = clamp(Math.round(mouseY / listItemHeight), 0, channels.length - 1)
+            const currentRow = clamp(Math.round(mouseY / this.props.listItemHeight), 0, channels.length - 1)
             let newOrder = order
             if (currentRow !== order.indexOf(originalPosOfLastPressed)) {
                 newOrder = reinsert(order, order.indexOf(originalPosOfLastPressed), currentRow)
                 this.state.orderUpdated = true;
             }
             this.setState({ mouseY: mouseY, order: newOrder })
-            const topOffset = (this.getShowChannelCount() - 1) * listItemHeight;
+            const topOffset = (this.getShowChannelCount() - 1) * this.props.listItemHeight;
             const listPadding = 8
             if (mouseY - channelListContainerTop > topOffset + listPadding) {
                 this.channelListContainer.current.scrollTop =  mouseY - topOffset - listPadding
@@ -148,7 +148,7 @@ class ChannelGestureList extends React.Component {
     }
     render() {
         const { mouseY, isPressed, originalPosOfLastPressed, order, channels } = this.state
-        const { classes, t } = this.props
+        const { classes, t, listItemHeight } = this.props
         return (
             <RootRef rootRef={this.channelListContainer}>
                 <List className={classes.list} style={{height: this.getShowChannelCount() * listItemHeight}} >

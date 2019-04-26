@@ -25,9 +25,9 @@ import { setSettins, cleanCache, toggleShowRecentUpdate } from "../../actions/in
 import { withNamespaces } from 'react-i18next';
 
 const mapStateToProps = state => {
-    const { theme, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate } = state;
+    const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate } = state;
     return {
-        config: { theme, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate },
+        config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate },
         logs: state.logs,
     };
 };
@@ -58,6 +58,11 @@ class Settings extends Component {
     handleChangeTheme = event => {
         let isdarkTheme = event.target.checked;
         this.props.setSettins({ theme: isdarkTheme ? 'dark' : 'light' });
+    }
+
+    handleChangeFontSize = event => {
+        const fontSize = event.target.value;
+        this.props.setSettins({ fontSize });
     }
 
     handleChangeShowRecentUpdate = event => {
@@ -124,6 +129,21 @@ class Settings extends Component {
                                 value="checkedB"
                                 color="primary"
                             />
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                    <ListItem>
+                        <ListItemText primary={t("Font size")}></ListItemText>
+                        <ListItemSecondaryAction className={classes.select}>
+                            <Select
+                                value={this.props.config.fontSize}
+                                onChange={this.handleChangeFontSize}
+                                displayEmpty
+                                name="fontSize"
+                            >
+                                <MenuItem value={12}>{t('Small')}</MenuItem>
+                                <MenuItem value={14}>{t('Medium')}</MenuItem>
+                                <MenuItem value={16}>{t('Large')}</MenuItem>
+                            </Select>
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>

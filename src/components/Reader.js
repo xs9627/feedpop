@@ -20,6 +20,7 @@ const mapStateToProps = state => {
         channels: state.channels,
         showContent: state.showContent,
         theme: state.theme,
+        fontSize: state.fontSize,
     };
 };
 
@@ -78,6 +79,9 @@ class Reader extends Component {
                 palette: {
                     primary: !isDarkTheme ? blue : yellow,
                     type: !isDarkTheme ? 'light' : 'dark',
+                },
+                typography: {
+                    fontSize: this.props.fontSize || 14,
                 },
                 // overrides: {
                 //     MuiBottomNavigation: {
