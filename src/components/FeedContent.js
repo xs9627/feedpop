@@ -8,13 +8,14 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import OpenIcon from '@material-ui/icons/OpenInBrowser';
-import MoreIcon from '@material-ui/icons/MoreHoriz';
-import ShareVariantIcon from '@material-ui/icons/Share';
+import {Qrcode as QRCodeIcon} from 'mdi-material-ui';
 import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import { withNamespaces } from 'react-i18next';
+
+import QRCode from 'qrcode.react';
 
 const mapStateToProps = state => {
     return {
@@ -78,6 +79,10 @@ const styles = theme => ({
     },
     feedInfo: {
         marginBottom: theme.spacing.unit * 2,
+    },
+    qrCodeTip: {
+        height: 128,
+        padding: `${theme.spacing.unit}px`,
     }
 });
 
@@ -153,14 +158,20 @@ class FeedContent extends Component {
                             </IconButton>
                         </Grid>
                         <Grid item>
+                            <Tooltip classes={{tooltip: classes.qrCodeTip}} title={
+                                <React.Fragment>
+                                    <QRCode value={this.props.feed.link} />
+                                </React.Fragment>
+                            }  enterDelay={100}>
+                                <IconButton key="more" className={classes.icon} onClick={this.props.closeFeed}>
+                                    <QRCodeIcon />
+                                </IconButton>
+                            </Tooltip>
                             <Tooltip title={t("Open in new tab")} enterDelay={100}>
                                 <IconButton key="open" className={classes.icon} onClick={ () => this.openFeed(this.props.feed.link)}>
                                     <OpenIcon />
                                 </IconButton>
                             </Tooltip>
-                            {/* <IconButton key="more" className={classes.icon} onClick={this.props.closeFeed}>
-                                <MoreIcon />
-                            </IconButton> */}
                         </Grid>
                     </Grid>
                 </Paper>

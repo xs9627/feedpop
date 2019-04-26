@@ -77,6 +77,7 @@ const styles = theme => ({
 
     },
     itemBadge: {
+        width: 20,
         marginRight: theme.spacing.unit * 2,
     },
     editItemIcon: {
