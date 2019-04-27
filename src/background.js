@@ -21,6 +21,7 @@ chrome.runtime.onInstalled.addListener(() => {
         const state = store.getState();
         chrome.browserAction.setBadgeText({text: state && state.allUnreadCount > 0 ? `${state.allUnreadCount}` : ''});
         chrome.browserAction.setBadgeBackgroundColor({ color: '#424242' });
+        chrome.contextMenus.removeAll();
         chrome.contextMenus.create({id: "markAllAsRead", "title": chrome.i18n.getMessage('markAllAsRead'), contexts: ["browser_action"]});
         chrome.contextMenus.create({id: "cleanCache", "title": chrome.i18n.getMessage('cleanCache'), contexts: ["browser_action"]});
         refreshAll(state);
