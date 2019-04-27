@@ -60,7 +60,7 @@ const styles = theme => ({
         background: 'inherit',
         fontFamily: 'Roboto',
         fontSize: 'inherit',
-        lineHeight: '20px',
+        lineHeight: 'inherit',
         '& img': {
             maxWidth: '100% !important',
             height: 'auto !important',
