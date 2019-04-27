@@ -71,7 +71,7 @@ const styles = theme => ({
     cancelLoading: {
         marginTop: theme.spacing.unit,
     },
-    '@keyframes rotate': {
+    '@global @keyframes rotate': {
         to: {
           transform: 'rotate(360deg)',
         }
