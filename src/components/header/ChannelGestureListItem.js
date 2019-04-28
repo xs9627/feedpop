@@ -17,12 +17,12 @@ import Badge from '@material-ui/core/Badge';
 import Tooltip from '@material-ui/core/Tooltip';
 import { selectChannel, closeActionMenu, setCurrentFeeds, setComponentState } from "../../actions/index"
 
-const actionPanelWidth = 85
 const clickCheckThreshold = 5
 const mapStateToProps = state => {
     return {
         editMode: state.channelSelectorEditMode,
         currentChannelId: state.currentChannelId,
+        actionPanelWidth: 85 + (state.fontSize - 14) * 2
     }
 }
 
@@ -45,6 +45,7 @@ const styles = theme => ({
         backgroundColor: theme.palette.background.paper,
     },
     listItem: {
+        height: theme.typography.fontSize + 32,
         '&:active': {
             cursor: 'grabbing'
         }
@@ -70,9 +71,9 @@ const styles = theme => ({
         }
     },
     removeButton: {
-        width: 20,
-        height: 20,
-        minHeight: 20,
+        width: 'auto',
+        height: 'auto',
+        minHeight: 'auto',
         marginLeft: theme.spacing.unit,
 
     },
@@ -96,6 +97,7 @@ class ChannelGestureListItem extends React.Component {
         editMode: false
     }
     getOffSet = xDelta => {
+        const {actionPanelWidth} = this.props;
         let offset = (this.state.editMode ? actionPanelWidth : 0) + xDelta;
         offset = offset > actionPanelWidth ? actionPanelWidth : offset;
         offset = offset < 0 ? 0 : offset;
@@ -124,6 +126,7 @@ class ChannelGestureListItem extends React.Component {
         }));
     };
     componentWillReceiveProps(newProps) {
+        const {actionPanelWidth} = this.props;
         if (Math.abs(newProps.xDelta) > clickCheckThreshold && this.props.down && !newProps.down && (!this.state.editMode || newProps.xInitial >= actionPanelWidth)) {
             this.state.editMode = newProps.xDelta > actionPanelWidth / 2;
         }
@@ -134,7 +137,7 @@ class ChannelGestureListItem extends React.Component {
         }
     }
     render() {
-        const { classes, xInitial, xDelta, down, onMouseDown, onTouchStart, channel, isSorting, editMode, currentChannelId } = this.props
+        const { classes, xInitial, xDelta, down, onMouseDown, onTouchStart, channel, isSorting, editMode, currentChannelId, actionPanelWidth } = this.props
         return (
             <Spring native to={{ x: !isSorting && down ? this.getOffSet(xDelta) : this.state.editMode ? actionPanelWidth : 0 }}>
                 {({ x }) => (

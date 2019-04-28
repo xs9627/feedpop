@@ -27,7 +27,6 @@ const mapStateToProps = state => {
         recentChannelIndex: state.recentChannelIndex,
         recentFeeds: state.recentFeeds,
         listItemHeight: state.fontSize + 32,
-        fontSize: state.fontSize,
     };
 }
 const mapDispatchToProps = dispatch => {
@@ -149,10 +148,10 @@ class ChannelGestureList extends React.Component {
     }
     render() {
         const { mouseY, isPressed, originalPosOfLastPressed, order, channels } = this.state
-        const { classes, t, listItemHeight, fontSize } = this.props
+        const { classes, t, listItemHeight } = this.props
         return (
             <RootRef rootRef={this.channelListContainer}>
-                <List className={classes.list} style={{height: this.getShowChannelCount() * listItemHeight + fontSize - 4}} >
+                <List className={classes.list} style={{height: this.getShowChannelCount() * listItemHeight + 14}} >
                     {channels.map((channel, i) => {
                         const active = originalPosOfLastPressed === i && isPressed
                         const style = active

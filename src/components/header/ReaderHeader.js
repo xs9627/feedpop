@@ -49,7 +49,7 @@ const mapDispatchToProps = dispatch => {
 
 const styles = theme => ({
     readerHeader: {
-        width: theme.typography.fontSize === 16 ? 360 : '100%',
+        width: '100%',
         flex: '0 1 auto',
         zIndex: theme.zIndex.drawer + 1,
     },
