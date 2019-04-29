@@ -58,7 +58,7 @@ const styles = theme => ({
         background: theme.palette.background.default,
     },
     menuDrawer: {
-        zIndex: theme.zIndex.drawer,
+        zIndex: `${theme.zIndex.drawer} !important`,
     },
     menuContentPanel: {
         marginTop: theme.mixins.toolbar.minHeight
@@ -154,7 +154,7 @@ class ReaderHeader extends Component {
                     <BottomNavigationAction label={t('Settings')} value="Settings" icon={<Settings />} />
                 </BottomNavigation>
                 <Drawer
-                    className={classes.menuDrawer}
+                    classes={{root: classes.menuDrawer}}
                     anchor="top"
                     open={showContent && contentName != 'Update'}
                     onClose={this.closeActionMenu}
