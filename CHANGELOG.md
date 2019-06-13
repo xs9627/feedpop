@@ -1,3 +1,9 @@
+## [1.0.6] - 2019-04-28
+### Added
+- QR code for feed url
+- Change font size in setting
+### Changed
+- Update dependences
 ## [1.0.5] - 2019-03-18
 ### Added
 - Add mark all as read in feed list menu
@@ -26,6 +32,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.0.6]:https://github.com/xs9627/feedpop/compare/v1.0.5...v1.0.6
 [1.0.5]:https://github.com/xs9627/feedpop/compare/v1.0.4...v1.0.5
 [1.0.4]:https://github.com/xs9627/feedpop/compare/v1.0.3...v1.0.4
 [1.0.3]:https://github.com/xs9627/feedpop/compare/v1.0.2...v1.0.3
