@@ -158,18 +158,18 @@ class FeedContent extends Component {
                             </IconButton>
                         </Grid>
                         <Grid item>
-                            <Tooltip title={t("Open in new tab")} PopperProps={{disablePortal: true}}>
-                                <IconButton key="open" className={classes.icon} onClick={ () => this.openFeed(this.props.feed.link)}>
-                                    <OpenIcon />
-                                </IconButton>
-                            </Tooltip>
                             <Tooltip classes={{tooltip: classes.qrCodeTip}} title={
                                 <React.Fragment>
                                     <QRCode value={this.props.feed.link} />
                                 </React.Fragment>
-                            } PopperProps={{disablePortal: true}}>
+                            }>
                                 <IconButton key="more" className={classes.icon}>
                                     <QRCodeIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title={t("Open in new tab")}>
+                                <IconButton key="open" className={classes.icon} onClick={ () => this.openFeed(this.props.feed.link)}>
+                                    <OpenIcon />
                                 </IconButton>
                             </Tooltip>
                         </Grid>
