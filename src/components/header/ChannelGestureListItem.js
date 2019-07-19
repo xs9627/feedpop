@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom'
-import { Spring, animated } from 'react-spring/renderprops'
+import { Spring, animated } from 'react-spring/renderprops.cjs.js'
 import { withGesture } from 'react-with-gesture'
 import range from 'lodash/range'
 import { connect } from "react-redux"

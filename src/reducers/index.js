@@ -55,6 +55,21 @@ const persistence = (state, updated) => {
     return newState;
 }
 
+const defaultState = {
+    showContent: false,
+    feedContentTop: 0,
+    isShowActionMenu: false,
+    currentFeedItemId: null,
+    channelSelectorEditMode: false,
+    historyFeedsLoaded: false,
+    channelFeedUpdating: false,
+    channelSelector: {
+        editOpen: false,
+        isCheckingUrl: false,
+        isUrlInvalid: false,
+    }
+}
+
 const initialState = {
     channels: [],
     recentFeeds: [],
@@ -75,21 +90,6 @@ const initialState = {
     getComponentState(componentName, stateName) {
         return this[componentName] ? this[componentName][stateName] : null;
     },
-}
-
-const defaultState = {
-    showContent: false,
-    feedContentTop: 0,
-    isShowActionMenu: false,
-    currentFeedItemId: null,
-    channelSelectorEditMode: false,
-    historyFeedsLoaded: false,
-    channelFeedUpdating: false,
-    channelSelector: {
-        editOpen: false,
-        isCheckingUrl: false,
-        isUrlInvalid: false,
-    }
 }
 
 const updateUnreadCount = (feeds, channels, channelId) => {
