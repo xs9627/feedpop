@@ -140,7 +140,7 @@ class FeedContent extends Component {
         this.contentContainer.removeEventListener('scroll', this.trackScrolling);
     }
     componentWillReceiveProps(newProps) {
-        if (newProps.feed.readerId && this.readerId != newProps.feed.readerId) {
+        if (newProps.feed.readerId && this.readerId !== newProps.feed.readerId) {
             this.createMarkup();
             this.readerId = newProps.feed.readerId;
         }

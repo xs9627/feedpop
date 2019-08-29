@@ -38,7 +38,6 @@ const useStyles = makeStyles(theme => ({
             margin: 0,
             padding: 0,
             fontFamily: 'Roboto',
-            minWidth: 320,
         },
         '::-webkit-scrollbar': {
                 width: '0.25em',
@@ -52,7 +51,8 @@ const useStyles = makeStyles(theme => ({
         },
     },
     root: {
-        height: '600px',
+        height: 600,
+        minWidth: 320,
         display: 'flex',
         flexFlow: 'column',
     }
@@ -60,21 +60,24 @@ const useStyles = makeStyles(theme => ({
 
 // class Reader extends Component {
 const Reader = props => {
-    const {syncState, setDefaultState, setCurrentFeeds} = props;
+    const {setupBackgroundConnection, syncState, setDefaultState, setCurrentFeeds} = props;
+    const [synced, setSyneced] = useState(false);
 
     useEffect(() => {
+        setupBackgroundConnection();
         async function syncDomainPerfix() {
             const state = await syncState();
             setDefaultState();
             setCurrentFeeds();
+            setSyneced(true);
         };
         syncDomainPerfix();
-    }, [syncState, setDefaultState, setCurrentFeeds]);
+    }, [syncState, setDefaultState, setCurrentFeeds, synced]);
 
     const isDarkTheme = props.theme === "dark";
     const classes = useStyles(props);
 
-    return (
+    return !synced ? null : (
         <MuiThemeProvider theme={createMuiTheme({
             palette: {
                 primary: !isDarkTheme ? blue : yellow,
