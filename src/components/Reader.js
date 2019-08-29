@@ -65,13 +65,18 @@ const Reader = props => {
 
     useEffect(() => {
         setupBackgroundConnection();
+
+        let isSubscribed = true;
         async function syncDomainPerfix() {
             const state = await syncState();
-            setDefaultState();
-            setCurrentFeeds();
-            setSyneced(true);
+            if (isSubscribed) {
+                setDefaultState();
+                setCurrentFeeds();
+                setSyneced(true);
+            }
         };
         syncDomainPerfix();
+        return () => isSubscribed = false;
     }, [syncState, setDefaultState, setCurrentFeeds, synced]);
 
     const isDarkTheme = props.theme === "dark";
