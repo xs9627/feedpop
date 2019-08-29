@@ -1,15 +1,14 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from "react-redux";
 import { syncState, setDefaultState, setupBackgroundConnection, setCurrentFeeds } from "../actions/index"
-import FeedList from './FeedList';
-import FeedContent from './FeedContent';
+import ReaderContent from './ReaderContent';
 import ReaderHeader from './header/ReaderHeader';
 import ReaderMessageBar from './ReaderMessageBar';
 import Guide from './Guide';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { CssBaseline } from "@material-ui/core";
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Dialog from '@material-ui/core/Dialog';
 import Slide from '@material-ui/core/Slide';
 import blue from '@material-ui/core/colors/blue';
@@ -33,13 +32,12 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
     '@global': {
         body: {
             margin: 0,
             padding: 0,
             fontFamily: 'Roboto',
-            minWidth: 320,
         },
         '::-webkit-scrollbar': {
                 width: '0.25em',
@@ -53,77 +51,79 @@ const styles = theme => ({
         },
     },
     root: {
-        height: '600px',
+        height: 600,
+        minWidth: 320,
         display: 'flex',
         flexFlow: 'column',
     }
-});
-// function Transition(props) {
-//     return <Slide direction="up" {...props} />;
-// }
+}));
 
-class Reader extends Component {
-    constructor(props) {
-        super(props);
-        this.props.setupBackgroundConnection();
-        this.props.syncState().then(() => {
-            this.props.setDefaultState();
-            return this.props.setCurrentFeeds();
-        });
-    }
+// class Reader extends Component {
+const Reader = props => {
+    const {setupBackgroundConnection, syncState, setDefaultState, setCurrentFeeds} = props;
+    const [synced, setSyneced] = useState(false);
 
-    render() {
-        const isDarkTheme = this.props.theme === "dark";
-        return (
-            <MuiThemeProvider theme={createMuiTheme({
-                palette: {
-                    primary: !isDarkTheme ? blue : yellow,
-                    type: !isDarkTheme ? 'light' : 'dark',
-                },
-                typography: {
-                    fontSize: this.props.fontSize || 14,
-                },
-                // overrides: {
-                //     MuiBottomNavigation: {
-                //         root: {
-                //             height: 46,
-                //         }
-                //     },
-                //     MuiBottomNavigationAction: {
-                //         root: {
-                //             height: 46,
-                //             '& $svg': {
-                //                 fontSize: 16,
-                //             }
-                //         },
-                //         label: {
-                //             '&$selected': {
-                //                 fontSize: 12
-                //             }
-                //         },
-                //     },
-                // },
-            })}>
-                <CssBaseline />
-                <div className={this.props.classes.root}>
-                    <ReaderHeader />
-                    { this.props.channels.length > 0 ? <FeedList /> : <Guide/> }                    
-                    <Dialog
-                        fullScreen
-                        open={this.props.showContent}
-                        //TransitionComponent={Transition}
-                    >
-                        <FeedContent />
-                    </Dialog>
-                    <ReaderMessageBar />
-                </div>
-            </MuiThemeProvider>
-        );
-    }
+    useEffect(() => {
+        setupBackgroundConnection();
+
+        let isSubscribed = true;
+        async function syncDomainPerfix() {
+            const state = await syncState();
+            if (isSubscribed) {
+                setDefaultState();
+                setCurrentFeeds();
+                setSyneced(true);
+            }
+        };
+        syncDomainPerfix();
+        return () => isSubscribed = false;
+    }, [syncState, setDefaultState, setCurrentFeeds, synced]);
+
+    const isDarkTheme = props.theme === "dark";
+    const classes = useStyles(props);
+
+    return !synced ? null : (
+        <MuiThemeProvider theme={createMuiTheme({
+            palette: {
+                primary: !isDarkTheme ? blue : yellow,
+                type: !isDarkTheme ? 'light' : 'dark',
+            },
+            typography: {
+                fontSize: props.fontSize || 14,
+            },
+            // overrides: {
+            //     MuiBottomNavigation: {
+            //         root: {
+            //             height: 46,
+            //         }
+            //     },
+            //     MuiBottomNavigationAction: {
+            //         root: {
+            //             height: 46,
+            //             '& $svg': {
+            //                 fontSize: 16,
+            //             }
+            //         },
+            //         label: {
+            //             '&$selected': {
+            //                 fontSize: 12
+            //             }
+            //         },
+            //     },
+            // },
+        })}>
+            <CssBaseline />
+            <div className={classes.root}>
+                <ReaderHeader />
+                { props.channels.length > 0 ? <ReaderContent /> : <Guide/> }
+                <ReaderMessageBar />
+            </div>
+        </MuiThemeProvider>
+    );
 }
 
 Reader.propTypes = {
     render: PropTypes.func,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Reader));
+export default connect(mapStateToProps, mapDispatchToProps)(Reader);
