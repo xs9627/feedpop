@@ -77,7 +77,7 @@ const Reader = props => {
         };
         syncDomainPerfix();
         return () => isSubscribed = false;
-    }, [syncState, setDefaultState, setCurrentFeeds, synced]);
+    }, [syncState, setDefaultState, setCurrentFeeds, setSyneced]);
 
     const isDarkTheme = props.theme === "dark";
     const classes = useStyles(props);
