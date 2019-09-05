@@ -21,7 +21,7 @@ jobs:
        - run:
           name: Get release version
           command: |
-            echo 'export RELEASE_VERSION=`cat ./public/manifest.json | jq .version`' >> $BASH_ENV;
+            echo 'export RELEASE_VERSION=`cat ./public/manifest.json | jq -r .version`' >> $BASH_ENV;
             echo ${RELEASE_VERSION};
        - run:
           name: Build publish package
