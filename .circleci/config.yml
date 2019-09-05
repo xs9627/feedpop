@@ -18,3 +18,37 @@ jobs:
        - run:
           name: Run Test and Coverage
           command: yarn test
+       - run:
+          name: Get release version
+          command: |
+            echo 'export RELEASE_VERSION=`cat ./public/manifest.json | jq .version`' >> $BASH_ENV;
+            echo ${RELEASE_VERSION};
+       - run:
+          name: Build publish package
+          command: |
+            yarn run publish;
+            mkdir ./workspace;
+            zip -r ./workspace/FeedPop-v${RELEASE_VERSION}.zip ./build;
+       - persist_to_workspace:
+          root: ./workspace
+          paths: 
+            - FeedPop-v*.zip
+  publish-github-release:
+    docker:
+      - image: cibuilds/github:0.10
+    steps:
+      - attach_workspace:
+          at: ./workspace
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            VERSION=v${RELEASE_VERSION}
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./workspace/
+workflows:
+  version: 2
+  workflow:
+    jobs:
+    - build
+    - publish-github-release:
+        requires:
+          - build
