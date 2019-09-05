@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import FeedList from './FeedList';
 import FeedContent from './FeedContent';
 import { connect } from "react-redux";

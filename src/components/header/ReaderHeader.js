@@ -5,18 +5,12 @@ import ReaderSettings from './ReaderSettings';
 
 import { withStyles } from '@material-ui/core/styles';
 import Badge from '@material-ui/core/Badge';
-import Collapse from '@material-ui/core/Collapse';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import List from '@material-ui/icons/List';
 import Autorenew from '@material-ui/icons/Autorenew';
-import Edit from '@material-ui/icons/Edit';
 import Settings from '@material-ui/icons/Settings';
 import Paper from '@material-ui/core/Paper';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Dialog from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import Drawer from '@material-ui/core/Drawer';
 
@@ -84,11 +78,11 @@ const styles = theme => ({
 });
 class ReaderHeader extends Component {
     setHeaderContent = (event, contentName) => {
-        if (!this.props.showContent || this.props.contentName != contentName) {
-            if (contentName == 'Update') {
+        if (!this.props.showContent || this.props.contentName !== contentName) {
+            if (contentName === 'Update') {
                 if (!this.props.channelFeedUpdating) {
                     const updateCallback = () => {
-                        if (this.props.contentName == 'Update') {
+                        if (this.props.contentName === 'Update') {
                             this.props.closeActionMenu();
                         }
                     }
@@ -156,7 +150,7 @@ class ReaderHeader extends Component {
                 <Drawer
                     classes={{root: classes.menuDrawer}}
                     anchor="top"
-                    open={showContent && contentName != 'Update'}
+                    open={showContent && contentName !== 'Update'}
                     onClose={this.closeActionMenu}
                     transitionDuration={isTourOpen ? 0 : 200}
                 >

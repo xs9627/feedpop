@@ -103,9 +103,9 @@ class FeedContent extends Component {
                                 this.contentContainer.scrollTop = this.props.feedContentTop;
                             }
                         }
-                        for (let img of imgList) {
-                            img.onload = countImg;
-                            img.onerror = countImg;
+                        for (let i = 0; i < imgList.length; i++) {
+                            imgList[i].onload = countImg;
+                            imgList[i].onerror = countImg;
                         }
                     } else {
                         this.contentContainer.scrollTop = this.props.feedContentTop;

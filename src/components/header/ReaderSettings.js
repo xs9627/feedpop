@@ -53,7 +53,7 @@ const styles = theme => ({
 });
 
 class Settings extends Component {
-    state = {};
+    state = {skr: 0};
 
     handleChangeTheme = event => {
         let isdarkTheme = event.target.checked;
@@ -81,10 +81,12 @@ class Settings extends Component {
     }
 
     doSkr = () => {
-        this.state.skr++;
-        if (this.state.skr === 5) {
+        const skr = this.state.skr + 1;
+        if (skr === 5) {
             this.setState({ skr: 0, openSkr: true });
             console.log(this.props.logs);
+        } else {
+            this.setState({skr});
         }
     }
     
@@ -115,7 +117,6 @@ class Settings extends Component {
     }
 
     render () {
-        this.state.skr = 0;
         const { classes, t } = this.props;
         return (
             <div className={classes.root}>
@@ -202,7 +203,7 @@ class Settings extends Component {
                         <List component="div" disablePadding>
                             <ListItem button className={classes.nested}>
                                 <ListItemText primary={t("Source")} />
-                                <a href="#" onClick={this.handleSourceClick}>
+                                <a href="/#" onClick={this.handleSourceClick}>
                                     <Typography variant="caption">
                                         GitHub
                                     </Typography>

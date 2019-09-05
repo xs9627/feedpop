@@ -9,8 +9,6 @@ import Guide from './Guide';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { CssBaseline } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
-import Dialog from '@material-ui/core/Dialog';
-import Slide from '@material-ui/core/Slide';
 import blue from '@material-ui/core/colors/blue';
 import yellow from '@material-ui/core/colors/yellow';
 
@@ -68,7 +66,7 @@ const Reader = props => {
 
         let isSubscribed = true;
         async function syncDomainPerfix() {
-            const state = await syncState();
+            await syncState();
             if (isSubscribed) {
                 setDefaultState();
                 setCurrentFeeds();
@@ -77,7 +75,7 @@ const Reader = props => {
         };
         syncDomainPerfix();
         return () => isSubscribed = false;
-    }, [syncState, setDefaultState, setCurrentFeeds, setSyneced]);
+    }, [syncState, setDefaultState, setCurrentFeeds, setupBackgroundConnection, setSyneced]);
 
     const isDarkTheme = props.theme === "dark";
     const classes = useStyles(props);

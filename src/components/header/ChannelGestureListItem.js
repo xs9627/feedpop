@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom'
 import { Spring, animated } from 'react-spring/renderprops.cjs.js'
 import { withGesture } from 'react-with-gesture'
-import range from 'lodash/range'
 import { connect } from "react-redux"
 import Fab from '@material-ui/core/Fab';
 import Typography from '@material-ui/core/Typography';
@@ -92,7 +90,7 @@ const styles = theme => ({
     }
 })
 
-class ChannelGestureListItem extends React.Component {
+class ChannelGestureListItem extends Component {
     state = {
         editMode: false
     }
@@ -128,16 +126,16 @@ class ChannelGestureListItem extends React.Component {
     componentWillReceiveProps(newProps) {
         const {actionPanelWidth} = this.props;
         if (Math.abs(newProps.xDelta) > clickCheckThreshold && this.props.down && !newProps.down && (!this.state.editMode || newProps.xInitial >= actionPanelWidth)) {
-            this.state.editMode = newProps.xDelta > actionPanelWidth / 2;
+            this.setState({editMode: newProps.xDelta > actionPanelWidth / 2});
         }
         if (this.props.editMode && !newProps.editMode) {
-            this.state.editMode = false
+            this.setState({editMode: false});
         } else if (!this.props.editMode && newProps.editMode) {
-            this.state.editMode = true
+            this.setState({editMode: true});
         }
     }
     render() {
-        const { classes, xInitial, xDelta, down, onMouseDown, onTouchStart, channel, isSorting, editMode, currentChannelId, actionPanelWidth } = this.props
+        const { classes, xDelta, down, onMouseDown, onTouchStart, channel, isSorting, actionPanelWidth } = this.props
         return (
             <Spring native to={{ x: !isSorting && down ? this.getOffSet(xDelta) : this.state.editMode ? actionPanelWidth : 0 }}>
                 {({ x }) => (
@@ -154,7 +152,7 @@ class ChannelGestureListItem extends React.Component {
                             <ListItem button
                                 key={channel.id}
                                 className={classes.listItem}
-                                selected={!this.state.editMode && this.props.currentChannelId == channel.id}
+                                selected={!this.state.editMode && this.props.currentChannelId === channel.id}
                                 onClick={() => (Math.abs(xDelta) < clickCheckThreshold) && (!this.state.editMode ? this.changeChannel(channel.id) : !channel.fixed && this.handleEditClick(channel))}
                             >
                                 <animated.div
