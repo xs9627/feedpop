@@ -42,7 +42,7 @@ jobs:
       - run:
           name: "Publish Release on GitHub"
           command: |
-            VERSION=v${RELEASE_VERSION}
+            export VERSION=`find ./workspace -name "FeedPop*.zip" | sed 's/^.*-\(v.*\).zip$/\1/'`;
             ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${VERSION} ./workspace/
 workflows:
   version: 2
