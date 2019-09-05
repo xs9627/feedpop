@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import ReactDOM from 'react-dom'
 import { Spring } from 'react-spring/renderprops.cjs.js'
 import range from 'lodash/range'
 import { connect } from "react-redux"
@@ -61,20 +60,27 @@ function reinsert(arr, from, to) {
     return _arr
 }
 
-class ChannelGestureList extends React.Component {
+class ChannelGestureList extends Component {
     constructor(props) {
         super(props);
         this.channelListContainer = React.createRef();
 
-        this.state = { mouseY: 0, topDeltaY: 0, isPressed: false, originalPosOfLastPressed: 0 };
-        this.setListOrder(this.props);
+        const orderedChannels = this.setListOrder(this.props);
+        this.state = {
+            mouseY: 0, 
+            topDeltaY: 0,
+            isPressed: false,
+            originalPosOfLastPressed: 0,
+            channels: orderedChannels,
+            order: range(orderedChannels.length)
+        };
     }
 
     setListOrder(props) {
         const {channels, recentChannelIndex, showRecentUpdate, recentFeeds} = props;
-        this.state.channels = [...channels];
+        let orderedChannels = [...channels];
         if (showRecentUpdate) {
-            this.state.channels.splice(recentChannelIndex, 0, {
+            orderedChannels.splice(recentChannelIndex, 0, {
                 name: this.props.t('Recent Updates'), 
                 id: ChannelFixedID.RECENT, 
                 unreadCount: recentFeeds
@@ -84,9 +90,9 @@ class ChannelGestureList extends React.Component {
                 fixed: true
             });
         } else {
-            this.state.channels = this.state.channels.filter(c => c.id !== ChannelFixedID.RECENT);
+            orderedChannels = orderedChannels.filter(c => c.id !== ChannelFixedID.RECENT);
         }
-        this.state.order = range(this.state.channels.length)
+        return orderedChannels;
     }
 
     componentDidMount() {
@@ -116,7 +122,7 @@ class ChannelGestureList extends React.Component {
             let newOrder = order
             if (currentRow !== order.indexOf(originalPosOfLastPressed)) {
                 newOrder = reinsert(order, order.indexOf(originalPosOfLastPressed), currentRow)
-                this.state.orderUpdated = true;
+                this.setState({orderUpdated:true});
             }
             this.setState({ mouseY: mouseY, order: newOrder })
             const topOffset = (this.getShowChannelCount() - 1) * this.props.listItemHeight;
@@ -144,7 +150,8 @@ class ChannelGestureList extends React.Component {
         return this.state.channels.length <= 10 ? this.state.channels.length : 10;
     }
     componentWillReceiveProps = newProps => {
-        this.setListOrder(newProps);
+        const orderedChannels = this.setListOrder(newProps);
+        this.setState({channels: orderedChannels, order: range(orderedChannels.length)});
     }
     render() {
         const { mouseY, isPressed, originalPosOfLastPressed, order, channels } = this.state

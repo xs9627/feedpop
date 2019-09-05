@@ -1,6 +1,6 @@
 /* global chrome */
 import store from './store/index';
-import { syncState, updateChannelFeed, setSettins, log, updateLastActiveTime, cleanCache, markAllChannelAsRead } from './actions/index';
+import { syncState, updateChannelFeed, updateLastActiveTime, cleanCache, markAllChannelAsRead } from './actions/index';
 import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
 import ChromeUtil from './utils/ChromeUtil';
 
@@ -64,5 +64,6 @@ chrome.contextMenus.onClicked.addListener(function(info, tab) {
             });
             break;
         }
+        default:
     }
 });

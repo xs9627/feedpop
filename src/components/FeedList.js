@@ -5,7 +5,6 @@ import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
@@ -111,41 +110,42 @@ class FeedList extends Component {
         'https://www.google.cn/s2/favicons?domain=',
     ];
     static getDerivedStateFromProps(props, state) {
-        if (props.currentChannelId !== state.lastChannelId || props.currentChannelId === ChannelFixedID.RECENT && props.channels.length !== state.channelsCount) {
-            return {...state, arrangedFeeds: new Map(), collapseStatus: {}, page: 1, lastChannelId: props.currentChannelId, channelsCount: props.channels && props.channels.length};       
-        }
-        return null;
-    }
-    arrangeFeeds = feeds => {
-        if (feeds) {
-            if (this.state.arrangedFeeds.size === 0 && this.feedList) {
-                this.feedList.scrollTop = 0;
-            }
-            const pageSize = 20;
-            if (!this.props.historyFeedsLoaded &&
-                feeds.items.filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate).index]).length < this.state.page * pageSize) {
-                this.props.loadHistoryFeeds();
-            }
-            
-            const arrangedMap = feeds.items
-            .filter(i => !this.state.collapseStatus[this.getDateStr(i.isoDate).index])
-            .slice(0, this.state.page * 20)
-            .reduce((r, a) => {
-                let result = this.getDateStr(a.isoDate);
-                if (!r.has(result.index)) {
-                    r.set(result.index, { dateString: result.dateString, items: [] });
+        const arrangeFeeds = (feeds, state) => {
+            if (feeds) {
+                const pageSize = 20;
+                if (!props.historyFeedsLoaded &&
+                    feeds.items.filter(i => !state.collapseStatus[FeedList.getDateStr(i.isoDate).index]).length < state.page * pageSize) {
+                    props.loadHistoryFeeds();
                 }
-                if (!r.get(result.index).items.find(f => f.readerId === a.readerId)) {
-                    r.get(result.index).items.push(a);
-                } else {
-                    r.get(result.index).items = r.get(result.index).items.map(i => (i.readerId === a.readerId) ? a : i);
-                }
-                return r;
-            }, this.state.arrangedFeeds);
-            this.state.arrangedFeeds = new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]));
+                
+                const arrangedMap = feeds.items
+                .filter(i => !state.collapseStatus[FeedList.getDateStr(i.isoDate).index])
+                .slice(0, state.page * 20)
+                .reduce((r, a) => {
+                    let result = FeedList.getDateStr(a.isoDate);
+                    if (!r.has(result.index)) {
+                        r.set(result.index, { dateString: result.dateString, items: [] });
+                    }
+                    if (!r.get(result.index).items.find(f => f.readerId === a.readerId)) {
+                        r.get(result.index).items.push(a);
+                    } else {
+                        r.get(result.index).items = r.get(result.index).items.map(i => (i.readerId === a.readerId) ? a : i);
+                    }
+                    return r;
+                }, state.arrangedFeeds);
+                return new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]));
+            }
         }
+        if (props.currentChannelId !== state.lastChannelId || 
+            (props.currentChannelId === ChannelFixedID.RECENT && props.channels.length !== state.channelsCount)
+        ) {
+            state =  {...state, arrangedFeeds: new Map(), collapseStatus: {}, page: 1, lastChannelId: props.currentChannelId, channelsCount: props.channels && props.channels.length, refresh: true};       
+        } else {
+            state = {...state, refresh: false};
+        }
+        return {...state, arrangedFeeds: arrangeFeeds(props.feeds, state)};
     }
-    getDateStr = date => {
+    static getDateStr = date => {
         const itemDate = new Date(date);
         if (!isNaN(itemDate)) {
             let compareDate = new Date();
@@ -191,18 +191,16 @@ class FeedList extends Component {
     handleSubheaderClick = index => {
         const collapseStatus = this.state.collapseStatus;
         collapseStatus[index] = !collapseStatus[index];
-        if (!collapseStatus[index] && this.state.arrangedFeeds.get(index).items.length < this.props.feeds.items.reduce((r, a) => (r += this.getDateStr(a.isoDate).index === index ? 1 : 0), 0)) {
-            const keys = Object.keys(this.state.arrangedFeeds);
-            
+        if (!collapseStatus[index] && this.state.arrangedFeeds.get(index).items.length < this.props.feeds.items.reduce((r, a) => (r += FeedList.getDateStr(a.isoDate).index === index ? 1 : 0), 0)) {
             this.state.arrangedFeeds.forEach((value, key) => {
                 if (key > index) {
                     this.state.arrangedFeeds.delete(key);
                     collapseStatus[key] = false;
                 }
             });
-            this.state.page = Math.ceil(this.state.arrangedFeeds.get(index).items.length / 20);
+            this.setState({page: Math.ceil(this.state.arrangedFeeds.get(index).items.length / 20)});
         } else {
-            this.state.page -= Math.ceil(this.state.arrangedFeeds.get(index).items.length / 20) - 1;
+            this.setState({page: this.state.page - (Math.ceil(this.state.arrangedFeeds.get(index).items.length / 20) - 1)});
         }
         this.setState({ collapseStatus: collapseStatus });
     }
@@ -290,9 +288,11 @@ class FeedList extends Component {
     render() {
         const { menuOpen, menuLeft, menuTop, anchorEl } = this.state;
         const { classes, feeds, currentChannelId, channels, t } = this.props;
-        this.arrangeFeeds(feeds);
         const arranged = this.state.arrangedFeeds;
         const channelMenuOpen = Boolean(anchorEl);
+        if (this.state.refresh && this.feedList) {
+            this.feedList.scrollTop = 0;
+        }
         return (
             <div className={classes.root} ref={node => this.feedList = node}>
                 <Menu

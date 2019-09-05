@@ -150,7 +150,7 @@ class ChannelSelector extends Component {
         this.props.isTourOpen && this.props.toggleTourOpen({tourStep: 1});
     }
     render () {
-        const { classes, isCheckingUrl, isAdd, isUrlInvalid, urlErrorMessage, moveChannel, t } = this.props;
+        const { classes, isCheckingUrl, isAdd, isUrlInvalid, t } = this.props;
         return (
             <div className={classes.root}>
                 <ChannelGestureList />
