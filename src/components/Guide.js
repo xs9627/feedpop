@@ -84,6 +84,9 @@ class Guide extends Component {
                     showNumber={false}
                     startAt={tourStep}
                     rounded={4}
+                    showCloseButton={false}
+                    showArrow
+                    arrowSize={12}
                 />
             </div>
         );
