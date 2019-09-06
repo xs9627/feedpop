@@ -15,7 +15,10 @@
     "GO": "GO",
     "Recent Updates": "Recent Updates",
 
-    "Dark Theme": "Dark Theme",
+    "Theme Mode": "Theme Mode",
+    "Light": "Light",
+    "Dark": "Dark",
+    "Follow system setting": "Follow system setting",
     "Font size": "Font size",
     "Small": "Small",
     "Medium": "Medium",

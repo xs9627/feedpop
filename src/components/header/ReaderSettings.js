@@ -56,8 +56,7 @@ class Settings extends Component {
     state = {skr: 0};
 
     handleChangeTheme = event => {
-        let isdarkTheme = event.target.checked;
-        this.props.setSettins({ theme: isdarkTheme ? 'dark' : 'light' });
+        this.props.setSettins({ theme: event.target.value });
     }
 
     handleChangeFontSize = event => {
@@ -122,14 +121,18 @@ class Settings extends Component {
             <div className={classes.root}>
                 <List component="nav">
                     <ListItem>
-                        <ListItemText primary={t("Dark Theme")}></ListItemText>
+                        <ListItemText primary={t("Theme Mode")}></ListItemText>
                         <ListItemSecondaryAction>
-                            <Switch
-                                checked={this.props.config.theme === 'dark'}
+                            <Select
+                                value={this.props.config.theme}
                                 onChange={this.handleChangeTheme}
-                                value="checkedB"
-                                color="primary"
-                            />
+                                displayEmpty
+                                name="theme"
+                            >
+                                <MenuItem value={'light'}>{t('Light')}</MenuItem>
+                                <MenuItem value={'dark'}>{t('Dark')}</MenuItem>
+                                <MenuItem value={'system'}>{t('Follow system setting')}</MenuItem>
+                            </Select>
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>

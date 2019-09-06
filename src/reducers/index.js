@@ -73,7 +73,7 @@ const defaultState = {
 const initialState = {
     channels: [],
     recentFeeds: [],
-    theme: 'light',
+    theme: 'system',
     fontSize: 14,
     maxFeedsCount: 500,
     source: require('Config').sourceRepository,

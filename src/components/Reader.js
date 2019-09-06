@@ -60,6 +60,7 @@ const useStyles = makeStyles(theme => ({
 const Reader = props => {
     const {setupBackgroundConnection, syncState, setDefaultState, setCurrentFeeds} = props;
     const [synced, setSyneced] = useState(false);
+    const [isDarkTheme, setIsDarkTheme] = useState(false);
 
     useEffect(() => {
         setupBackgroundConnection();
@@ -77,7 +78,20 @@ const Reader = props => {
         return () => isSubscribed = false;
     }, [syncState, setDefaultState, setCurrentFeeds, setupBackgroundConnection, setSyneced]);
 
-    const isDarkTheme = props.theme === "dark";
+    useEffect(() => {
+        const media = window.matchMedia('(prefers-color-scheme: dark)');
+        const systemThemeChange = e => {
+            setIsDarkTheme(e.matches);
+        }
+        if (props.theme === "system") {
+            media.addListener(systemThemeChange);
+            setIsDarkTheme(media.matches);
+        } else {
+            setIsDarkTheme(props.theme === "dark");
+        }
+        return () => media.removeListener(systemThemeChange);
+    }, [props.theme, setIsDarkTheme]);
+
     const classes = useStyles(props);
 
     return !synced ? null : (

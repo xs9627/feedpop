@@ -15,7 +15,10 @@
     "GO": "好的",
     "Recent Updates": "最近更新",
 
-    "Dark Theme": "夜间模式",
+    "Theme Mode": "颜色模式",
+    "Light": "浅色",
+    "Dark": "深色",
+    "Follow system setting": "跟随系统设置",
     "Font size": "字体大小",
     "Small": "小",
     "Medium": "中",
