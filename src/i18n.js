@@ -1,7 +1,7 @@
 import i18n from "i18next";
 import detector from "i18next-browser-languagedetector";
 import {
-	reactI18nextModule
+	initReactI18next
 } from "react-i18next";
 import translationEN from './locales/en/translation.json';
 import translationCN from './locales/cn/translation.json';
@@ -18,7 +18,7 @@ const resources = {
 
 i18n
     .use(detector)
-	.use(reactI18nextModule) // passes i18n down to react-i18next
+	.use(initReactI18next) // passes i18n down to react-i18next
 	.init({
 		detection: {
 			order: ['navigator']

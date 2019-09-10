@@ -20,7 +20,7 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 import { ChannelFixedID } from '../constants/index';
 import { setFeedReadStatus, openFeed, loadHistoryFeeds, markAllAsRead } from '../actions/index';
-import { withNamespaces } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 import GA from '../utils/GA';
 
 const mapStateToProps = state => {
@@ -380,4 +380,4 @@ class FeedList extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(FeedList)));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTranslation()(FeedList)));

@@ -13,7 +13,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
-import { withNamespaces } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import QRCode from 'qrcode.react';
 
@@ -210,4 +210,4 @@ class FeedContent extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(FeedContent)));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTranslation()(FeedContent)));
