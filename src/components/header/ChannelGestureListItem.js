@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSpring, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import { connect } from "react-redux"
@@ -91,12 +91,12 @@ const useStyles = makeStyles(theme => ({
 }))
 
 const ChannelGestureListItem = props => {
-    const editMode = useRef(false)
-    const isDrag = useRef(false)
+    const [editMode, setEditMode] = useState(false)
+    const [isDrag, setIsDrag] = useState(false)
 
     const getOffSet = xDelta => {
         const {actionPanelWidth} = props;
-        let offset = (editMode.current ? actionPanelWidth : 0) + xDelta;
+        let offset = (editMode ? actionPanelWidth : 0) + xDelta;
         offset = offset > actionPanelWidth ? actionPanelWidth : offset;
         offset = offset < 0 ? 0 : offset;
         return offset;
@@ -123,12 +123,14 @@ const ChannelGestureListItem = props => {
 
     const getEditorMode = xDelta => {
         if (Math.abs(xDelta) > clickCheckThreshold) {
-            editMode.current = xDelta > (actionPanelWidth / 2)
-            isDrag.current = true
+            const value = xDelta > (actionPanelWidth / 2)
+            setEditMode(value)
+            setIsDrag(true)
+            return value
         } else {
-            isDrag.current = false
+            setIsDrag(false)
+            return editMode
         }
-        return editMode.current
     }
 
     const [ { x } , set ] = useSpring(() => ({ x: 0, delta: [0, 0] }))
@@ -136,7 +138,7 @@ const ChannelGestureListItem = props => {
     const bind = useDrag(({ down, delta }) => set({x: down ? getOffSet(delta[0]) : (getEditorMode(delta[0]) ? actionPanelWidth : 0)}))
 
     useEffect(() => {
-        editMode.current = props.editMode
+        setEditMode(props.editMode)
         set({x: props.editMode ? actionPanelWidth : 0})
     }, [props.editMode, actionPanelWidth, set])
     return (
@@ -153,9 +155,9 @@ const ChannelGestureListItem = props => {
                 <ListItem button
                     key={channel.id}
                     className={classes.listItem}
-                    selected={!editMode.current && props.currentChannelId === channel.id}
+                    selected={!editMode && props.currentChannelId === channel.id}
                     onClick={() => {
-                        return !isDrag.current && (!editMode.current ? changeChannel(channel.id) : !channel.fixed && handleEditClick(channel))}}
+                        return !isDrag && (!editMode ? changeChannel(channel.id) : !channel.fixed && handleEditClick(channel))}}
                 >
                     <animated.div
                         style={{
