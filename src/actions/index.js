@@ -156,7 +156,12 @@ export const setupBackgroundConnection = () => (dispatch, getState) => {
             const state = await ChromeUtil.get('state');
             dispatch({ type: types.SYNC_BACKGROUND_UPDATE, payload: { state } });
             await dispatch(setCurrentFeeds());
-            dispatch(log('Update reader by background'));
+            const {showContent, currentChannelId, currentFeedItemId, currentFeeds} = getState();
+            if (showContent && currentFeeds.items.find(i => (i.readerId === currentFeedItemId && !i.isRead))) {
+                await dispatch(setFeedReadStatus(currentChannelId, currentFeedItemId, true));
+                dispatch(log('Fix sync loss of read status'));
+            }
+            // dispatch(log('Update reader by background'));
         }
     }));
 }
