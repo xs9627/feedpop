@@ -22,6 +22,28 @@ let ChromeUtil = {
             });
         });
     },
+    getSync: key => {
+        return new Promise((resolve, reject) => {
+            chrome.storage.sync.get(key, data => {
+                if (key) {
+                    resolve(data[key]);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+    },
+    setSync: obj => {
+        return new Promise((resolve, reject) => {
+            chrome.storage.sync.set(obj, () => {
+                const error = chrome.runtime.lastError;  
+                if (error) {
+                    reject(error);
+                }
+                resolve(obj);
+            });
+        });
+    },
     clear: () => {
         return new Promise((resolve, reject) => {
             chrome.storage.local.clear(() => {

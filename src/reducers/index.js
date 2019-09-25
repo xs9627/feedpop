@@ -425,6 +425,34 @@ const rootReducer = (state = initialState, action) => {
                 recentChannelIndex: 0
             });
         }
+        case types.SAVE_CONFIG: {
+            const oriConfig = action.payload;
+            if (!oriConfig ||
+                oriConfig.channels.length !== state.channels.length) {
+                const configSyncTime = (new Date()).toISOString();
+                const newConfig = {
+                    configSyncTime, 
+                    channels: state.channels.map(c => {
+                        const {unreadCount, ...syncChannel} = c;
+                        return syncChannel;
+                    }),
+                }
+                return persistence(state, { configSyncTime, tmp: {...state.tmp, newConfig} });
+            } else {
+                return state;
+            }
+        }
+        case types.LOAD_CONFIG: {
+            const config = action.payload;
+            const channels = config.channels.map(c => {
+                const stateChannel = state.channels.find(sc => sc.id === c.id);
+                return {
+                    ...c,
+                    unreadCount: stateChannel ? stateChannel.unreadCount : 0
+                }
+            }) 
+            return persistence(state, {channels});
+        }
         default:
             return state;
     }

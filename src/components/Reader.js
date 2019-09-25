@@ -23,7 +23,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        syncState: () => dispatch(syncState()),
+        syncState: loadConfig => dispatch(syncState(loadConfig)),
         setDefaultState: () => dispatch(setDefaultState()),
         setupBackgroundConnection: () => dispatch(setupBackgroundConnection()),
         setCurrentFeeds: () => dispatch(setCurrentFeeds()),

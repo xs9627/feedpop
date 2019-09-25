@@ -1,6 +1,6 @@
 /* global chrome */
 import store from './store/index';
-import { syncState, updateChannelFeed, updateLastActiveTime, cleanCache, markAllChannelAsRead } from './actions/index';
+import { syncState, updateChannelFeed, updateLastActiveTime, cleanCache, markAllChannelAsRead, saveSyncConfig } from './actions/index';
 import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
 import ChromeUtil from './utils/ChromeUtil';
 
@@ -46,6 +46,7 @@ chrome.runtime.onConnect.addListener(externalPort => {
         ports.splice(ports.indexOf(externalPort), 1);
         store.dispatch(syncState()).then(() => {
             store.dispatch(updateLastActiveTime());
+            store.dispatch(saveSyncConfig());
         });
     });
 })

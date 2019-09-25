@@ -41,10 +41,12 @@ const saveChannelFeeds = (channelId, feeds) => {
 }
 
 export const log = msg => ({ type: types.LOG, payload: msg });
-export const syncState = () => dispatch => {
-    return ChromeUtil.get('state').then(state => {
-        dispatch(setSyncState(state));
-    });
+export const syncState = loadConfig => async dispatch => {
+    const state = await ChromeUtil.get('state');
+    dispatch(setSyncState(state));
+    if (loadConfig) {
+        await dispatch(loadConfig());
+    }
 }
 export const selectChannel = id => ({ type: types.SELECT_CHANNEL, id: id });
 export const setSyncState = state => ({type: types.SET_SYNC_STATE, state});
@@ -177,6 +179,22 @@ export const toggleShowRecentUpdate = showRecentUpdate => async (dispatch, getSt
     dispatch({ type: types.TOGGLE_SHOW_RECENT_UPDATE, payload: showRecentUpdate });
     await dispatch(setCurrentFeeds());
 };
+export const saveConfig = () => async (dispatch, getState) => {
+    const config = await ChromeUtil.getSync('config');
+    dispatch({type: types.SAVE_CONFIG, payload: config});
+    const {configSyncTime} = getState();
+    if (config.configSyncTime !== configSyncTime) {
+        const {newConfig} = getState().tmp;
+        await ChromeUtil.setSync({config: newConfig});
+    }
+};
+export const loadConfig = () => async (dispatch, getState) => {
+    const {configSyncTime} = getState();
+    const config = await ChromeUtil.getSync('config');
+    if (config && config.configSyncTime !== configSyncTime) {
+        dispatch({type: types.LOAD_CONFIG, payload: config})
+    }
+}
 
 export const triggerAction = type => async (dispatch, getState) => {
     switch(type) {
