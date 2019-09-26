@@ -17,7 +17,7 @@ const refreshAll = state => {
     });
 }
 chrome.runtime.onInstalled.addListener(() => {
-    store.dispatch(syncState()).then(() => {
+    store.dispatch(syncState(true)).then(() => {
         const state = store.getState();
         chrome.browserAction.setBadgeText({text: state && state.allUnreadCount > 0 ? `${state.allUnreadCount}` : ''});
         chrome.browserAction.setBadgeBackgroundColor({ color: '#424242' });
