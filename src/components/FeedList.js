@@ -134,6 +134,8 @@ class FeedList extends Component {
                     return r;
                 }, state.arrangedFeeds);
                 return new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]));
+            } else {
+                return new Map();
             }
         }
         if (props.currentChannelId !== state.lastChannelId || 

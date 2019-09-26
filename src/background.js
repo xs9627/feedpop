@@ -1,6 +1,6 @@
 /* global chrome */
 import store from './store/index';
-import { syncState, updateChannelFeed, updateLastActiveTime, cleanCache, markAllChannelAsRead, saveSyncConfig } from './actions/index';
+import { syncState, updateChannelFeed, updateLastActiveTime, cleanCache, markAllChannelAsRead, saveConfig } from './actions/index';
 import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
 import ChromeUtil from './utils/ChromeUtil';
 
@@ -32,7 +32,7 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === "refreshAll") {
         console.log('Starting update all channels - ' + Date());
-        store.dispatch(syncState()).then(() => {
+        store.dispatch(syncState(true)).then(() => {
             const state = store.getState();
             //store.dispatch(log('Starting update all channels'));
             refreshAll(state);
@@ -46,7 +46,7 @@ chrome.runtime.onConnect.addListener(externalPort => {
         ports.splice(ports.indexOf(externalPort), 1);
         store.dispatch(syncState()).then(() => {
             store.dispatch(updateLastActiveTime());
-            store.dispatch(saveSyncConfig());
+            store.dispatch(saveConfig());
         });
     });
 })

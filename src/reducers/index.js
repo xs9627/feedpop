@@ -254,7 +254,9 @@ const rootReducer = (state = initialState, action) => {
         case types.UPDATE_CHANNEL_FEED: {
             const { feeds, oldFeeds, channelId} = action.payload;
             const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === channelId);
-            const oldFeedsWithRecent = recentChannelFeeds ? {...recentChannelFeeds.feed, items: [...recentChannelFeeds.feed.items, ...oldFeeds.items]} : oldFeeds;
+            const oldFeedsWithRecent = recentChannelFeeds ? 
+            (oldFeeds ? {...recentChannelFeeds.feed, items: [...recentChannelFeeds.feed.items, ...oldFeeds.items]} : recentChannelFeeds.feed)
+            : oldFeeds;
             mergeFeed(oldFeedsWithRecent, feeds);
             if (state.maxFeedsCount && state.maxFeedsCount > 0) {
                 feeds.items = feeds.items.slice(0, state.maxFeedsCount);
@@ -426,32 +428,45 @@ const rootReducer = (state = initialState, action) => {
             });
         }
         case types.SAVE_CONFIG: {
-            const oriConfig = action.payload;
-            if (!oriConfig ||
-                oriConfig.channels.length !== state.channels.length) {
+            const {configSyncTime: oriSyncTime, ...oriConfig} = action.payload || {};
+            const {recentChannelIndex, theme, fontSize, maxFeedsCount, refreshPeriod, showRecentUpdate} = state;
+            const curConfig = {
+                channels: state.channels.map(c => {
+                    const {unreadCount, ...syncChannel} = c;
+                    return syncChannel;
+                }),
+                recentChannelIndex, theme, fontSize, maxFeedsCount, refreshPeriod, showRecentUpdate
+            };
+            if ((curConfig.channels.length > 0 || action.payload)
+            && (JSON.stringify(oriConfig, Object.keys(oriConfig).sort()) !== JSON.stringify(curConfig, Object.keys(curConfig).sort()))
+            ) {
                 const configSyncTime = (new Date()).toISOString();
-                const newConfig = {
+                return persistence(state, {
                     configSyncTime, 
-                    channels: state.channels.map(c => {
-                        const {unreadCount, ...syncChannel} = c;
-                        return syncChannel;
-                    }),
-                }
-                return persistence(state, { configSyncTime, tmp: {...state.tmp, newConfig} });
+                    tmp: {
+                        ...state.tmp,
+                        newConfig: {
+                            configSyncTime,
+                            ...curConfig
+                        }
+                    }
+                });
             } else {
-                return state;
+                const {newConfig, ...tmp} = state.tmp;
+                return {...state, tmp};
             }
         }
         case types.LOAD_CONFIG: {
-            const config = action.payload;
-            const channels = config.channels.map(c => {
+            const {channels: configChannels, ...restConfig} = action.payload;
+            const channels = configChannels.map(c => {
                 const stateChannel = state.channels.find(sc => sc.id === c.id);
                 return {
                     ...c,
                     unreadCount: stateChannel ? stateChannel.unreadCount : 0
                 }
-            }) 
-            return persistence(state, {channels});
+            });
+            const recentFeeds = configChannels.map(c => (state.recentFeeds.find(rf => rf.channelId === c.id))).filter(Boolean);
+            return persistence(state, {channels, recentFeeds, allUnreadCount: channels.reduce((r, a) => (r + a.unreadCount), 0), ...restConfig});
         }
         default:
             return state;

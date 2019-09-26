@@ -23,7 +23,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        syncState: loadConfig => dispatch(syncState(loadConfig)),
+        syncState: isloadConfig => dispatch(syncState(isloadConfig)),
         setDefaultState: () => dispatch(setDefaultState()),
         setupBackgroundConnection: () => dispatch(setupBackgroundConnection()),
         setCurrentFeeds: () => dispatch(setCurrentFeeds()),
@@ -67,7 +67,7 @@ const Reader = props => {
 
         let isSubscribed = true;
         async function syncDomainPerfix() {
-            await syncState();
+            await syncState(true);
             if (isSubscribed) {
                 setDefaultState();
                 setCurrentFeeds();
