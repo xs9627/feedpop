@@ -47,6 +47,11 @@ const splitFeedsToRecent = feeds => {
     ]
 }
 
+const mergeUpdatedReadStatus = (readStatus, updatedReadStatus = []) => {
+    return [...readStatus, ...(updatedReadStatus.filter(urs => 
+        !readStatus.find(crs => crs.channelId === urs.channelId && crs.link === urs.link)))].slice(0, 100);
+}
+
 const persistence = (state, updated) => {
     const newState = { ...state,  ...updated };
     const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, tourOption, ...persistenceState } = newState;
@@ -271,29 +276,37 @@ const rootReducer = (state = initialState, action) => {
             });
         }
         case types.SET_FEED_READ_STATUS: {
-            const {channelId, feedId, isRead} = action.payload;
-            const items = state.currentFeeds.items.map(i => (i.readerId === feedId ? { ...i, isRead } : i));
-            const currentFeeds = { ...state.currentFeeds, items };
-
+            const {channelId, feedId, isRead, needUpdateHistoryReadStatus, historyFeeds} = action.payload;
+            
             const channels = state.channels.map(channel => channel.id === channelId ? { ...channel, unreadCount: channel.unreadCount - (isRead ? 1 : -1) } : channel);
 
-            let update = {currentFeeds, channels, allUnreadCount: state.allUnreadCount - (isRead ? 1 : -1)};
+            let update = {channels, allUnreadCount: state.allUnreadCount - (isRead ? 1 : -1)};
 
-            const recentChannelFeed = state.recentFeeds.find(rf => rf.channelId === channelId);
-            if (recentChannelFeed && recentChannelFeed.feed.items.some(i => i.readerId === feedId)) {
+            if (state.currentFeeds) {
+                const items = state.currentFeeds.items.map(i => (i.readerId === feedId ? { ...i, isRead } : i));
+                const currentFeeds = { ...state.currentFeeds, items };
+                update.currentFeeds = currentFeeds;
+            }
+            
+            if (!needUpdateHistoryReadStatus) {
                 const recentFeeds = state.recentFeeds.map(rf => rf.channelId !== channelId ? rf : 
                     {
-                        ...recentChannelFeed, 
+                        ...rf, 
                         feed: {
-                            ...recentChannelFeed.feed, 
-                            items: recentChannelFeed.feed.items.map(i => (i.readerId === feedId ? { ...i, isRead } : i))
+                            ...rf.feed, 
+                            items: rf.feed.items.map(i => (i.readerId === feedId ? { ...i, isRead } : i))
                         }
                     }
                 );
-                update = {...update, recentFeeds, tmp: {...state.tmp, needUpdateHistoryReadStatus: false}};
+                update = {...update, recentFeeds};
             } else {
-                update = {...update, tmp: {...state.tmp, needUpdateHistoryReadStatus: true}};
+                update.mergedFeed = {...historyFeeds, items: historyFeeds.items.map(i => (i.readerId === feedId ? { ...i, isRead: isRead } : i))}
             }
+
+            const {link} = (!needUpdateHistoryReadStatus ? state.recentFeeds.find(rf => rf.channelId === channelId).feed : historyFeeds)
+            .items.find(i => i.readerId === feedId);
+
+            update.tmp = {...state.tmp, updateReadStatus: mergeUpdatedReadStatus([{channelId, link, isRead}], state.tmp.updateReadStatus)}
             
             return persistence(state, update);
         }
@@ -437,8 +450,9 @@ const rootReducer = (state = initialState, action) => {
                 }),
                 recentChannelIndex, theme, fontSize, maxFeedsCount, refreshPeriod, showRecentUpdate
             };
+            const sortedKey = [...(Object.keys(oriConfig).sort()), 'id', 'name', 'url']
             if ((curConfig.channels.length > 0 || action.payload)
-            && (JSON.stringify(oriConfig, Object.keys(oriConfig).sort()) !== JSON.stringify(curConfig, Object.keys(curConfig).sort()))
+            && (JSON.stringify(oriConfig, sortedKey) !== JSON.stringify(curConfig, sortedKey))
             ) {
                 const configSyncTime = (new Date()).toISOString();
                 return persistence(state, {
@@ -456,6 +470,9 @@ const rootReducer = (state = initialState, action) => {
                 return {...state, tmp};
             }
         }
+        case types.SAVE_READ_STATUS: {
+            
+        }
         case types.LOAD_CONFIG: {
             const {channels: configChannels, ...restConfig} = action.payload;
             const channels = configChannels.map(c => {
@@ -465,8 +482,10 @@ const rootReducer = (state = initialState, action) => {
                     unreadCount: stateChannel ? stateChannel.unreadCount : 0
                 }
             });
+            const currentChannelId = channels.find(c => c.id === state.currentChannelId) ? state.currentChannelId :
+            channels.length > 0 ? channels[0].id : null;
             const recentFeeds = configChannels.map(c => (state.recentFeeds.find(rf => rf.channelId === c.id))).filter(Boolean);
-            return persistence(state, {channels, recentFeeds, allUnreadCount: channels.reduce((r, a) => (r + a.unreadCount), 0), ...restConfig});
+            return persistence(state, {channels, currentChannelId, recentFeeds, allUnreadCount: channels.reduce((r, a) => (r + a.unreadCount), 0), ...restConfig});
         }
         default:
             return state;

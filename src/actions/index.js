@@ -40,6 +40,13 @@ const saveChannelFeeds = (channelId, feeds) => {
     return ChromeUtil.set({ ['f-' + channelId]: feeds });
 }
 
+const mergeRecentReadStatus = async (readStatus) => {
+    const recentReadStatus = await ChromeUtil.getSync('recentReadStaus') || [];
+    const newReadStatus = [...readStatus, ...(recentReadStatus.filter(rss => 
+        !readStatus.find(crs => crs.channelId === rss.channelId && crs.link === rss.link)))].slice(0, 100)
+    await ChromeUtil.setSync({recentReadStaus: newReadStatus});
+}
+
 export const log = msg => ({ type: types.LOG, payload: msg });
 export const syncState = isloadConfig => async dispatch => {
     const state = await ChromeUtil.get('state');
@@ -114,30 +121,60 @@ export const updateAllChannelsFeed = () => async (dispatch, getState) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
 export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (dispatch, getState) => {
-    dispatch({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId, isRead } });
+    const recentChannelFeed = getState().recentFeeds.find(rf => rf.channelId === channelId);
+    let feedItem = recentChannelFeed && recentChannelFeed.feed.items.find(i => i.readerId === feedId);
+    let needUpdateHistoryReadStatus, historyFeeds;
+    if (feedItem) {
+        if (feedItem.isRead === isRead) {
+            return;
+        }
+    } else {
+        needUpdateHistoryReadStatus = true;
+        historyFeeds = await getChannelFeeds(channelId);
+        feedItem = historyFeeds.items.find(i => i.readerId === feedId);
+        if (!feedItem || feedItem.isRead === isRead) {
+            return;
+        }
+    }
+
+    dispatch({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId: feedItem.readerId, isRead, needUpdateHistoryReadStatus, historyFeeds } });
     //await saveChannelFeeds(channelId, getState().currentFeeds);
-    if (getState().tmp.needUpdateHistoryReadStatus) {
-        const historyFeeds = await getChannelFeeds(channelId);
-        dispatch({ type: types.SET_HISTORY_FEED_READ_STATUS, payload: { historyFeeds, feedId, isRead }});
+    if (needUpdateHistoryReadStatus) {
+        // dispatch({ type: types.SET_HISTORY_FEED_READ_STATUS, payload: { historyFeeds, feedId: feedItem.readerId, isRead }});
         await saveChannelFeeds(channelId, getState().mergedFeed);
     }
 }
 export const markAllAsRead = channelId => async (dispatch, getState) => {
+    const recentChannelFeed = getState().recentFeeds.find(rf => rf.channelId === channelId) || [];
+    const channelReadStatus = recentChannelFeed.feed.items.filter(i => !i.isRead)
+        .map(i => ({channelId, link: i.link, isRead: true}));
+    let channelHistoryReadStatus = [];
+    
     dispatch({ type: types.MARK_ALL_AS_READ, payload: { channelId } });
     if (getState().tmp.needUpdateHistoryReadStatus) {
-        await dispatch(markAllHistoryAsRead(channelId));
+        channelHistoryReadStatus = await dispatch(markAllHistoryAsRead(channelId));
     }
+    await mergeRecentReadStatus([...channelReadStatus, ...channelHistoryReadStatus]);
 };
 export const markAllHistoryAsRead = channelId => async (dispatch, getState) => {
     const historyFeeds = await getChannelFeeds(channelId);
     if (historyFeeds) {
+        const channelReadStatus = historyFeeds.items.filter(i => !i.isRead).map(i => ({channelId, link: i.link, isRead: true}));
         dispatch({ type: types.MARK_History_ALL_AS_READ, payload: { historyFeeds } });
         await saveChannelFeeds(channelId, getState().mergedFeed);
+        return channelReadStatus;
     }
 };
 export const markAllChannelAsRead = () => async (dispatch, getState) => {
     getState().channels.forEach(async (channel) => {
         await dispatch(markAllAsRead(channel.id));
+    });
+}
+export const loadSyncReadStatus = () => async (dispatch, getState) => {
+    const recentReadStatus = await ChromeUtil.getSync('recentReadStaus');
+    recentReadStatus && recentReadStatus.forEach(async rrs => {
+        const {channelId, link, isRead} = rrs;
+        await dispatch(setFeedReadStatus(channelId, null, isRead, true, link));
     });
 }
 export const openFeed = feedItemId => ({ type: types.OPEN_FEED, payload: feedItemId });
@@ -189,12 +226,23 @@ export const saveConfig = () => async (dispatch, getState) => {
     const {newConfig} = getState().tmp;
     newConfig && await ChromeUtil.setSync({config: newConfig});
 };
+export const saveReadStatus = () => async (dispatch, getState) => {
+    const readStatus = await ChromeUtil.getSync('readStatus');
+    if (readStatus && readStatus.configSyncTime !== getState().readStatusSyncTime) {
+        // Config update by other end, ignore current change
+        return;
+    }
+    dispatch({type: types.SAVE_READ_STATUS, payload: readStatus});
+    const {newReadStatus} = getState().tmp;
+    newReadStatus && await ChromeUtil.setSync({readStatus: newReadStatus});
+};
 export const loadConfig = () => async (dispatch, getState) => {
     const {configSyncTime} = getState();
     const config = await ChromeUtil.getSync('config');
     if (config && config.configSyncTime !== configSyncTime) {
         dispatch({type: types.LOAD_CONFIG, payload: config});
     }
+    //await dispatch(loadSyncReadStatus());
 }
 
 export const triggerAction = type => async (dispatch, getState) => {
