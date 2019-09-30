@@ -47,20 +47,32 @@ const splitFeedsToRecent = feeds => {
     ]
 }
 
+// By https://stackoverflow.com/a/15710692/1196637
+const hashCode = s => s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0)
+
 const mergeUpdatedReadStatus = (readStatuses, channelReadStatuses = []) => {
     return readStatuses.reduce((p, c) => {
         const {channelId, items} = c
+        const hashedItem = items.map(i => ({lk: hashCode(i.link), ir: i.isRead, ut: new Date(i.updateTime).getTime()}))
         const channelReadStatus = p.find(cs => cs.channelId === channelId)
         if (channelReadStatus) {
-            channelReadStatus.items = [...items, ...channelReadStatus.items]
+            channelReadStatus.items = [...hashedItem, ...(channelReadStatus.items.filter(i => !hashedItem.some(j => j.lk === i.lk)))]
         } else {
-            p.push({channelId, items})
+            p.push({channelId, items: hashedItem})
         }
         return p
     }, channelReadStatuses).map(cs => ({
         ...cs,
-        items: cs.items.filter(i => (new Date() - new Date(i.updateTime)) < 24 * 60 * 60 * 1000).slice(0, 200)
+        items: cs.items.filter(i => ((new Date()).getTime() - i.ut) < 24 * 60 * 60 * 1000)
     })).filter(cs => cs.items.length > 0)
+}
+
+const getSafe = (fn, defaultVal) => {
+    try {
+        return fn();
+    } catch (e) {
+        return defaultVal;
+    }
 }
 
 const persistence = (state, updated) => {
@@ -543,9 +555,9 @@ const rootReducer = (state = initialState, action) => {
             const {readStatuses, historyFeeds} = action.payload
             const {items: readStatusesItems, readStatusSyncTime} = readStatuses
             const updateItemReadStatus = (item, channelReadStatuses) => {
-                const feedReadStatus = channelReadStatuses.items.find(crs => crs.link === item.link)
+                const feedReadStatus = channelReadStatuses.items.find(crs => crs.lk === hashCode(item.link))
                 if (feedReadStatus) {
-                    return {...item, isRead: feedReadStatus.isRead}
+                    return {...item, isRead: feedReadStatus.ir}
                 } else {
                     return item
                 }
@@ -572,8 +584,8 @@ const rootReducer = (state = initialState, action) => {
             })
 
             const channels = state.channels.map(channel => readStatusesItems.some(i => channel.id === i.channelId) ? {...channel, unreadCount:
-                [...(recentFeeds.find(rf => rf.channelId === channel.id).feed.items),
-                ...(newHistoryFeeds.find(h => h.channelId === channel.id).channelFeeds.items)]
+                [...(getSafe(() => recentFeeds.find(rf => rf.channelId === channel.id).feed.items, [])),
+                ...(getSafe(() => newHistoryFeeds.find(h => h.channelId === channel.id).channelFeeds.items, []))]
                 .filter(f => !f.isRead).length
             } : channel)
 
