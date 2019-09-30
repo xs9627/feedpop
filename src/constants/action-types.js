@@ -41,6 +41,8 @@ export const DELETE_LAST_READ = "DELETE_LAST_READ";
 export const CLOSE_MESSAGE_BAR = "CLOSE_MESSAGE_BAR";
 export const SAVE_CONFIG = "SAVE_CONFIG";
 export const LOAD_CONFIG = "LOAD_CONFIG";
+export const SAVE_READ_STATUS = "SAVE_READ_STATUS"
+export const LOAD_READ_STATUS = "LOAD_READ_STATUS"
 
 export const SET_COMPONENT_STATE = "SET_COMPONENT_STATE";
 export const LOG = "LOG";
