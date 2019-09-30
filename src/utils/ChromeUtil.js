@@ -17,8 +17,9 @@ let ChromeUtil = {
                 const error = chrome.runtime.lastError;  
                 if (error) {
                     reject(error);
+                } else {
+                    resolve(obj);
                 }
-                resolve(obj);
             });
         });
     },
@@ -38,8 +39,8 @@ let ChromeUtil = {
             chrome.storage.sync.set(obj, () => {
                 const error = chrome.runtime.lastError;  
                 if (error) {
-                    reject(error);
-                }
+                    console.log(error) // Ignore error, not reject
+                } 
                 resolve(obj);
             });
         });
@@ -50,8 +51,9 @@ let ChromeUtil = {
                 const error = chrome.runtime.lastError;  
                 if (error) {
                     reject(error);
+                } else {
+                    resolve();
                 }
-                resolve();
             });
         });
     },
