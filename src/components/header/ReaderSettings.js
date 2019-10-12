@@ -19,10 +19,11 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { connect } from "react-redux";
 import { setSettins, cleanCache, toggleShowRecentUpdate } from "../../actions/index"
-import { withNamespaces } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
     const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate } = state;
@@ -56,8 +57,7 @@ class Settings extends Component {
     state = {skr: 0};
 
     handleChangeTheme = event => {
-        let isdarkTheme = event.target.checked;
-        this.props.setSettins({ theme: isdarkTheme ? 'dark' : 'light' });
+        this.props.setSettins({ theme: event.target.value });
     }
 
     handleChangeFontSize = event => {
@@ -122,14 +122,22 @@ class Settings extends Component {
             <div className={classes.root}>
                 <List component="nav">
                     <ListItem>
-                        <ListItemText primary={t("Dark Theme")}></ListItemText>
+                        <ListItemText primary={t("Theme Mode")}></ListItemText>
                         <ListItemSecondaryAction>
-                            <Switch
-                                checked={this.props.config.theme === 'dark'}
+                            <Select
+                                value={this.props.config.theme}
                                 onChange={this.handleChangeTheme}
-                                value="checkedB"
-                                color="primary"
-                            />
+                                displayEmpty
+                                name="theme"
+                            >
+                                <MenuItem value={'light'}>{t('Light')}</MenuItem>
+                                <MenuItem value={'dark'}>{t('Dark')}</MenuItem>
+                                <MenuItem value={'system'}>
+                                    <Tooltip title={t("Follow system setting")}>
+                                        <Typography>{t('Auto')}</Typography>
+                                    </Tooltip>
+                                </MenuItem>
+                            </Select>
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>
@@ -247,4 +255,4 @@ class Settings extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(Settings)));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTranslation()(Settings)));

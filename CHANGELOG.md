@@ -1,3 +1,8 @@
+## [1.1.1] - 2019-09-05
+### Added
+- Auto change theme mode with system setting (Supported on Windows 10, macOS 10.14 or later system)
+- Sync config and read history crosss devices
+- Swipe to quick go back feed list in content view (Scroll left in content view)
 ## [1.1.0] - 2019-09-05
 ### Added
 - Update tour guide style
@@ -37,6 +42,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.1.1]:https://github.com/xs9627/feedpop/compare/v1.1.0...v1.1.1
 [1.1.0]:https://github.com/xs9627/feedpop/compare/v1.0.6...v1.1.0
 [1.0.6]:https://github.com/xs9627/feedpop/compare/v1.0.5...v1.0.6
 [1.0.5]:https://github.com/xs9627/feedpop/compare/v1.0.4...v1.0.5

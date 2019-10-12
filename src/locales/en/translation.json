@@ -15,7 +15,11 @@
     "GO": "GO",
     "Recent Updates": "Recent Updates",
 
-    "Dark Theme": "Dark Theme",
+    "Theme Mode": "Theme Mode",
+    "Light": "Light",
+    "Dark": "Dark",
+    "Auto": "Auto",
+    "Follow system setting": "Auto change with system setting. Supported on Windows 10, macOS 10.14 or later system.",
     "Font size": "Font size",
     "Small": "Small",
     "Medium": "Medium",

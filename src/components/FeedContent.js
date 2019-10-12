@@ -1,9 +1,11 @@
-import React, { Component }  from 'react'
+import React, { useState, useEffect, useRef }  from 'react'
 import { connect } from "react-redux";
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
 import { closeFeed, scrollFeedContent } from '../actions/index'
 
+import { useGesture } from 'react-use-gesture'
+import { useSpring, animated } from 'react-spring'
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
@@ -13,7 +15,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
-import { withNamespaces } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 import QRCode from 'qrcode.react';
 
@@ -31,7 +33,7 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
     root: {
         width: '100%',
         height: '100%',
@@ -83,131 +85,167 @@ const styles = theme => ({
     qrCodeTip: {
         display: 'flex',
         padding: `${theme.spacing.unit}px`,
+    },
+    gestureClose: {
+        position: 'absolute',
+        top: 'calc(50% - 25px)',
+        left: -50,
+        display: 'inline-flex',
+        borderRadius: '50%',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        padding: 12,
     }
-});
+}));
 
-class FeedContent extends Component {
-    state = { feed: {} };
-    createMarkup = () => {
-        setTimeout(() => {
-            const { feed } = this.props;
-            const content = feed['content:encoded'] ? feed['content:encoded'] : feed.content;
-            this.setState({ feed, contentHtml:  {__html: content} }, () => {
-                if (this.props.feedContentTop > 0) {
-                    const imgList = this.contentContainer.getElementsByTagName('img');
-                    if (imgList.length > 0) {
-                        let count = imgList.length;
-                        const countImg = () => {
-                            count--;
-                            if (count === 0) {
-                                this.contentContainer.scrollTop = this.props.feedContentTop;
-                            }
-                        }
-                        for (let i = 0; i < imgList.length; i++) {
-                            imgList[i].onload = countImg;
-                            imgList[i].onerror = countImg;
-                        }
-                    } else {
-                        this.contentContainer.scrollTop = this.props.feedContentTop;
-                    }
-                }
-            });
-        }, 0);
-    }
-    handleClick = e => {
-        if (this.node.contains(e.target) && e.target.href !== undefined) {
-            ChromeUtil.openTab(e.target.href);
-        }
-    }
-    openFeed = url => {
+const FeedContent = props => {
+    const openFeed = url => {
         ChromeUtil.openTab(url);
     }
-    trackScrolling = (e) => {
-        const top  = e.target.scrollTop;
-        setTimeout(() => {
-            if (this.contentContainer.scrollTop === top) {
-                this.props.scrollFeedContent(top);
+    
+    const { feed, t, feedContentTop, scrollFeedContent } = props;
+    const classes = useStyles(props);
+    const contentContainer = useRef(null)
+    const contentHtml = {__html: feed['content:encoded'] ? feed['content:encoded'] : feed.content}
+    const [lastFeedContentTop] = useState(feedContentTop)
+
+    useEffect(() => {
+        const curContentContainer = contentContainer.current
+        if (lastFeedContentTop > 0) {
+            const imgList = curContentContainer.getElementsByTagName('img');
+            if (imgList.length > 0) {
+                let count = imgList.length;
+                const countImg = () => {
+                    count--;
+                    if (count === 0) {
+                        curContentContainer.scrollTop = lastFeedContentTop;
+                    }
+                }
+                for (let i = 0; i < imgList.length; i++) {
+                    imgList[i].onload = countImg;
+                    imgList[i].onerror = countImg;
+                }
+            } else {
+                curContentContainer.scrollTop = lastFeedContentTop;
             }
-        }, 500);
-    }
-    componentDidMount = () => {
-        this.createMarkup();
-        document.addEventListener('click', this.handleClick);
-        this.contentContainer.addEventListener('scroll', this.trackScrolling);
-    }
-    componentWillUnmount = () => {
-        document.removeEventListener('click', this.handleClick);
-        this.contentContainer.removeEventListener('scroll', this.trackScrolling);
-    }
-    componentWillReceiveProps(newProps) {
-        if (newProps.feed.readerId && this.readerId !== newProps.feed.readerId) {
-            this.createMarkup();
-            this.readerId = newProps.feed.readerId;
+        }
+
+        const trackScrolling = (e) => {
+            const top  = e.target.scrollTop;
+            setTimeout(() => {
+                if (curContentContainer.scrollTop === top) {
+                    scrollFeedContent(top);
+                }
+            }, 500);
+        }
+
+        const handleClick = e => {
+            if (curContentContainer.contains(e.target) && e.target.href !== undefined) {
+                ChromeUtil.openTab(e.target.href);
+            }
+        }
+
+        document.addEventListener('click', handleClick);
+        curContentContainer.addEventListener('scroll', trackScrolling);
+        return () => {
+            document.removeEventListener('click', handleClick);
+            curContentContainer.removeEventListener('scroll', trackScrolling);
+        }
+    }, [lastFeedContentTop, scrollFeedContent])
+
+    const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
+    const onBackGesture = (xDelta, yDelta, vx) => {
+        const backTriggerX = 50, backTriggerVX = -1.6, thresholdY = 80
+        //console.log(`${xDelta} ${yDelta} ${vx}`)
+        if(Math.abs(yDelta) > thresholdY) {
+            set({x: 0})
+            return
+        }
+        const xMove = -xDelta > 0 ? (-xDelta <= backTriggerX ? -xDelta : backTriggerX) : 0
+        set({x: xMove, opacity: xMove / backTriggerX * (xMove !== backTriggerX ? .6 : 1)})
+        
+        if (vx < backTriggerVX) {
+            props.closeFeed()
+        } else if (xMove === backTriggerX) {
+            setTimeout(() => {
+                props.closeFeed()
+            }, 500)
+        } else if (vx === 0) {
+            set({x: 0})
         }
     }
-    render() {
-        const { classes, t } = this.props;
-        const { feed } = this.state;
-        return (
-            <div className={classes.root} ref={node => this.node = node}>
-                <Paper square={true} className={classes.actionContainer}>
-                    <Grid container wrap="nowrap">
-                        <Grid item xs zeroMinWidth>
-                            <IconButton key="close" className={classes.icon} onClick={this.props.closeFeed}>
-                                <ArrowBackIcon />
-                            </IconButton>
-                        </Grid>
-                        <Grid item>
-                            <Tooltip classes={{tooltip: classes.qrCodeTip}} title={
-                                <React.Fragment>
-                                    <QRCode value={this.props.feed.link} />
-                                </React.Fragment>
-                            }>
-                                <IconButton key="more" className={classes.icon}>
-                                    <QRCodeIcon />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title={t("Open in new tab")}>
-                                <IconButton key="open" className={classes.icon} onClick={ () => this.openFeed(this.props.feed.link)}>
-                                    <OpenIcon />
-                                </IconButton>
-                            </Tooltip>
-                        </Grid>
+    const bind = useGesture({
+        //onDrag: ({ xy: [x], vxvy: [vx] }) => onBackGesture(x, -vx),
+        onWheel: ({ delta: [xDelta, yDelta], vxvy: [vx] }) => onBackGesture(xDelta, yDelta, vx)
+    })
+
+    return (
+        <div {...bind()} className={classes.root}>
+            <Paper square={true} className={classes.actionContainer}>
+                <Grid container wrap="nowrap">
+                    <Grid item xs zeroMinWidth>
+                        <IconButton key="close" className={classes.icon} onClick={props.closeFeed}>
+                            <ArrowBackIcon />
+                        </IconButton>
                     </Grid>
-                </Paper>
-                <div className={ classes.contentContainer } ref={node => this.contentContainer = node}>
-                    { feed.deleted ? <div class={classes.emptyMsg}>
-                        <Typography variant="caption">{t("Feed has been deleted")}</Typography> 
-                    </div> :
-                    <React.Fragment>
-                        <Grid className={classes.feedInfo} container wrap="nowrap" direction="column">
-                            <Grid item xs={12}>
-                                <Typography variant="h6">
-                                    {feed.title}
+                    <Grid item>
+                        <Tooltip classes={{tooltip: classes.qrCodeTip}} title={
+                            <React.Fragment>
+                                <QRCode value={props.feed.link} />
+                            </React.Fragment>
+                        }>
+                            <IconButton key="more" className={classes.icon}>
+                                <QRCodeIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={t("Open in new tab")}>
+                            <IconButton key="open" className={classes.icon} onClick={ () => openFeed(props.feed.link)}>
+                                <OpenIcon />
+                            </IconButton>
+                        </Tooltip>
+                    </Grid>
+                </Grid>
+            </Paper>
+            <div className={ classes.contentContainer } ref={contentContainer}>
+                { feed.deleted ? <div class={classes.emptyMsg}>
+                    <Typography variant="caption">{t("Feed has been deleted")}</Typography> 
+                </div> :
+                <React.Fragment>
+                    <Grid className={classes.feedInfo} container wrap="nowrap" direction="column">
+                        <Grid item xs={12}>
+                            <Typography variant="h6">
+                                {feed.title}
+                            </Typography>
+                        </Grid>
+                        <Grid item container>
+                            <Grid item xs>
+                                <Typography variant="subtitle2" color="textSecondary">
+                                    {feed.isoDate ? (new Date(feed.isoDate)).toLocaleString() : null}
                                 </Typography>
                             </Grid>
-                            <Grid item container>
-                                <Grid item xs>
-                                    <Typography variant="subtitle2" color="textSecondary">
-                                        {feed.isoDate ? (new Date(feed.isoDate)).toLocaleString() : null}
-                                    </Typography>
-                                </Grid>
-                                <Grid item>
-                                    <Typography variant="subtitle2" color="textSecondary">
-                                        {feed.creator}
-                                    </Typography>
-                                </Grid>
+                            <Grid item>
+                                <Typography variant="subtitle2" color="textSecondary">
+                                    {feed.creator}
+                                </Typography>
                             </Grid>
                         </Grid>
-                        <Divider />
-                        <Typography variant="body2">
-                            <div className={classes.content} dangerouslySetInnerHTML={this.state.contentHtml} />
-                        </Typography>
-                    </React.Fragment> }
-                </div>
+                    </Grid>
+                    <Divider />
+                    <Typography variant="body2">
+                        <div className={classes.content} dangerouslySetInnerHTML={contentHtml} />
+                    </Typography>
+                </React.Fragment> }
             </div>
-        );
-    }
+            <animated.div className={classes.gestureClose}
+                style={{
+                    transform: x.interpolate((x) => `translate3D(${x}px, 0, 0)`),
+                    opacity
+                }}
+            >
+                <ArrowBackIcon />
+            </animated.div>
+            
+        </div>
+    );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(FeedContent)));
+export default connect(mapStateToProps, mapDispatchToProps)(withTranslation()(FeedContent));

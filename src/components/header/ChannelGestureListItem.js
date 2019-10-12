@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
-import { Spring, animated } from 'react-spring/renderprops.cjs.js'
-import { withGesture } from 'react-with-gesture'
+import React, { useEffect, useState } from 'react';
+import { useSpring, animated } from 'react-spring'
+import { useDrag } from 'react-use-gesture'
 import { connect } from "react-redux"
 import Fab from '@material-ui/core/Fab';
 import Typography from '@material-ui/core/Typography';
@@ -10,7 +10,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import DragHandle from '@material-ui/icons/DragHandle';
 import RemoveIcon from '@material-ui/icons/Remove';
 import EditIcon from '@material-ui/icons/Edit';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Badge from '@material-ui/core/Badge';
 import Tooltip from '@material-ui/core/Tooltip';
 import { selectChannel, closeActionMenu, setCurrentFeeds, setComponentState } from "../../actions/index"
@@ -33,7 +33,7 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
     root: {
         '&:active': {
             cursor: 'grabbing'
@@ -88,34 +88,28 @@ const styles = theme => ({
             marginRight: theme.spacing.unit,
         }
     }
-})
+}))
 
-class ChannelGestureListItem extends Component {
-    state = {
-        editMode: false
-    }
-    getOffSet = xDelta => {
-        const {actionPanelWidth} = this.props;
-        let offset = (this.state.editMode ? actionPanelWidth : 0) + xDelta;
+const ChannelGestureListItem = props => {
+    const [editMode, setEditMode] = useState(false)
+    const [isDrag, setIsDrag] = useState(false)
+
+    const getOffSet = xDelta => {
+        const {actionPanelWidth} = props;
+        let offset = (editMode ? actionPanelWidth : 0) + xDelta;
         offset = offset > actionPanelWidth ? actionPanelWidth : offset;
         offset = offset < 0 ? 0 : offset;
         return offset;
     }
-    changeChannel = channelId => {
-        if (channelId !== this.props.currentChannelId) {
-            this.props.selectChannel(channelId);
-            this.props.setCurrentFeeds();
+    const changeChannel = channelId => {
+        if (channelId !== props.currentChannelId) {
+            props.selectChannel(channelId);
+            props.setCurrentFeeds();
         }
-        this.props.closeActionMenu();
+        props.closeActionMenu();
     }
-    openDeleteChannelConfirm = channelId => {
-        this.setState({deleteChannelConfirm: true, deleteChannelId: channelId});
-    }
-    closeDeleteChannelConfirm = () => {
-        this.setState({deleteChannelConfirm: false});
-    }
-    handleEditClick = channel => {
-        this.props.setComponentState(state => ({ 
+    const handleEditClick = channel => {
+        props.setComponentState(state => ({ 
             editOpen: true, 
             isAdd: false,
             editChannelId: channel.id,
@@ -123,64 +117,72 @@ class ChannelGestureListItem extends Component {
             editUrl: channel.url,
         }));
     };
-    componentWillReceiveProps(newProps) {
-        const {actionPanelWidth} = this.props;
-        if (Math.abs(newProps.xDelta) > clickCheckThreshold && this.props.down && !newProps.down && (!this.state.editMode || newProps.xInitial >= actionPanelWidth)) {
-            this.setState({editMode: newProps.xDelta > actionPanelWidth / 2});
-        }
-        if (this.props.editMode && !newProps.editMode) {
-            this.setState({editMode: false});
-        } else if (!this.props.editMode && newProps.editMode) {
-            this.setState({editMode: true});
+
+    const {onMouseDown, onTouchStart, channel, actionPanelWidth } = props
+    const classes = useStyles(props);
+
+    const getEditorMode = xDelta => {
+        if (Math.abs(xDelta) > clickCheckThreshold) {
+            const value = xDelta > (actionPanelWidth / 2)
+            setEditMode(value)
+            setIsDrag(true)
+            return value
+        } else {
+            setIsDrag(false)
+            return editMode
         }
     }
-    render() {
-        const { classes, xDelta, down, onMouseDown, onTouchStart, channel, isSorting, actionPanelWidth } = this.props
-        return (
-            <Spring native to={{ x: !isSorting && down ? this.getOffSet(xDelta) : this.state.editMode ? actionPanelWidth : 0 }}>
-                {({ x }) => (
-                    <div className={classes.root}>
-                        <ListItem className={classes.actionPanel}>
-                            <Typography className={classes.draggableHandle} onMouseDown={onMouseDown} onTouchStart={onTouchStart}>
-                                <DragHandle fontSize="small" />
-                            </Typography>
-                            <Fab className={classes.removeButton} color="secondary" aria-label="Delete" onClick={() => this.props.deleteItem()}>
-                                <RemoveIcon fontSize="small" />
-                            </Fab>
-                        </ListItem>
-                        <animated.div className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`) }}>
-                            <ListItem button
-                                key={channel.id}
-                                className={classes.listItem}
-                                selected={!this.state.editMode && this.props.currentChannelId === channel.id}
-                                onClick={() => (Math.abs(xDelta) < clickCheckThreshold) && (!this.state.editMode ? this.changeChannel(channel.id) : !channel.fixed && this.handleEditClick(channel))}
-                            >
-                                <animated.div
-                                    style={{
-                                        transform: x.interpolate(x => `scale(${x / actionPanelWidth})`),
-                                        width: x.interpolate(x => `${x * 2 / actionPanelWidth}em`),
-                                        height: '2em'
-                                    }}
-                                >
-                                    <ListItemIcon className={classes.editItemIcon}>
-                                        {!channel.fixed && <EditIcon />}
-                                    </ListItemIcon>
-                                </animated.div>
-                                <ListItemText primary={<div className={classes.channelName}>{channel.icon} <Typography noWrap variant="body1">{channel.name}</Typography></div>} />
-                                {
-                                    channel.unreadCount > 0 ? <Badge className={this.props.classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
-                                        <Tooltip title={channel.unreadCount} enterDelay={100}>
-                                            <span>999+</span>
-                                        </Tooltip>
-                                    )} max={999} color="primary" /> : null
-                                }
-                            </ListItem>
-                        </animated.div>
-                    </div> 
-                )}
-            </Spring>
-        )
-    }
+
+    const [ { x } , set ] = useSpring(() => ({ x: 0, delta: [0, 0] }))
+    
+    const bind = useDrag(({ down, delta }) => set({x: down ? getOffSet(delta[0]) : (getEditorMode(delta[0]) ? actionPanelWidth : 0)}))
+
+    useEffect(() => {
+        setEditMode(props.editMode)
+        set({x: props.editMode ? actionPanelWidth : 0})
+    }, [props.editMode, actionPanelWidth, set])
+    return (
+        <div className={classes.root}>
+            <ListItem className={classes.actionPanel}>
+                <Typography className={classes.draggableHandle} onMouseDown={onMouseDown} onTouchStart={onTouchStart}>
+                    <DragHandle fontSize="small" />
+                </Typography>
+                <Fab className={classes.removeButton} color="secondary" aria-label="Delete" onClick={() => props.deleteItem()}>
+                    <RemoveIcon fontSize="small" />
+                </Fab>
+            </ListItem>
+            <animated.div {...bind()} className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`) }}>
+                <ListItem button
+                    key={channel.id}
+                    className={classes.listItem}
+                    selected={!editMode && props.currentChannelId === channel.id}
+                    onClick={() => {
+                        return !isDrag && (!editMode ? changeChannel(channel.id) : !channel.fixed && handleEditClick(channel))}}
+                >
+                    <animated.div
+                        style={{
+                            transform: x.interpolate(x => `scale(${x / actionPanelWidth})`),
+                            width: x.interpolate(x => `${x * 2 / actionPanelWidth}em`),
+                            height: '2em'
+                        }}
+                    >
+                        <ListItemIcon className={classes.editItemIcon}>
+                            {!channel.fixed && <EditIcon />}
+                        </ListItemIcon>
+                    </animated.div>
+                    <ListItemText primary={<div className={classes.channelName}>{channel.icon} <Typography noWrap variant="body1">{channel.name}</Typography></div>} />
+                    {
+                        channel.unreadCount > 0 ? <Badge className={classes.itemBadge} badgeContent={channel.unreadCount < 1000 ? channel.unreadCount : (
+                            <Tooltip title={channel.unreadCount} enterDelay={100}>
+                                <span>999+</span>
+                            </Tooltip>
+                        )} max={999} color="primary" /> : null
+                    }
+                </ListItem>
+            </animated.div>
+        </div> 
+    )    
+    
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withGesture(ChannelGestureListItem)))
+export default connect(mapStateToProps, mapDispatchToProps)(ChannelGestureListItem)

@@ -17,7 +17,7 @@ import { deleteChannel, moveChannel } from "../../actions/index"
 import { ChannelFixedID } from "../../constants/index"
 
 import ChannelGestureListItem from './ChannelGestureListItem';
-import { withNamespaces } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
     return {
@@ -208,4 +208,4 @@ class ChannelGestureList extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(ChannelGestureList)))
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTranslation()(ChannelGestureList)))

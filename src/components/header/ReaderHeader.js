@@ -18,7 +18,7 @@ import { connect } from "react-redux";
 import { setChannelSelectorEditMode, openActionMenu, closeActionMenu, updateChannelFeed, updateAllChannelsFeed } from "../../actions/index";
 import { ChannelFixedID } from "../../constants/index"
 
-import { withNamespaces } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
     return {
@@ -163,4 +163,4 @@ class ReaderHeader extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(ReaderHeader)));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTranslation()(ReaderHeader)));

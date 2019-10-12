@@ -17,7 +17,30 @@ let ChromeUtil = {
                 const error = chrome.runtime.lastError;  
                 if (error) {
                     reject(error);
+                } else {
+                    resolve(obj);
                 }
+            });
+        });
+    },
+    getSync: key => {
+        return new Promise((resolve, reject) => {
+            chrome.storage.sync.get(key, data => {
+                if (key) {
+                    resolve(data[key]);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+    },
+    setSync: obj => {
+        return new Promise((resolve, reject) => {
+            chrome.storage.sync.set(obj, () => {
+                const error = chrome.runtime.lastError;  
+                if (error) {
+                    console.log(error) // Ignore error, not reject
+                } 
                 resolve(obj);
             });
         });
@@ -28,8 +51,9 @@ let ChromeUtil = {
                 const error = chrome.runtime.lastError;  
                 if (error) {
                     reject(error);
+                } else {
+                    resolve();
                 }
-                resolve();
             });
         });
     },

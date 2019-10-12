@@ -6,7 +6,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import AddIcon from '@material-ui/icons/Add';
 import Tour from 'reactour';
-import { withNamespaces } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
     return {
@@ -93,4 +93,4 @@ class Guide extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTheme(withNamespaces()(Guide))));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTheme(withTranslation()(Guide))));

@@ -41,10 +41,12 @@ const saveChannelFeeds = (channelId, feeds) => {
 }
 
 export const log = msg => ({ type: types.LOG, payload: msg });
-export const syncState = () => dispatch => {
-    return ChromeUtil.get('state').then(state => {
-        dispatch(setSyncState(state));
-    });
+export const syncState = isloadConfig => async dispatch => {
+    const state = await ChromeUtil.get('state');
+    dispatch(setSyncState(state));
+    if (isloadConfig) {
+        await dispatch(loadConfig());
+    }
 }
 export const selectChannel = id => ({ type: types.SELECT_CHANNEL, id: id });
 export const setSyncState = state => ({type: types.SET_SYNC_STATE, state});
@@ -112,24 +114,69 @@ export const updateAllChannelsFeed = () => async (dispatch, getState) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
 export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (dispatch, getState) => {
-    dispatch({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId, isRead } });
+    const recentChannelFeed = getState().recentFeeds.find(rf => rf.channelId === channelId);
+    let feedItem = recentChannelFeed && recentChannelFeed.feed.items.find(i => i.readerId === feedId);
+    let needUpdateHistoryReadStatus, historyFeeds;
+    if (feedItem) {
+        if (feedItem.isRead === isRead) {
+            return;
+        }
+    } else {
+        needUpdateHistoryReadStatus = true;
+        historyFeeds = await getChannelFeeds(channelId);
+        feedItem = historyFeeds.items.find(i => i.readerId === feedId);
+        if (!feedItem || feedItem.isRead === isRead) {
+            return;
+        }
+    }
+
+    dispatch({ type: types.SET_FEED_READ_STATUS, payload: { channelId, feedId: feedItem.readerId, isRead, needUpdateHistoryReadStatus, historyFeeds } });
     //await saveChannelFeeds(channelId, getState().currentFeeds);
-    if (getState().tmp.needUpdateHistoryReadStatus) {
-        const historyFeeds = await getChannelFeeds(channelId);
-        dispatch({ type: types.SET_HISTORY_FEED_READ_STATUS, payload: { historyFeeds, feedId, isRead }});
+    if (needUpdateHistoryReadStatus) {
+        // dispatch({ type: types.SET_HISTORY_FEED_READ_STATUS, payload: { historyFeeds, feedId: feedItem.readerId, isRead }});
         await saveChannelFeeds(channelId, getState().mergedFeed);
+    }
+    await dispatch(saveReadStatus())
+}
+export const saveReadStatus = () => async (dispatch, getState) => {
+    const readStatuses = await ChromeUtil.getSync('readStatuses');
+    // if (readStatuses && readStatuses.configSyncTime !== getState().readStatusSyncTime) {
+    //     // Config update by other end, ignore current change
+    //     return;
+    // }
+    dispatch({type: types.SAVE_READ_STATUS, payload: readStatuses});
+    const {newReadStatuses} = getState().tmp;
+    newReadStatuses && await ChromeUtil.setSync({readStatuses: newReadStatuses});
+};
+export const loadReadStatus = () => async (dispatch, getState) => {
+    const {readStatusSyncTime} = getState();
+    const readStatuses = await ChromeUtil.getSync('readStatuses');
+    if (readStatuses && readStatuses.readStatusSyncTime !== readStatusSyncTime) {
+        const historyFeeds = [];
+        await Promise.all(readStatuses.items.map(async i => {
+            const {channelId} = i
+            const channelFeeds = await getChannelFeeds(channelId);
+            historyFeeds.push({channelId, channelFeeds})
+        }))
+        dispatch({type: types.LOAD_READ_STATUS, payload: {readStatuses, historyFeeds}});
+        await getState().tmp.newHistoryFeeds.map(async hf => {
+            const {channelId, channelFeeds} = hf
+            await saveChannelFeeds(channelId, channelFeeds)
+        })
     }
 }
 export const markAllAsRead = channelId => async (dispatch, getState) => {
     dispatch({ type: types.MARK_ALL_AS_READ, payload: { channelId } });
+    await dispatch(saveReadStatus())
     if (getState().tmp.needUpdateHistoryReadStatus) {
         await dispatch(markAllHistoryAsRead(channelId));
+        await dispatch(saveReadStatus())
     }
 };
 export const markAllHistoryAsRead = channelId => async (dispatch, getState) => {
     const historyFeeds = await getChannelFeeds(channelId);
     if (historyFeeds) {
-        dispatch({ type: types.MARK_History_ALL_AS_READ, payload: { historyFeeds } });
+        dispatch({ type: types.MARK_History_ALL_AS_READ, payload: { channelId, historyFeeds } });
         await saveChannelFeeds(channelId, getState().mergedFeed);
     }
 };
@@ -156,7 +203,12 @@ export const setupBackgroundConnection = () => (dispatch, getState) => {
             const state = await ChromeUtil.get('state');
             dispatch({ type: types.SYNC_BACKGROUND_UPDATE, payload: { state } });
             await dispatch(setCurrentFeeds());
-            dispatch(log('Update reader by background'));
+            const {showContent, currentChannelId, currentFeedItemId, currentFeeds} = getState();
+            if (showContent && currentFeeds.items.find(i => (i.readerId === currentFeedItemId && !i.isRead))) {
+                await dispatch(setFeedReadStatus(currentChannelId, currentFeedItemId, true));
+                dispatch(log('Fix sync loss of read status'));
+            }
+            // dispatch(log('Update reader by background'));
         }
     }));
 }
@@ -172,6 +224,24 @@ export const toggleShowRecentUpdate = showRecentUpdate => async (dispatch, getSt
     dispatch({ type: types.TOGGLE_SHOW_RECENT_UPDATE, payload: showRecentUpdate });
     await dispatch(setCurrentFeeds());
 };
+export const saveConfig = () => async (dispatch, getState) => {
+    const config = await ChromeUtil.getSync('config');
+    if (config && config.configSyncTime !== getState().configSyncTime) {
+        // Config update by other end, ignore current change
+        return;
+    }
+    dispatch({type: types.SAVE_CONFIG, payload: config});
+    const {newConfig} = getState().tmp;
+    newConfig && await ChromeUtil.setSync({config: newConfig});
+};
+export const loadConfig = () => async (dispatch, getState) => {
+    const {configSyncTime} = getState();
+    const config = await ChromeUtil.getSync('config');
+    if (config && config.configSyncTime !== configSyncTime) {
+        dispatch({type: types.LOAD_CONFIG, payload: config});
+    }
+    await dispatch(loadReadStatus());
+}
 
 export const triggerAction = type => async (dispatch, getState) => {
     switch(type) {

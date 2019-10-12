@@ -16,7 +16,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { connect } from "react-redux";
 import { addChannel, editChannel, toggleChannelSelectorEditMode, deleteChannel, closeActionMenu, setComponentState, moveChannel, setCurrentFeeds, toggleTourOpen} from "../../actions/index"
 
-import { withNamespaces } from 'react-i18next';
+import { withTranslation } from 'react-i18next';
 
 const componentStateName = 'channelSelector';
 
@@ -210,4 +210,4 @@ class ChannelSelector extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withNamespaces()(ChannelSelector)));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTranslation()(ChannelSelector)));
