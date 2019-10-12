@@ -19,6 +19,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { connect } from "react-redux";
 import { setSettins, cleanCache, toggleShowRecentUpdate } from "../../actions/index"
@@ -131,7 +132,11 @@ class Settings extends Component {
                             >
                                 <MenuItem value={'light'}>{t('Light')}</MenuItem>
                                 <MenuItem value={'dark'}>{t('Dark')}</MenuItem>
-                                <MenuItem value={'system'}>{t('Follow system setting')}</MenuItem>
+                                <MenuItem value={'system'}>
+                                    <Tooltip title={t("Follow system setting")}>
+                                        <Typography>{t('Auto')}</Typography>
+                                    </Tooltip>
+                                </MenuItem>
                             </Select>
                         </ListItemSecondaryAction>
                     </ListItem>
