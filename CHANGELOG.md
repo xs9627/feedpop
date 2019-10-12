@@ -1,4 +1,4 @@
-## [1.1.1] - 2019-09-05
+## [1.1.1] - 2019-10-12
 ### Added
 - Auto change theme mode with system setting (Supported on Windows 10, macOS 10.14 or later system)
 - Sync config and read history crosss devices
