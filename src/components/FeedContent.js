@@ -5,6 +5,7 @@ import ChromeUtil from '../utils/ChromeUtil';
 import { closeFeed, scrollFeedContent } from '../actions/index'
 
 import { useGesture } from 'react-use-gesture'
+import { useSpring, animated } from 'react-spring'
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
@@ -84,6 +85,15 @@ const useStyles = makeStyles(theme => ({
     qrCodeTip: {
         display: 'flex',
         padding: `${theme.spacing.unit}px`,
+    },
+    gestureClose: {
+        position: 'absolute',
+        top: 'calc(50% - 25px)',
+        left: -50,
+        display: 'inline-flex',
+        borderRadius: '50%',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        padding: 12,
     }
 }));
 
@@ -142,16 +152,30 @@ const FeedContent = props => {
         }
     }, [lastFeedContentTop, scrollFeedContent])
 
-    const onBackGesture = (vx) => {
-        console.log(`${vx}`)
-        if (vx < -1.6) {
+    const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
+    const onBackGesture = (xDelta, yDelta, vx) => {
+        const backTriggerX = 50, backTriggerVX = -1.6, thresholdY = 80
+        //console.log(`${xDelta} ${yDelta} ${vx}`)
+        if(Math.abs(yDelta) > thresholdY) {
+            set({x: 0})
+            return
+        }
+        const xMove = -xDelta > 0 ? (-xDelta <= backTriggerX ? -xDelta : backTriggerX) : 0
+        set({x: xMove, opacity: xMove / backTriggerX * (xMove !== backTriggerX ? .6 : 1)})
+        
+        if (vx < backTriggerVX) {
             props.closeFeed()
+        } else if (xMove === backTriggerX) {
+            setTimeout(() => {
+                props.closeFeed()
+            }, 500)
+        } else if (vx === 0) {
+            set({x: 0})
         }
     }
-
     const bind = useGesture({
-        onDrag: ({ vxvy: [vx] }) => onBackGesture(-vx),
-        onWheel: ({ vxvy: [vx] }) => onBackGesture(vx)
+        //onDrag: ({ xy: [x], vxvy: [vx] }) => onBackGesture(x, -vx),
+        onWheel: ({ delta: [xDelta, yDelta], vxvy: [vx] }) => onBackGesture(xDelta, yDelta, vx)
     })
 
     return (
@@ -211,6 +235,15 @@ const FeedContent = props => {
                     </Typography>
                 </React.Fragment> }
             </div>
+            <animated.div className={classes.gestureClose}
+                style={{
+                    transform: x.interpolate((x) => `translate3D(${x}px, 0, 0)`),
+                    opacity
+                }}
+            >
+                <ArrowBackIcon />
+            </animated.div>
+            
         </div>
     );
 }
