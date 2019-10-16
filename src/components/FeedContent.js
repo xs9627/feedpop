@@ -153,29 +153,29 @@ const FeedContent = props => {
     }, [lastFeedContentTop, scrollFeedContent])
 
     const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
-    const onBackGesture = (xDelta, yDelta, vx) => {
-        const backTriggerX = 50, backTriggerVX = -1.6, thresholdY = 80
-        //console.log(`${xDelta} ${yDelta} ${vx}`)
-        if(Math.abs(yDelta) > thresholdY) {
-            set({x: 0})
-            return
-        }
-        const xMove = -xDelta > 0 ? (-xDelta <= backTriggerX ? -xDelta : backTriggerX) : 0
-        set({x: xMove, opacity: xMove / backTriggerX * (xMove !== backTriggerX ? .6 : 1)})
-        
-        if (vx < backTriggerVX) {
-            props.closeFeed()
-        } else if (xMove === backTriggerX) {
-            setTimeout(() => {
+    const onBackGesture = (xDelta, xDirection, vx, active) => {
+        const backTriggerX = 100, backTriggerVX = -1.6, xDirectionThreshold = -0.95
+        console.log(`${xDirection} ${vx}`)
+        if(xDirection <= xDirectionThreshold) {
+            const xMove = -xDelta > 0 ? (-xDelta <= backTriggerX ? -xDelta : backTriggerX) : 0
+            set({x: xMove, opacity: xMove / backTriggerX * (xMove !== backTriggerX ? .6 : 1)})
+            
+            if (vx < backTriggerVX) {
                 props.closeFeed()
-            }, 500)
-        } else if (vx === 0) {
+            } else if (xMove === backTriggerX) {
+                setTimeout(() => {
+                    props.closeFeed()
+                }, 500)
+            }
+        }
+        
+        if (!active) {
             set({x: 0})
         }
     }
     const bind = useGesture({
         //onDrag: ({ xy: [x], vxvy: [vx] }) => onBackGesture(x, -vx),
-        onWheel: ({ delta: [xDelta, yDelta], vxvy: [vx] }) => onBackGesture(xDelta, yDelta, vx)
+        onWheel: ({ delta: [xDelta], direction: [xDirection], vxvy: [vx], active }) => onBackGesture(xDelta, xDirection, vx, active)
     })
 
     return (
