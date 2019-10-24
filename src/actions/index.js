@@ -242,6 +242,33 @@ export const loadConfig = () => async (dispatch, getState) => {
     }
     await dispatch(loadReadStatus());
 }
+export const downloadConfig = () => async (dispatch, getState) => {
+    const {configSyncTime, ...config} = await ChromeUtil.getSync('config');
+    const blob = new Blob([JSON.stringify({...config, bkpSource: 'feedpop'})], {type: "application/json;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    ChromeUtil.download({
+        url: url,
+        filename: 'bak.json'
+    });
+}
+export const restoreConfig = file => async (dispatch, getState) => {
+    const loadPath = file => new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = function (e) {
+            resolve(e.target.result)
+        }
+        reader.readAsText(file)
+    })
+    try {
+        const {bkpSource, ...config} = JSON.parse(await loadPath(file))
+        if (bkpSource === 'feedpop') {
+            dispatch(({type: types.LOAD_CONFIG, payload: config}))
+        }
+        console.log(config)
+    } catch (e) {
+        console.log(e)
+    }
+}
 
 export const triggerAction = type => async (dispatch, getState) => {
     switch(type) {

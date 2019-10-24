@@ -80,6 +80,9 @@ let ChromeUtil = {
                 periodInMinutes,
             });
         })
+    },
+    download: config => {
+        chrome.downloads.download(config);
     }
 };
 
