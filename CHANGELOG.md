@@ -1,3 +1,8 @@
+## [1.1.2] - 2019-11-11
+### Added
+- Configuration back & restore to local
+### Chaged
+- Update go back gesture detection
 ## [1.1.1] - 2019-10-12
 ### Added
 - Auto change theme mode with system setting (Supported on Windows 10, macOS 10.14 or later system)
@@ -42,6 +47,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.1.2]:https://github.com/xs9627/feedpop/compare/v1.1.1...v1.1.2
 [1.1.1]:https://github.com/xs9627/feedpop/compare/v1.1.0...v1.1.1
 [1.1.0]:https://github.com/xs9627/feedpop/compare/v1.0.6...v1.1.0
 [1.0.6]:https://github.com/xs9627/feedpop/compare/v1.0.5...v1.0.6
