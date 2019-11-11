@@ -540,6 +540,17 @@ const rootReducer = (state = initialState, action) => {
             const recentFeeds = configChannels.map(c => (state.recentFeeds.find(rf => rf.channelId === c.id))).filter(Boolean);
             return persistence(state, {channels, currentChannelId, recentFeeds, allUnreadCount: channels.reduce((r, a) => (r + a.unreadCount), 0), ...restConfig});
         }
+        case types.RESTORE_CONFIG_SUCCESS: {
+            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: true}
+            return {...state, tmp};
+        }
+        case types.RESTORE_CONFIG_ERROR: {
+            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: false}
+            return {...state, tmp};
+        }
+        case types.CLOSE_RESTORE_RESULT: {
+            return {...state, tmp: {...state.tmp, showRestoreResult: false}}
+        }
         case types.SAVE_READ_STATUS: {
             const {items} = action.payload || {}
             const {updateReadStatuses} = state.tmp

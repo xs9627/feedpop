@@ -248,7 +248,7 @@ export const downloadConfig = () => async (dispatch, getState) => {
     var url = URL.createObjectURL(blob);
     ChromeUtil.download({
         url: url,
-        filename: 'bak.json'
+        filename: 'feedpop-backup.json'
     });
 }
 export const restoreConfig = file => async (dispatch, getState) => {
@@ -264,11 +264,13 @@ export const restoreConfig = file => async (dispatch, getState) => {
         if (bkpSource === 'feedpop') {
             dispatch(({type: types.LOAD_CONFIG, payload: config}))
         }
-        console.log(config)
+        dispatch(({type: types.RESTORE_CONFIG_SUCCESS}))
     } catch (e) {
-        console.log(e)
+        dispatch(({type: types.RESTORE_CONFIG_ERROR}))
     }
 }
+
+export const closeRestoreResult = () => ({ type: types.CLOSE_RESTORE_RESULT });
 
 export const triggerAction = type => async (dispatch, getState) => {
     switch(type) {

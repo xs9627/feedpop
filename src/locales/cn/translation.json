@@ -35,6 +35,12 @@
     "Show recent updates": "显示最近更新",
     "Mark as unread": "标记为未读",
     "Mark as read": "标记为已读",
+    "Backup & Restore": "备份和恢复",
+    "Backup to local": "备份到本地",
+    "Restore from local": "从本地恢复",
+    "Information": "提示",
+    "Restore completed": "恢复完成",
+    "Restore failed": "恢复失败，请检查备份文件",
 
     "Open in new tab": "在新标签页打开",
     "Feed has been deleted": "内容已经被删除",

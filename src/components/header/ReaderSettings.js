@@ -22,7 +22,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { connect } from "react-redux";
-import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig } from "../../actions/index"
+import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult } from "../../actions/index"
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
@@ -30,6 +30,8 @@ const mapStateToProps = state => {
     return {
         config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate },
         logs: state.logs,
+        showRestoreResult: state.tmp.showRestoreResult,
+        restoreSuccess: state.tmp.restoreSuccess,
     };
 };
 
@@ -40,6 +42,7 @@ const mapDispatchToProps = dispatch => {
         toggleShowRecentUpdate: showRecentUpdate => dispatch(toggleShowRecentUpdate(showRecentUpdate)),
         downloadConfig: () => dispatch(downloadConfig()),
         restoreConfig: file => dispatch(restoreConfig(file)),
+        closeRestoreResult: () => dispatch(closeRestoreResult()),
     };
 };
 
@@ -124,6 +127,10 @@ class Settings extends Component {
 
     handleRestore = event => {
         this.props.restoreConfig(event.target.files[0])
+    }
+
+    handleCloseRestoreResult = () => {
+        this.props.closeRestoreResult()
     }
 
     render () {
@@ -273,6 +280,19 @@ class Settings extends Component {
                         {t('Cancel')}
                         </Button>
                         <Button onClick={this.handleCleanCacheClick} color="primary" autoFocus>
+                        {t('OK')}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={this.props.showRestoreResult}>
+                    <DialogTitle>{t("Information")}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                        {this.props.restoreSuccess ? t("Restore completed") : t("Restore failed")}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.handleCloseRestoreResult} color="primary" autoFocus>
                         {t('OK')}
                         </Button>
                     </DialogActions>

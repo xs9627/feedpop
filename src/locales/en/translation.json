@@ -35,6 +35,12 @@
     "Show recent updates": "Show recent updates",
     "Mark as unread": "Mark as unread",
     "Mark as read": "Mark as read",
+    "Backup & Restore": "Backup & Restore",
+    "Backup to local": "Backup to local",
+    "Restore from local": "Restore from local",
+    "Information": "Information",
+    "Restore completed": "Restore completed",
+    "Restore failed": "Restore failed. Please check the backup file.",
 
     "Open in new tab": "Open in new tab",
     "Feed has been deleted": "Feed has been deleted",

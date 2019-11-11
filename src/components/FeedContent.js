@@ -154,7 +154,7 @@ const FeedContent = props => {
 
     const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
     const onBackGesture = (xDelta, xDirection, vx, active) => {
-        const backTriggerX = 100, backTriggerVX = -1.6, xDirectionThreshold = -1
+        const backTriggerX = 100, xDirectionThreshold = -1
         console.log(`${xDirection} ${vx}`)
         if(xDirection <= xDirectionThreshold) {
             const xMove = -xDelta > 0 ? (-xDelta <= backTriggerX ? -xDelta : backTriggerX) : 0
