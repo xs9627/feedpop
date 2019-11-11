@@ -242,6 +242,35 @@ export const loadConfig = () => async (dispatch, getState) => {
     }
     await dispatch(loadReadStatus());
 }
+export const downloadConfig = () => async (dispatch, getState) => {
+    const {configSyncTime, ...config} = await ChromeUtil.getSync('config');
+    const blob = new Blob([JSON.stringify({...config, bkpSource: 'feedpop'})], {type: "application/json;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    ChromeUtil.download({
+        url: url,
+        filename: 'feedpop-backup.json'
+    });
+}
+export const restoreConfig = file => async (dispatch, getState) => {
+    const loadPath = file => new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = function (e) {
+            resolve(e.target.result)
+        }
+        reader.readAsText(file)
+    })
+    try {
+        const {bkpSource, ...config} = JSON.parse(await loadPath(file))
+        if (bkpSource === 'feedpop') {
+            dispatch(({type: types.LOAD_CONFIG, payload: config}))
+        }
+        dispatch(({type: types.RESTORE_CONFIG_SUCCESS}))
+    } catch (e) {
+        dispatch(({type: types.RESTORE_CONFIG_ERROR}))
+    }
+}
+
+export const closeRestoreResult = () => ({ type: types.CLOSE_RESTORE_RESULT });
 
 export const triggerAction = type => async (dispatch, getState) => {
     switch(type) {

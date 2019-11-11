@@ -22,7 +22,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 
 import { connect } from "react-redux";
-import { setSettins, cleanCache, toggleShowRecentUpdate } from "../../actions/index"
+import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult } from "../../actions/index"
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
@@ -30,6 +30,8 @@ const mapStateToProps = state => {
     return {
         config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate },
         logs: state.logs,
+        showRestoreResult: state.tmp.showRestoreResult,
+        restoreSuccess: state.tmp.restoreSuccess,
     };
 };
 
@@ -38,6 +40,9 @@ const mapDispatchToProps = dispatch => {
         setSettins: settings => dispatch(setSettins(settings)),
         cleanCache: () => dispatch(cleanCache()),
         toggleShowRecentUpdate: showRecentUpdate => dispatch(toggleShowRecentUpdate(showRecentUpdate)),
+        downloadConfig: () => dispatch(downloadConfig()),
+        restoreConfig: file => dispatch(restoreConfig(file)),
+        closeRestoreResult: () => dispatch(closeRestoreResult()),
     };
 };
 
@@ -108,12 +113,24 @@ class Settings extends Component {
         this.setState(state => ({ aboutOpen: !state.aboutOpen }));
     };
 
+    handleBackupClick = () => {
+        this.setState(state => ({ backupOpen: !state.backupOpen }));
+    };
+
     handleSkrClose = () => {
         this.setState({ skr: 0, openSkr: false });
     }
 
     handleSourceClick = () => {
         ChromeUtil.openTab(this.props.config.source);
+    }
+
+    handleRestore = event => {
+        this.props.restoreConfig(event.target.files[0])
+    }
+
+    handleCloseRestoreResult = () => {
+        this.props.closeRestoreResult()
     }
 
     render () {
@@ -201,6 +218,23 @@ class Settings extends Component {
                     <ListItem button onClick={this.openCleanCacheConfirm}>
                         <ListItemText primary={t("Clean Cache")}></ListItemText>
                     </ListItem>
+                    <ListItem button onClick={this.handleBackupClick}>
+                        <ListItemText primary={t("Backup & Restore")} />
+                        <Typography>
+                            {this.state.backupOpen ? <ExpandLess /> : <ExpandMore />}
+                        </Typography>
+                    </ListItem>
+                    <Collapse in={this.state.backupOpen} timeout="auto" unmountOnExit>
+                        <List component="div" disablePadding>
+                            <ListItem button className={classes.nested} onClick={this.props.downloadConfig}>
+                                <ListItemText primary={t("Backup to local")} />
+                            </ListItem>
+                            <ListItem button className={classes.nested} onClick={() => {this.refs.fileUploader.click()}}>
+                                <ListItemText primary={t("Restore from local")} />
+                                <input type="file" id="file" ref="fileUploader" style={{display: "none"}} onChange={this.handleRestore}/>
+                            </ListItem>
+                        </List>
+                    </Collapse>
                     <ListItem button onClick={this.handleAboutClick}>
                         <ListItemText primary={t("About")} />
                         <Typography>
@@ -246,6 +280,19 @@ class Settings extends Component {
                         {t('Cancel')}
                         </Button>
                         <Button onClick={this.handleCleanCacheClick} color="primary" autoFocus>
+                        {t('OK')}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog open={this.props.showRestoreResult}>
+                    <DialogTitle>{t("Information")}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                        {this.props.restoreSuccess ? t("Restore completed") : t("Restore failed")}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.handleCloseRestoreResult} color="primary" autoFocus>
                         {t('OK')}
                         </Button>
                     </DialogActions>
