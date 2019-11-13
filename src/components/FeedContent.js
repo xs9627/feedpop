@@ -153,25 +153,29 @@ const FeedContent = props => {
     }, [lastFeedContentTop, scrollFeedContent])
 
     const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
-    const onBackGesture = (xDelta, xDirection, vx, active) => {
-        const backTriggerX = 100, xDirectionThreshold = -1
-        console.log(`${xDirection} ${vx}`)
+    let xMove = 0, lastXDelta = 0
+    const onBackGesture = (xDelta, xDirection, active) => {
+        const backTriggerX = 100, xDirectionThreshold = -.8
         if(xDirection <= xDirectionThreshold) {
-            const xMove = -xDelta > 0 ? (-xDelta <= backTriggerX ? -xDelta : backTriggerX) : 0
+            xMove += -(xDelta - lastXDelta)
+            if (xMove >= backTriggerX) {
+                xMove = backTriggerX
+            }
             set({x: xMove, opacity: xMove / backTriggerX * (xMove < backTriggerX / 2 ? .5 : 1)})
-            
             if (xMove === backTriggerX) {
                 props.closeFeed()
             }
         }
-        
+        lastXDelta = xDelta
         if (!active) {
+            xMove = 0
+            lastXDelta = 0
             set({x: 0})
         }
     }
     const bind = useGesture({
         //onDrag: ({ xy: [x], vxvy: [vx] }) => onBackGesture(x, -vx),
-        onWheel: ({ delta: [xDelta], direction: [xDirection], vxvy: [vx], active }) => onBackGesture(xDelta, xDirection, vx, active)
+        onWheel: ({ delta: [xDelta], direction: [xDirection], active }) => onBackGesture(xDelta, xDirection, active)
     })
 
     return (
