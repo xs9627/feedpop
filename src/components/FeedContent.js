@@ -153,11 +153,11 @@ const FeedContent = props => {
     }, [lastFeedContentTop, scrollFeedContent])
 
     const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
-    let xMove = 0, lastXDelta = 0
+    let xMove = 0
     const onBackGesture = (xDelta, xDirection, active) => {
         const backTriggerX = 100, xDirectionThreshold = -.8
         if(xDirection <= xDirectionThreshold) {
-            xMove += -(xDelta - lastXDelta)
+            xMove += -xDelta
             if (xMove >= backTriggerX) {
                 xMove = backTriggerX
             }
@@ -166,10 +166,8 @@ const FeedContent = props => {
                 props.closeFeed()
             }
         }
-        lastXDelta = xDelta
         if (!active) {
             xMove = 0
-            lastXDelta = 0
             set({x: 0})
         }
     }
