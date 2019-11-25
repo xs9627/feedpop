@@ -103,6 +103,15 @@ const Reader = props => {
             typography: {
                 fontSize: props.fontSize || 14,
             },
+            overrides: {
+                // Fix multiple scroll bar
+                MuiTooltip: {
+                    popper: {
+                        position: 'absolute',
+                        top: 0,
+                    }
+                }
+            }
             // overrides: {
             //     MuiBottomNavigation: {
             //         root: {
