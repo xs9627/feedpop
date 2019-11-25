@@ -209,7 +209,7 @@ class FeedList extends Component {
     getTime = (isoDate, groupIndex) => {
         if (!isNaN(new Date(isoDate))) {
             const date = new Date(isoDate);
-            let result = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            let result = date.toLocaleTimeString([], {timeStyle: 'short'});
             if (groupIndex > 7) {
                 const dateString = groupIndex < 13 ? date.toLocaleDateString([], {month:"2-digit", day:"2-digit"}) : date.toLocaleDateString();
                 result = `${dateString} ${result}`;
