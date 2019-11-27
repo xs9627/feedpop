@@ -133,9 +133,9 @@ const ChannelGestureListItem = props => {
         }
     }
 
-    const [ { x } , set ] = useSpring(() => ({ x: 0, delta: [0, 0] }))
+    const [ { x } , set ] = useSpring(() => ({ x: 0, movement: [0, 0] }))
     
-    const bind = useDrag(({ down, delta }) => set({x: down ? getOffSet(delta[0]) : (getEditorMode(delta[0]) ? actionPanelWidth : 0)}))
+    const bind = useDrag(({ down, movement }) => set({x: down ? getOffSet(movement[0]) : (getEditorMode(movement[0]) ? actionPanelWidth : 0)}))
 
     useEffect(() => {
         setEditMode(props.editMode)

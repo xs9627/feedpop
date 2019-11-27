@@ -103,6 +103,17 @@ const Reader = props => {
             typography: {
                 fontSize: props.fontSize || 14,
             },
+            overrides: {
+                // Fix multiple scroll bar after upgrade mui to 4.7.0. 
+                // Need to remove this if it fixed in future release. 
+                // Related comments, https://github.com/mui-org/material-ui/issues/17774
+                MuiTooltip: {
+                    popper: {
+                        position: 'absolute',
+                        top: 0,
+                    }
+                }
+            }
             // overrides: {
             //     MuiBottomNavigation: {
             //         root: {
