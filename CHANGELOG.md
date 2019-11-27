@@ -1,3 +1,7 @@
+## [1.1.3] - 2019-11-27
+### Chaged
+- Optimize go back gesture detection
+- Update dependences
 ## [1.1.2] - 2019-11-11
 ### Added
 - Configuration back & restore to local
@@ -47,6 +51,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.1.3]:https://github.com/xs9627/feedpop/compare/v1.1.2...v1.1.3
 [1.1.2]:https://github.com/xs9627/feedpop/compare/v1.1.1...v1.1.2
 [1.1.1]:https://github.com/xs9627/feedpop/compare/v1.1.0...v1.1.1
 [1.1.0]:https://github.com/xs9627/feedpop/compare/v1.0.6...v1.1.0
