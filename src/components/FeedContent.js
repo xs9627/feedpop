@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef }  from 'react'
+import React, { useEffect, useRef }  from 'react'
 import { connect } from "react-redux";
 import { makeStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
@@ -106,18 +106,17 @@ const FeedContent = props => {
     const classes = useStyles(props);
     const contentContainer = useRef(null)
     const contentHtml = {__html: feed['content:encoded'] ? feed['content:encoded'] : feed.content}
-    const [lastFeedContentTop] = useState(feedContentTop)
 
     useEffect(() => {
         const curContentContainer = contentContainer.current
-        if (lastFeedContentTop > 0) {
+        if (feedContentTop > 0) {
             const imgList = curContentContainer.getElementsByTagName('img');
             if (imgList.length > 0) {
                 let count = imgList.length;
                 const countImg = () => {
                     count--;
                     if (count === 0) {
-                        curContentContainer.scrollTop = lastFeedContentTop;
+                        curContentContainer.scrollTop = feedContentTop;
                     }
                 }
                 for (let i = 0; i < imgList.length; i++) {
@@ -125,7 +124,7 @@ const FeedContent = props => {
                     imgList[i].onerror = countImg;
                 }
             } else {
-                curContentContainer.scrollTop = lastFeedContentTop;
+                curContentContainer.scrollTop = feedContentTop;
             }
         }
 
@@ -150,7 +149,7 @@ const FeedContent = props => {
             document.removeEventListener('click', handleClick);
             curContentContainer.removeEventListener('scroll', trackScrolling);
         }
-    }, [lastFeedContentTop, scrollFeedContent])
+    }, [feedContentTop, scrollFeedContent])
 
     const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
     let xMove = 0
