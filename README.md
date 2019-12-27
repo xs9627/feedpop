@@ -1,5 +1,6 @@
 ## FeedPop: Simple RSS feed reader
 [![version][version-badge]][CHANGELOG]
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=xs9627/feedpop)](https://dependabot.com)
 
 A simple way to read RSS feeds in a popup window.
 
