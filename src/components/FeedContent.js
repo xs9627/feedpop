@@ -175,6 +175,13 @@ const FeedContent = props => {
         onWheel: ({ delta: [xDelta], direction: [xDirection], active }) => onBackGesture(xDelta, xDirection, active)
     })
 
+    const onContentScroll = (top) => {
+        console.log(top)
+    }
+    const contentContainerBind = useGesture({
+        onScroll: ({xy: [, y]}) => onContentScroll(y)
+    })
+
     return (
         <div {...bind()} className={classes.root}>
             <Paper square={true} className={classes.actionContainer}>
@@ -202,7 +209,7 @@ const FeedContent = props => {
                     </Grid>
                 </Grid>
             </Paper>
-            <div className={ classes.contentContainer } ref={contentContainer}>
+            <div className={ classes.contentContainer } ref={contentContainer} {...contentContainerBind()}>
                 { feed.deleted ? <div class={classes.emptyMsg}>
                     <Typography variant="caption">{t("Feed has been deleted")}</Typography> 
                 </div> :
