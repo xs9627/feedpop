@@ -6,7 +6,7 @@ const recentCount = 30;
 const mergeFeed = (oldFeed, newFeed) => {
     const uuidv4 = require('uuid/v4');
     if (oldFeed) {
-        const mergedItems = [...oldFeed.items];
+        const mergedItems = true ? [...oldFeed.items.filter(i => newFeed.items.some(j => i.link === j.link))] : [...oldFeed.items];
         newFeed.items.forEach((ni, i) => {
             if (!mergedItems.find(mi => mi.link === ni.link)) {
                 mergedItems.push({
