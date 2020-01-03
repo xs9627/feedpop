@@ -175,8 +175,13 @@ const FeedContent = props => {
         onWheel: ({ delta: [xDelta], direction: [xDirection], active }) => onBackGesture(xDelta, xDirection, active)
     })
 
+    const getTitleOpacity = (top) => {
+        const showTitleTop = 50
+        return top > showTitleTop ? 1 : top / showTitleTop 
+    }
+    const [{ titleOpacity }, contentScrollSet] = useSpring(() => ({ titleOpacity: getTitleOpacity(feedContentTop)}))
     const onContentScroll = (top) => {
-        console.log(top)
+        contentScrollSet({titleOpacity: getTitleOpacity(top)})
     }
     const contentContainerBind = useGesture({
         onScroll: ({xy: [, y]}) => onContentScroll(y)
@@ -187,9 +192,22 @@ const FeedContent = props => {
             <Paper square={true} className={classes.actionContainer}>
                 <Grid container wrap="nowrap">
                     <Grid item xs zeroMinWidth>
-                        <IconButton key="close" className={classes.icon} onClick={props.closeFeed}>
-                            <ArrowBackIcon />
-                        </IconButton>
+                        <Grid container>
+                            <Grid item>
+                                <IconButton key="close" className={classes.icon} onClick={props.closeFeed}>
+                                    <ArrowBackIcon />
+                                </IconButton>
+                            </Grid>
+                            <Grid item xs>
+                                <animated.div style={{
+                                    opacity: titleOpacity
+                                }}>
+                                    <Typography noWrap>
+                                        {feed.title}
+                                    </Typography>
+                                </animated.div>
+                            </Grid>
+                        </Grid>
                     </Grid>
                     <Grid item>
                         <Tooltip classes={{tooltip: classes.qrCodeTip}} title={
