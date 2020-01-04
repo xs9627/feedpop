@@ -209,7 +209,7 @@ const FeedContent = props => {
                                     opacity: titleOpacity,
                                     cursor: titleCursor,
                                 }}>
-                                    <Tooltip title={feed.title} enterDelay={.5} PopperProps={{disablePortal: true}}>
+                                    <Tooltip title={feed.title} enterDelay={300} PopperProps={{disablePortal: true}}>
                                         <Typography noWrap>
                                             {feed.title}
                                         </Typography>
