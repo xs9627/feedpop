@@ -3,10 +3,10 @@ import {ChannelFixedID} from "../constants/index";
 import ChromeUtil from "../utils/ChromeUtil";
 
 const recentCount = 30;
-const mergeFeed = (oldFeed, newFeed) => {
+const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds) => {
     const uuidv4 = require('uuid/v4');
     if (oldFeed) {
-        const mergedItems = true ? [...oldFeed.items.filter(i => newFeed.items.some(j => i.link === j.link))] : [...oldFeed.items];
+        const mergedItems = !keepHistoricFeeds ? [...oldFeed.items.filter(i => newFeed.items.some(j => i.link === j.link))] : [...oldFeed.items];
         newFeed.items.forEach((ni, i) => {
             if (!mergedItems.find(mi => mi.link === ni.link)) {
                 mergedItems.push({
@@ -119,6 +119,7 @@ const initialState = {
     allUnreadCount: 0,
     refreshPeriod: 15,
     recentChannelIndex: 0,
+    keepHistoricFeeds: true,
     showRecentUpdate: true,
     currentChannelId: ChannelFixedID.RECENT,
     tourOption: {},
@@ -295,7 +296,7 @@ const rootReducer = (state = initialState, action) => {
             const oldFeedsWithRecent = recentChannelFeeds ? 
             (oldFeeds ? {...recentChannelFeeds.feed, items: [...recentChannelFeeds.feed.items, ...oldFeeds.items]} : recentChannelFeeds.feed)
             : oldFeeds;
-            mergeFeed(oldFeedsWithRecent, feeds);
+            mergeFeed(oldFeedsWithRecent, feeds, state.keepHistoricFeeds);
             if (state.maxFeedsCount && state.maxFeedsCount > 0) {
                 feeds.items = feeds.items.slice(0, state.maxFeedsCount);
             }
