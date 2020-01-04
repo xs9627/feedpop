@@ -94,6 +94,9 @@ const useStyles = makeStyles(theme => ({
         borderRadius: '50%',
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
         padding: 12,
+    },
+    headerTitle: {
+        minWidth: 0
     }
 }));
 
@@ -177,11 +180,14 @@ const FeedContent = props => {
 
     const getTitleOpacity = (top) => {
         const showTitleTop = 50
-        return top > showTitleTop ? 1 : top / showTitleTop 
+        const showDelta = 50
+        const calTop = top - showTitleTop
+        const ttitleOpacity = calTop > 0 ? (calTop < showDelta ? calTop / showTitleTop : 1) : 0
+        return {titleOpacity: ttitleOpacity, titleCursor: ttitleOpacity === 1 ? 'auto': 'default'}
     }
-    const [{ titleOpacity }, contentScrollSet] = useSpring(() => ({ titleOpacity: getTitleOpacity(feedContentTop)}))
+    const [{ titleOpacity, titleCursor }, contentScrollSet] = useSpring(() => (getTitleOpacity(feedContentTop)))
     const onContentScroll = (top) => {
-        contentScrollSet({titleOpacity: getTitleOpacity(top)})
+        contentScrollSet(getTitleOpacity(top))
     }
     const contentContainerBind = useGesture({
         onScroll: ({xy: [, y]}) => onContentScroll(y)
@@ -198,13 +204,16 @@ const FeedContent = props => {
                                     <ArrowBackIcon />
                                 </IconButton>
                             </Grid>
-                            <Grid item xs>
-                                <animated.div style={{
-                                    opacity: titleOpacity
+                            <Grid item xs zeroMinWidth container alignItems="center">
+                                <animated.div className={classes.headerTitle} style={{
+                                    opacity: titleOpacity,
+                                    cursor: titleCursor,
                                 }}>
-                                    <Typography noWrap>
-                                        {feed.title}
-                                    </Typography>
+                                    <Tooltip title={feed.title} enterDelay={.5} PopperProps={{disablePortal: true}}>
+                                        <Typography noWrap>
+                                            {feed.title}
+                                        </Typography>
+                                    </Tooltip>
                                 </animated.div>
                             </Grid>
                         </Grid>
