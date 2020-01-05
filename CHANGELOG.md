@@ -1,3 +1,7 @@
+## [1.1.4] - 2020-01-05
+### Added
+- Keep historic feeds setting
+- Show feed title when scroll down
 ## [1.1.3] - 2019-11-27
 ### Chaged
 - Optimize go back gesture detection
@@ -51,6 +55,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.1.4]:https://github.com/xs9627/feedpop/compare/v1.1.3...v1.1.4
 [1.1.3]:https://github.com/xs9627/feedpop/compare/v1.1.2...v1.1.3
 [1.1.2]:https://github.com/xs9627/feedpop/compare/v1.1.1...v1.1.2
 [1.1.1]:https://github.com/xs9627/feedpop/compare/v1.1.0...v1.1.1
