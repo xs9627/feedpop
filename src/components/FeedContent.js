@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef }  from 'react'
+import React, { useEffect, useRef }  from 'react'
 import { connect } from "react-redux";
 import { makeStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
@@ -94,6 +94,9 @@ const useStyles = makeStyles(theme => ({
         borderRadius: '50%',
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
         padding: 12,
+    },
+    headerTitle: {
+        minWidth: 0
     }
 }));
 
@@ -106,18 +109,17 @@ const FeedContent = props => {
     const classes = useStyles(props);
     const contentContainer = useRef(null)
     const contentHtml = {__html: feed['content:encoded'] ? feed['content:encoded'] : feed.content}
-    const [lastFeedContentTop] = useState(feedContentTop)
 
     useEffect(() => {
         const curContentContainer = contentContainer.current
-        if (lastFeedContentTop > 0) {
+        if (feedContentTop > 0) {
             const imgList = curContentContainer.getElementsByTagName('img');
             if (imgList.length > 0) {
                 let count = imgList.length;
                 const countImg = () => {
                     count--;
                     if (count === 0) {
-                        curContentContainer.scrollTop = lastFeedContentTop;
+                        curContentContainer.scrollTop = feedContentTop;
                     }
                 }
                 for (let i = 0; i < imgList.length; i++) {
@@ -125,7 +127,7 @@ const FeedContent = props => {
                     imgList[i].onerror = countImg;
                 }
             } else {
-                curContentContainer.scrollTop = lastFeedContentTop;
+                curContentContainer.scrollTop = feedContentTop;
             }
         }
 
@@ -150,7 +152,7 @@ const FeedContent = props => {
             document.removeEventListener('click', handleClick);
             curContentContainer.removeEventListener('scroll', trackScrolling);
         }
-    }, [lastFeedContentTop, scrollFeedContent])
+    }, [feedContentTop, scrollFeedContent])
 
     const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
     let xMove = 0
@@ -176,14 +178,45 @@ const FeedContent = props => {
         onWheel: ({ delta: [xDelta], direction: [xDirection], active }) => onBackGesture(xDelta, xDirection, active)
     })
 
+    const getTitleOpacity = (top) => {
+        const showTitleTop = 50
+        const showDelta = 50
+        const calTop = top - showTitleTop
+        const ttitleOpacity = calTop > 0 ? (calTop < showDelta ? calTop / showTitleTop : 1) : 0
+        return {titleOpacity: ttitleOpacity, titleCursor: ttitleOpacity === 1 ? 'auto': 'default'}
+    }
+    const [{ titleOpacity, titleCursor }, contentScrollSet] = useSpring(() => (getTitleOpacity(feedContentTop)))
+    const onContentScroll = (top) => {
+        contentScrollSet(getTitleOpacity(top))
+    }
+    const contentContainerBind = useGesture({
+        onScroll: ({xy: [, y]}) => onContentScroll(y)
+    })
+
     return (
         <div {...bind()} className={classes.root}>
             <Paper square={true} className={classes.actionContainer}>
                 <Grid container wrap="nowrap">
                     <Grid item xs zeroMinWidth>
-                        <IconButton key="close" className={classes.icon} onClick={props.closeFeed}>
-                            <ArrowBackIcon />
-                        </IconButton>
+                        <Grid container>
+                            <Grid item>
+                                <IconButton key="close" className={classes.icon} onClick={props.closeFeed}>
+                                    <ArrowBackIcon />
+                                </IconButton>
+                            </Grid>
+                            <Grid item xs zeroMinWidth container alignItems="center">
+                                <animated.div className={classes.headerTitle} style={{
+                                    opacity: titleOpacity,
+                                    cursor: titleCursor,
+                                }}>
+                                    <Tooltip title={feed.title} enterDelay={300} PopperProps={{disablePortal: true}}>
+                                        <Typography noWrap>
+                                            {feed.title}
+                                        </Typography>
+                                    </Tooltip>
+                                </animated.div>
+                            </Grid>
+                        </Grid>
                     </Grid>
                     <Grid item>
                         <Tooltip classes={{tooltip: classes.qrCodeTip}} title={
@@ -203,7 +236,7 @@ const FeedContent = props => {
                     </Grid>
                 </Grid>
             </Paper>
-            <div className={ classes.contentContainer } ref={contentContainer}>
+            <div className={ classes.contentContainer } ref={contentContainer} {...contentContainerBind()}>
                 { feed.deleted ? <div class={classes.emptyMsg}>
                     <Typography variant="caption">{t("Feed has been deleted")}</Typography> 
                 </div> :

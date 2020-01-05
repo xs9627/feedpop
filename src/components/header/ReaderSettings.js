@@ -26,9 +26,9 @@ import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restore
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
-    const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate } = state;
+    const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds } = state;
     return {
-        config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate },
+        config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds },
         logs: state.logs,
         showRestoreResult: state.tmp.showRestoreResult,
         restoreSuccess: state.tmp.restoreSuccess,
@@ -68,6 +68,11 @@ class Settings extends Component {
     handleChangeFontSize = event => {
         const fontSize = event.target.value;
         this.props.setSettins({ fontSize });
+    }
+
+    handleChangeKeepHistoricFeeds = event => {
+        const keepHistoricFeeds = event.target.checked;
+        this.props.setSettins({ keepHistoricFeeds });
     }
 
     handleChangeShowRecentUpdate = event => {
@@ -203,6 +208,16 @@ class Settings extends Component {
                                 <MenuItem value={30}>30</MenuItem>
                                 <MenuItem value={60}>60</MenuItem>
                             </Select>
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                    <ListItem>
+                        <ListItemText primary={t("Keep historic feeds")}></ListItemText>
+                        <ListItemSecondaryAction>
+                            <Switch
+                                checked={this.props.config.keepHistoricFeeds}
+                                onChange={this.handleChangeKeepHistoricFeeds}
+                                color="primary"
+                            />
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>

@@ -1,5 +1,7 @@
 ## FeedPop: Simple RSS feed reader
 [![version][version-badge]][CHANGELOG]
+[![CircleCI](https://img.shields.io/circleci/build/github/xs9627/feedpop/master.svg)](https://circleci.com/gh/xs9627/feedpop/tree/master)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=xs9627/feedpop)](https://dependabot.com)
 
 A simple way to read RSS feeds in a popup window.
 
@@ -10,4 +12,4 @@ Install in chrome web store: https://chrome.google.com/webstore/detail/feedpop-s
 Load unpacked extension manually: https://github.com/xs9627/feedpop/releases
 
 [CHANGELOG]: ./CHANGELOG.md
-[version-badge]: https://img.shields.io/badge/version-1.1.3-blue.svg
+[version-badge]: https://img.shields.io/badge/version-1.1.4-blue.svg
