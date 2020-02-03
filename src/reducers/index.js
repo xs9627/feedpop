@@ -614,6 +614,24 @@ const rootReducer = (state = initialState, action) => {
 
             return persistence(state, {readStatusSyncTime, allUnreadCount, channels, recentFeeds, tmp: {...state.tmp, newHistoryFeeds}})
         }
+        case types.CHECK_ALL_UNREAD: {
+            let tmp
+            if (state.currentChannelId === ChannelFixedID.RECENT) {
+                tmp = {
+                    needLoadHistory: false,
+                    allUnreadLinks: state.recentFeeds.map(rf => rf.feed.items.filter(i => !i.isRead).map(i => i.link)).flat()
+                }
+            } else {
+                tmp = {
+                    needLoadHistory: true,
+                    allUnreadLinks: state.recentFeeds.find(rf => rf.channelId === state.currentChannelId).feed.items.filter(i => !i.isRead).map(i => i.link).flat()
+                }
+            }
+            return {...state, tmp: {...state.tmp, ...tmp}}
+        }
+        case types.CHECK_ALL_HISTORY_UNREAD: {
+            return {...state, tmp: {...state.tmp, allUnreadLinks: [...state.tmp.allUnreadLinks, ...action.payload.historyFeeds.items.filter(i => !i.isRead).map(i => i.link).flat()]}}
+        }
         default:
             return state;
     }

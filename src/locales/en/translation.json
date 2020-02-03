@@ -47,6 +47,9 @@
     "Feed has been deleted": "Feed has been deleted",
 
     "No feeds loaded": "No feeds loaded",
+    "Mark all as read": "Mark all as read",
+    "Open all unread": "Open all unread feeds",
+    "This will open all": "Open in {{unreadCount}} tabs?",
 
     "First open the channel list": "First open the channel list",
     "And, add a feed": "And, add a feed",

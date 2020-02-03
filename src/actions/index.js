@@ -272,6 +272,20 @@ export const restoreConfig = file => async (dispatch, getState) => {
 
 export const closeRestoreResult = () => ({ type: types.CLOSE_RESTORE_RESULT });
 
+export const getAllUnreadLinks = () => async (dispatch, getState) => {
+    dispatch({type: types.CHECK_ALL_UNREAD})
+    if (getState().tmp.needLoadHistory) {
+        const historyFeeds = await getChannelFeeds(getState().currentChannelId)
+        dispatch({type: types.CHECK_ALL_HISTORY_UNREAD, payload: {historyFeeds}})
+    }
+}
+
+export const openAllUnread = () => async (dispatch, getState) => {
+    await dispatch(getAllUnreadLinks())
+    await dispatch(markAllAsRead(getState().currentChannelId))
+    getState().tmp.allUnreadLinks.forEach(url => ChromeUtil.openTab(url))
+}
+
 export const triggerAction = type => async (dispatch, getState) => {
     switch(type) {
         case types.GO_BACK_LAST_READ: {
