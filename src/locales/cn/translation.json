@@ -47,6 +47,9 @@
     "Feed has been deleted": "内容已经被删除",
 
     "No feeds loaded": "无更新内容",
+    "Mark all as read": "标记全部为已读",
+    "Open all unread": "打开全部未读内容",
+    "This will open all": "在新标签页打开全部{{unreadCount}}条内容？",
 
     "First open the channel list": "打开源列表",
     "And, add a feed": "新增RSS源",

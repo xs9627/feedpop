@@ -17,9 +17,15 @@ import Avatar from '@material-ui/core/Avatar';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
 
 import { ChannelFixedID } from '../constants/index';
-import { setFeedReadStatus, openFeed, loadHistoryFeeds, markAllAsRead } from '../actions/index';
+import { setFeedReadStatus, openFeed, loadHistoryFeeds, markAllAsRead, getAllUnreadLinks, openAllUnread } from '../actions/index';
 import { withTranslation } from 'react-i18next';
 import GA from '../utils/GA';
 
@@ -31,6 +37,7 @@ const mapStateToProps = state => {
         currentChannelId: state.currentChannelId,
         feeds: state.currentFeeds,
         needResetChannelList: state.tmp.needResetChannelList,
+        allUnreadLinks: state.tmp.allUnreadLinks,
     };
 };
 
@@ -40,6 +47,8 @@ const mapDispatchToProps = dispatch => {
         openFeed: feedItemId => dispatch(openFeed(feedItemId)),
         loadHistoryFeeds: () => dispatch(loadHistoryFeeds()),
         markAllAsRead: channelId => dispatch(markAllAsRead(channelId)),
+        getAllUnreadLinks: () => dispatch(getAllUnreadLinks()),
+        openAllUnread: () => dispatch(openAllUnread()),
     };
 };
 
@@ -287,6 +296,23 @@ class FeedList extends Component {
         this.props.markAllAsRead(this.props.currentChannelId);
         this.handleChannelMenuClose();
     };
+    handleOpenAllUnreadClick = async () => {
+        await this.props.getAllUnreadLinks()
+        if (this.props.allUnreadLinks && this.props.allUnreadLinks.length > 0) {
+            if (this.props.allUnreadLinks.length < 10) {
+                this.props.openAllUnread()
+            } else {
+                this.setState({openAllUnreadConfirm: true})
+            }
+        }
+        this.handleChannelMenuClose()
+    }
+    closeOpenAllUnreadConfirm = () => {
+        this.setState({openAllUnreadConfirm: false})
+    }
+    handleOpenAllUnread = () => {
+        this.props.openAllUnread()
+    }
     render() {
         const { menuOpen, menuLeft, menuTop, anchorEl } = this.state;
         const { classes, feeds, currentChannelId, channels, t } = this.props;
@@ -321,6 +347,9 @@ class FeedList extends Component {
                     >
                     <MenuItem onClick={this.handleMarkAllAsReadClick}>
                         {t('Mark all as read')}
+                    </MenuItem>
+                    <MenuItem onClick={this.handleOpenAllUnreadClick}>
+                        {t('Open all unread')}
                     </MenuItem>
                 </Menu>
                 <Typography variant="body2" className={ classes.feedTitle }>
@@ -377,6 +406,23 @@ class FeedList extends Component {
                         </li>
                     ))}
                 </List>
+                {this.props.allUnreadLinks &&
+                <Dialog open={this.state.openAllUnreadConfirm}>
+                        <DialogTitle>{t("Confirm")}</DialogTitle>
+                        <DialogContent>
+                                <DialogContentText>
+                                {t("This will open all", {unreadCount: this.props.allUnreadLinks.length})}
+                                </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                                <Button onClick={this.closeOpenAllUnreadConfirm} color="primary">
+                                {t("Cancel")}
+                                </Button>
+                                <Button onClick={this.handleOpenAllUnread} color="primary" autoFocus>
+                                {t("OK")}
+                                </Button>
+                        </DialogActions>
+                </Dialog>}
             </div>
         );
     }
