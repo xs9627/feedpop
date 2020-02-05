@@ -1,3 +1,6 @@
+## [1.1.5] - 2020-02-05
+### Added
+- Open all unread feeds in new tabs
 ## [1.1.4] - 2020-01-05
 ### Added
 - Keep historic feeds setting
@@ -55,6 +58,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.1.5]:https://github.com/xs9627/feedpop/compare/v1.1.4...v1.1.5
 [1.1.4]:https://github.com/xs9627/feedpop/compare/v1.1.3...v1.1.4
 [1.1.3]:https://github.com/xs9627/feedpop/compare/v1.1.2...v1.1.3
 [1.1.2]:https://github.com/xs9627/feedpop/compare/v1.1.1...v1.1.2
