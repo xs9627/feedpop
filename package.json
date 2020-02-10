@@ -19,7 +19,7 @@
     "react-scripts": "^3.3.1",
     "react-spring": "^8.0.27",
     "react-transition-group": "^4.3.0",
-    "react-use-gesture": "^7.0.2",
+    "react-use-gesture": "^7.0.4",
     "reactour": "https://github.com/xs9627/reactour/tarball/test",
     "redux-thunk": "^2.3.0",
     "rss-parser": "https://github.com/xs9627/rss-parser/tarball/master",
