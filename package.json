@@ -24,7 +24,7 @@
     "redux-thunk": "^2.3.0",
     "rss-parser": "https://github.com/xs9627/rss-parser/tarball/master",
     "sinon-chrome": "^3.0.1",
-    "styled-components": "^4.4.1",
+    "styled-components": "^5.0.1",
     "typeface-roboto-material": "0.0.1",
     "uuid": "^3.4.0"
   },
