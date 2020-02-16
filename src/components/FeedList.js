@@ -24,6 +24,9 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 
+import { useGesture } from 'react-use-gesture'
+import { useSpring, animated } from 'react-spring'
+
 import { ChannelFixedID } from '../constants/index';
 import { setFeedReadStatus, openFeed, loadHistoryFeeds, markAllAsRead, getAllUnreadLinks, openAllUnread } from '../actions/index';
 import { withTranslation } from 'react-i18next';
@@ -79,12 +82,12 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         alignItems: 'center',
     },
+    stickyHeader: {
+        position: 'sticky',
+        backgroundColor: 'inherit',
+    },
     feedTitle: {
         lineHeight: '16px',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1,
-        backgroundColor: 'inherit',
     },
     avatar: {
         width: 16,
@@ -127,6 +130,7 @@ const FeedList = props => {
 
     const classes = useStyles(props);
 
+    const feedTitle = useRef(null)
     const feedList = useRef(null)
 
     const {feeds, currentChannelId, channels, loadHistoryFeeds, historyFeedsLoaded, t } = props;
@@ -350,10 +354,20 @@ const FeedList = props => {
         props.openAllUnread()
     }
 
+    const [{ headerTop }, set] = useSpring(() => ({headerTop: 0}))
+    const onListScroll = (yDirection) => {
+        if (yDirection === 1 || yDirection === -1) {
+            set({headerTop: yDirection > 0 ? -1 * feedTitle.current.clientHeight : 0})    
+        }
+    }
+    const listScrollBind = useGesture({
+        onWheel: ({direction: [, yDirection]}) => onListScroll(yDirection)
+    })
+
     const channelMenuOpen = Boolean(anchorEl);
 
     return (
-        <div className={classes.root} ref={feedList}>
+        <div className={classes.root} ref={feedList} {...listScrollBind()}>
             <Menu
                 id="simple-menu"
                 open={menuOpen}
@@ -383,37 +397,51 @@ const FeedList = props => {
                     {t('Open all unread')}
                 </MenuItem>
             </Menu>
-            <Typography variant="body2" className={ classes.feedTitle }>
-                <div className={ classes.feedInfoContainer }>
-                    { renderChannelIcon(currentChannelId) }
-                    { currentChannelId === ChannelFixedID.RECENT ? t('Recent Updates') : channels.find(c => c.id === currentChannelId).name }
-                    <IconButton
-                        className={classes.channelMenuButton}
-                        aria-label="More"
-                        aria-owns={channelMenuOpen ? 'long-menu' : undefined}
-                        aria-haspopup="true"
-                        onClick={handleChannelMenuClick}
-                        >
-                        <MoreVertIcon />
-                    </IconButton>
-                </div>
-                <Divider />
-            </Typography>
+            <animated.div className={classes.stickyHeader} ref={feedTitle}
+                style={{
+                    top: headerTop.interpolate((top) => `${top}px`),
+                    zIndex: 2,
+                }}
+            >
+                <Typography variant="body2" className={ classes.feedTitle }>
+                    <div className={ classes.feedInfoContainer }>
+                        { renderChannelIcon(currentChannelId) }
+                        { currentChannelId === ChannelFixedID.RECENT ? t('Recent Updates') : channels.find(c => c.id === currentChannelId).name }
+                        <IconButton
+                            className={classes.channelMenuButton}
+                            aria-label="More"
+                            aria-owns={channelMenuOpen ? 'long-menu' : undefined}
+                            aria-haspopup="true"
+                            onClick={handleChannelMenuClick}
+                            >
+                            <MoreVertIcon />
+                        </IconButton>
+                    </div>
+                    <Divider />
+                </Typography>
+            </animated.div>
             { !props.feeds && <div class={classes.emptyMsg}>
                 <Typography variant="caption">{t("No feeds loaded")}</Typography> 
             </div>}
-            <List subheader={<li />}>
+            <List subheader={<li />} className={classes.listSection}>
                 {[...arrangedFeeds].map(([index, value]) => (
                     <li key={`dateStr-${index}`} className={classes.listSection}>
                         <ul className={classes.ul}>
-                            <ListItem>
-                                <ListItemText primary={t(value.dateString)}></ListItemText>
-                                <ListItemSecondaryAction>
-                                    <IconButton className={classes.collapseIcon} onClick={() => handleSubheaderClick(index)}>
-                                        {collapseStatus[index] ? <ExpandLess /> : <ExpandMore />}
-                                    </IconButton>
-                                </ListItemSecondaryAction>
-                            </ListItem>
+                            <animated.div className={classes.stickyHeader}
+                                style={{
+                                    top: headerTop.interpolate((top) => `${top + feedTitle.current.clientHeight}px`),
+                                    zIndex: 1,
+                                }}
+                            >
+                                <ListItem>
+                                    <ListItemText primary={t(value.dateString)}></ListItemText>
+                                    <ListItemSecondaryAction>
+                                        <IconButton className={classes.collapseIcon} onClick={() => handleSubheaderClick(index)}>
+                                            {collapseStatus[index] ? <ExpandLess /> : <ExpandMore />}
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            </animated.div>
                             <Collapse in={!collapseStatus[index]} timeout="auto" unmountOnExit>
                                 {value.items.sort((a, b)=> (new Date(b.isoDate) - new Date(a.isoDate))).map(feed => (
                                     <ListItem 
