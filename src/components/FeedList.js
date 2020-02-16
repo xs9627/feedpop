@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { connect } from "react-redux";
 import classNames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -52,7 +52,7 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
     root: {
         backgroundColor: theme.palette.background.paper,
         flex: '1 1 auto',
@@ -81,6 +81,10 @@ const styles = theme => ({
     },
     feedTitle: {
         lineHeight: '16px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1,
+        backgroundColor: 'inherit',
     },
     avatar: {
         width: 16,
@@ -104,34 +108,88 @@ const styles = theme => ({
         marginLeft: 'auto',
         padding: theme.spacing.unit,
     },
-});
+}));
 
-class FeedList extends Component {
-    state = {
-        faviconsReachable: false,
-        collapseStatus: {},
-        page: 1,
-        arrangedFeeds: new Map(),
-        menuOpen: false,
-    }
-    faviconsApis = [
-        'https://www.google.com/s2/favicons?domain=',
-        'https://www.google.cn/s2/favicons?domain=',
-    ];
-    static getDerivedStateFromProps(props, state) {
-        const arrangeFeeds = (feeds, state) => {
+//class FeedList extends Component {
+const FeedList = props => {
+    const [faviconsReachable, setFaviconsReachable] = useState(false)
+    const [collapseStatus, setCollapseStatus] = useState({})
+    const [page, setPage] = useState(1)
+    const [arrangedFeeds, setArrangedFeeds] = useState(new Map())
+    const [menuOpen, setMenuOpen] = useState(false)
+    const [anchorEl, setAnchorEl] = useState()
+    const [menuLeft, setMenuLeft] = useState()
+    const [menuTop, setMenuTop] = useState()
+    const [faviconsApi, setFaviconsApi] = useState()
+    const [currentFeedItem, setCurrentFeedItem] = useState()
+    const [openAllUnreadConfirm, setOpenAllUnreadConfirm] = useState()
+    const [lastChannelId, setLastChannelId] = useState()
+
+    const classes = useStyles(props);
+
+    const feedList = useRef(null)
+
+    const {feeds, currentChannelId, channels, loadHistoryFeeds, historyFeedsLoaded, t } = props;
+    
+    //getDerivedStateFromProps(props, state) {
+    useEffect(() => {
+        const faviconsApis = [
+            'https://www.google.com/s2/favicons?domain=',
+            'https://www.google.cn/s2/favicons?domain=',
+        ];
+        faviconsApis.forEach(faviconsApi => {
+            const request = new XMLHttpRequest();
+            request.timeout = 2000;
+            request.open('GET', faviconsApi + 'google.com', true);
+            request.onload = () => {
+                setFaviconsReachable(prevState => {
+                    if (!prevState) {
+                        setFaviconsApi(faviconsApi)
+                    }
+                    return true;
+                })
+            };
+            request.send();
+        });
+
+        const isBottom = (e) => {
+            return e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+        }
+        const trackScrolling = (e) => {
+            if (isBottom(e)) {
+                console.log(123)
+                setPage(prevState => prevState + 1)
+            }
+        }
+        const curFeedList = feedList.current
+        curFeedList.addEventListener('scroll', trackScrolling);
+        return () => {
+            curFeedList.removeEventListener('scroll', trackScrolling);
+        }
+    }, [])
+
+    useEffect(() => {
+        let isChannelChange = false;
+        if (lastChannelId !== currentChannelId) {
+            isChannelChange = true;
+            feedList.current.scrollTop = 0;
+            setLastChannelId(currentChannelId)
+            setCollapseStatus({})
+            setPage(1)
+        }
+        setArrangedFeeds(prevState => {
             if (feeds) {
                 const pageSize = 20;
-                if (!props.historyFeedsLoaded &&
-                    feeds.items.filter(i => !state.collapseStatus[FeedList.getDateStr(i.isoDate).index]).length < state.page * pageSize) {
-                    props.loadHistoryFeeds();
+                if (!historyFeedsLoaded &&
+                    feeds.items.filter(i => !collapseStatus[getDateStr(i.isoDate).index]).length < page * pageSize) {
+                    loadHistoryFeeds();
                 }
-                
+
                 const arrangedMap = feeds.items
-                .filter(i => !state.collapseStatus[FeedList.getDateStr(i.isoDate).index])
-                .slice(0, state.page * 20)
+                .filter(i => !collapseStatus[getDateStr(i.isoDate).index])
+                .slice(0, page * 20)
                 .reduce((r, a) => {
-                    let result = FeedList.getDateStr(a.isoDate);
+                    let result = getDateStr(a.isoDate);
                     if (!r.has(result.index)) {
                         r.set(result.index, { dateString: result.dateString, items: [] });
                     }
@@ -141,22 +199,25 @@ class FeedList extends Component {
                         r.get(result.index).items = r.get(result.index).items.map(i => (i.readerId === a.readerId) ? a : i);
                     }
                     return r;
-                }, state.arrangedFeeds);
-                return new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]));
+                }, isChannelChange ? new Map() : prevState);
+                return new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]))
             } else {
-                return new Map();
+                return new Map()
             }
-        }
-        if (props.currentChannelId !== state.lastChannelId || 
-            (props.currentChannelId === ChannelFixedID.RECENT && props.channels.length !== state.channelsCount)
-        ) {
-            state =  {...state, arrangedFeeds: new Map(), collapseStatus: {}, page: 1, lastChannelId: props.currentChannelId, channelsCount: props.channels && props.channels.length, refresh: true};       
-        } else {
-            state = {...state, refresh: false};
-        }
-        return {...state, arrangedFeeds: arrangeFeeds(props.feeds, state)};
-    }
-    static getDateStr = date => {
+        })
+        
+        // if (props.currentChannelId !== state.lastChannelId || 
+        //     (props.currentChannelId === ChannelFixedID.RECENT && props.channels.length !== state.channelsCount)
+        // ) {
+        //     state =  {...state, arrangedFeeds: new Map(), collapseStatus: {}, page: 1, lastChannelId: props.currentChannelId, channelsCount: props.channels && props.channels.length, refresh: true};       
+        // } else {
+        //     state = {...state, refresh: false};
+        // }
+        // return {...state, arrangedFeeds: arrangeFeeds(props.feeds, state)};
+    //}
+    }, [feeds, page, currentChannelId, collapseStatus, historyFeedsLoaded, lastChannelId, loadHistoryFeeds])
+
+    const getDateStr = date => {
         const itemDate = new Date(date);
         if (!isNaN(itemDate)) {
             let compareDate = new Date();
@@ -199,23 +260,22 @@ class FeedList extends Component {
             return { index: 13, dateString: "Older" };
         }
     }
-    handleSubheaderClick = index => {
-        const collapseStatus = this.state.collapseStatus;
-        collapseStatus[index] = !collapseStatus[index];
-        if (!collapseStatus[index] && this.state.arrangedFeeds.get(index).items.length < this.props.feeds.items.reduce((r, a) => (r += FeedList.getDateStr(a.isoDate).index === index ? 1 : 0), 0)) {
-            this.state.arrangedFeeds.forEach((value, key) => {
+    const handleSubheaderClick = index => {
+        const newCollapseStatus = {...collapseStatus, [index]: !collapseStatus[index]}
+        if (!newCollapseStatus[index] && arrangedFeeds.get(index).items.length < props.feeds.items.reduce((r, a) => (r += getDateStr(a.isoDate).index === index ? 1 : 0), 0)) {
+            arrangedFeeds.forEach((value, key) => {
                 if (key > index) {
-                    this.state.arrangedFeeds.delete(key);
-                    collapseStatus[key] = false;
+                    arrangedFeeds.delete(key);
+                    newCollapseStatus[key] = false;
                 }
             });
-            this.setState({page: Math.ceil(this.state.arrangedFeeds.get(index).items.length / 20)});
+            setPage(Math.ceil(arrangedFeeds.get(index).items.length / 20))
         } else {
-            this.setState({page: this.state.page - (Math.ceil(this.state.arrangedFeeds.get(index).items.length / 20) - 1)});
+            setPage(page - (Math.ceil(arrangedFeeds.get(index).items.length / 20) - 1))
         }
-        this.setState({ collapseStatus: collapseStatus });
+        setCollapseStatus(newCollapseStatus)
     }
-    getTime = (isoDate, groupIndex) => {
+    const getTime = (isoDate, groupIndex) => {
         if (!isNaN(new Date(isoDate))) {
             const date = new Date(isoDate);
             let result = date.toLocaleTimeString([], {timeStyle: 'short'});
@@ -226,21 +286,9 @@ class FeedList extends Component {
             return result;
         }
     }
-    testFaiconsApi = () => {
-        this.faviconsApis.forEach(faviconsApi => {
-            const request = new XMLHttpRequest();
-            request.timeout = 2000;
-            request.open('GET', faviconsApi + 'google.com', true);
-            request.onload = () => {
-                if (!this.state.faviconsReachable) {
-                    this.setState({ faviconsReachable: true, faviconsApi });
-                }
-            };
-            request.send();
-        });
-    }
-    renderChannelIcon = channelId => {
-        const { classes, recentFeeds, channels } = this.props;
+    
+    const renderChannelIcon = channelId => {
+        const { recentFeeds, channels } = props;
 
         if (channelId === ChannelFixedID.RECENT) {
             return <Subject className={classes.avatar} />;
@@ -251,181 +299,163 @@ class FeedList extends Component {
 
         const title = feeds ? feeds.title : currentChannel.name;
         const url = feeds ? feeds.link : currentChannel.url;
-        if (this.state.faviconsReachable && url) {
+        if (faviconsReachable && url) {
             const hostName = (new URL(url)).hostname;
-            return <Avatar src={ this.state.faviconsApi + hostName } className={classes.avatar} />;
+            return <Avatar src={ faviconsApi + hostName } className={classes.avatar} />;
         } else {
             return <Avatar className={classes.avatar}>{ title && title.substr(0, 1)}</Avatar>;
         }
     }
-    componentDidMount() {
-        this.testFaiconsApi();
-        this.feedList.addEventListener('scroll', this.trackScrolling);
-    }
-    isBottom(e) {
-        return e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
-    }
-    componentWillUnmount() {
-        this.feedList.removeEventListener('scroll', this.trackScrolling);
-    }
-    trackScrolling = (e) => {
-        if (this.isBottom(e) && this.props.feeds) {
-            this.setState(state => ({ page: state.page + 1 }));
-        }
-    };
-    handleItemContextMenu = (e, currentFeedItem) => {
+ 
+    const handleItemContextMenu = (e, currentFeedItem) => {
         e.preventDefault();
-        this.setState({ menuOpen: true, currentFeedItem, menuLeft: e.clientX, menuTop: e.clientY });
+        setMenuOpen(true)
+        setCurrentFeedItem(currentFeedItem)
+        setMenuLeft(e.clientX)
+        setMenuTop(e.clientY)
     }
-    handleCloseContextMenu = () => {
-        this.setState({ menuOpen: false });
+    const handleCloseContextMenu = () => {
+        setMenuOpen(false)
     }
-    handleToggleIsRead = () => {
-        const {currentFeedItem} = this.state;
-        const {setFeedReadStatus, currentChannelId} = this.props
+    const handleToggleIsRead = () => {
+        const {setFeedReadStatus, currentChannelId} = props
         setFeedReadStatus(currentFeedItem.channelId || currentChannelId, currentFeedItem.readerId, !currentFeedItem.isRead);
-        this.handleCloseContextMenu();
+        handleCloseContextMenu();
     }
-    handleChannelMenuClick = event => {
-        this.setState({ anchorEl: event.currentTarget });
+    const handleChannelMenuClick = event => {
+        setAnchorEl(event.currentTarget)
     };
-    handleChannelMenuClose = () => {
-        this.setState({ anchorEl: null });
+    const handleChannelMenuClose = () => {
+        setAnchorEl(null)
     };
-    handleMarkAllAsReadClick = () => {
-        this.props.markAllAsRead(this.props.currentChannelId);
-        this.handleChannelMenuClose();
+    const handleMarkAllAsReadClick = () => {
+        props.markAllAsRead(props.currentChannelId);
+        handleChannelMenuClose();
     };
-    handleOpenAllUnreadClick = async () => {
-        await this.props.getAllUnreadLinks()
-        if (this.props.allUnreadLinks && this.props.allUnreadLinks.length > 0) {
-            if (this.props.allUnreadLinks.length < 10) {
-                this.props.openAllUnread()
+    const handleOpenAllUnreadClick = async () => {
+        await props.getAllUnreadLinks()
+        if (props.allUnreadLinks && props.allUnreadLinks.length > 0) {
+            if (props.allUnreadLinks.length < 10) {
+                props.openAllUnread()
             } else {
-                this.setState({openAllUnreadConfirm: true})
+                setOpenAllUnreadConfirm(true)
             }
         }
-        this.handleChannelMenuClose()
+        handleChannelMenuClose()
     }
-    closeOpenAllUnreadConfirm = () => {
-        this.setState({openAllUnreadConfirm: false})
+    const closeOpenAllUnreadConfirm = () => {
+        setOpenAllUnreadConfirm(false)
     }
-    handleOpenAllUnread = () => {
-        this.props.openAllUnread()
+    const handleOpenAllUnread = () => {
+        props.openAllUnread()
     }
-    render() {
-        const { menuOpen, menuLeft, menuTop, anchorEl } = this.state;
-        const { classes, feeds, currentChannelId, channels, t } = this.props;
-        const arranged = this.state.arrangedFeeds;
-        const channelMenuOpen = Boolean(anchorEl);
-        if (this.state.refresh && this.feedList) {
-            this.feedList.scrollTop = 0;
-        }
-        return (
-            <div className={classes.root} ref={node => this.feedList = node}>
-                <Menu
-                    id="simple-menu"
-                    open={menuOpen}
-                    onClose={this.handleCloseContextMenu}
-                    anchorReference="anchorPosition"
-                    anchorPosition={{left: menuLeft, top: menuTop}}
-                    BackdropProps={{
-                        onContextMenu: e => {
-                            e.preventDefault();
-                            this.handleCloseContextMenu();
-                        },
-                        invisible: true
-                    }}
-                    >
-                    <MenuItem onClick={this.handleToggleIsRead}>{this.state.currentFeedItem && this.state.currentFeedItem.isRead ? t('Mark as unread') : t('Mark as read')}</MenuItem>
-                </Menu>
-                <Menu
-                    id="channel-menu"
-                    anchorEl={anchorEl}
-                    open={channelMenuOpen}
-                    onClose={this.handleChannelMenuClose}
-                    >
-                    <MenuItem onClick={this.handleMarkAllAsReadClick}>
-                        {t('Mark all as read')}
-                    </MenuItem>
-                    <MenuItem onClick={this.handleOpenAllUnreadClick}>
-                        {t('Open all unread')}
-                    </MenuItem>
-                </Menu>
-                <Typography variant="body2" className={ classes.feedTitle }>
-                    <div className={ classes.feedInfoContainer }>
-                        { this.renderChannelIcon(currentChannelId) }
-                        { currentChannelId === ChannelFixedID.RECENT ? t('Recent Updates') : channels.find(c => c.id === currentChannelId).name }
-                        <IconButton
-                            className={classes.channelMenuButton}
-                            aria-label="More"
-                            aria-owns={channelMenuOpen ? 'long-menu' : undefined}
-                            aria-haspopup="true"
-                            onClick={this.handleChannelMenuClick}
-                            >
-                            <MoreVertIcon />
-                        </IconButton>
-                    </div>
-                </Typography>
+
+    const channelMenuOpen = Boolean(anchorEl);
+
+    return (
+        <div className={classes.root} ref={feedList}>
+            <Menu
+                id="simple-menu"
+                open={menuOpen}
+                onClose={handleCloseContextMenu}
+                anchorReference="anchorPosition"
+                anchorPosition={{left: menuLeft, top: menuTop}}
+                BackdropProps={{
+                    onContextMenu: e => {
+                        e.preventDefault();
+                        handleCloseContextMenu();
+                    },
+                    invisible: true
+                }}
+                >
+                <MenuItem onClick={handleToggleIsRead}>{currentFeedItem && currentFeedItem.isRead ? t('Mark as unread') : t('Mark as read')}</MenuItem>
+            </Menu>
+            <Menu
+                id="channel-menu"
+                anchorEl={anchorEl}
+                open={channelMenuOpen}
+                onClose={handleChannelMenuClose}
+                >
+                <MenuItem onClick={handleMarkAllAsReadClick}>
+                    {t('Mark all as read')}
+                </MenuItem>
+                <MenuItem onClick={handleOpenAllUnreadClick}>
+                    {t('Open all unread')}
+                </MenuItem>
+            </Menu>
+            <Typography variant="body2" className={ classes.feedTitle }>
+                <div className={ classes.feedInfoContainer }>
+                    { renderChannelIcon(currentChannelId) }
+                    { currentChannelId === ChannelFixedID.RECENT ? t('Recent Updates') : channels.find(c => c.id === currentChannelId).name }
+                    <IconButton
+                        className={classes.channelMenuButton}
+                        aria-label="More"
+                        aria-owns={channelMenuOpen ? 'long-menu' : undefined}
+                        aria-haspopup="true"
+                        onClick={handleChannelMenuClick}
+                        >
+                        <MoreVertIcon />
+                    </IconButton>
+                </div>
                 <Divider />
-                { !feeds && <div class={classes.emptyMsg}>
-                    <Typography variant="caption">{t("No feeds loaded")}</Typography> 
-                </div>}
-                <List subheader={<li />}>
-                    {[...arranged].map(([index, value]) => (
-                        <li key={`dateStr-${index}`} className={classes.listSection}>
-                            <ul className={classes.ul}>
-                                <ListItem>
-                                    <ListItemText primary={t(value.dateString)}></ListItemText>
-                                    <ListItemSecondaryAction>
-                                        <IconButton className={classes.collapseIcon} onClick={() => this.handleSubheaderClick(index)}>
-                                            {this.state.collapseStatus[index] ? <ExpandLess /> : <ExpandMore />}
-                                        </IconButton>
-                                    </ListItemSecondaryAction>
-                                </ListItem>
-                                <Collapse in={!this.state.collapseStatus[index]} timeout="auto" unmountOnExit>
-                                    {value.items.sort((a, b)=> (new Date(b.isoDate) - new Date(a.isoDate))).map(feed => (
-                                        <ListItem 
-                                            button  
-                                            dense={true} 
-                                            key={`item-${feed.readerId}`} 
-                                            onClick={() => {
-                                                !feed.isRead && this.props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId, true);
-                                                this.props.openFeed(feed.readerId);
-                                                GA.sendAppView('ContentView');
-                                            }}
-                                            onContextMenu={e => this.handleItemContextMenu(e, feed)}
-                                        >
-                                            <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={<div className={classes.itemSecondaryContainer}>{feed.channelId && this.renderChannelIcon(feed.channelId)} {this.getTime(feed.isoDate, index)}</div>} />
-                                            
-                                        </ListItem>
-                                    ))}
-                                </Collapse>
-                                <Divider light />
-                            </ul>
-                        </li>
-                    ))}
-                </List>
-                {this.props.allUnreadLinks &&
-                <Dialog open={this.state.openAllUnreadConfirm}>
-                        <DialogTitle>{t("Confirm")}</DialogTitle>
-                        <DialogContent>
-                                <DialogContentText>
-                                {t("This will open all", {unreadCount: this.props.allUnreadLinks.length})}
-                                </DialogContentText>
-                        </DialogContent>
-                        <DialogActions>
-                                <Button onClick={this.closeOpenAllUnreadConfirm} color="primary">
-                                {t("Cancel")}
-                                </Button>
-                                <Button onClick={this.handleOpenAllUnread} color="primary" autoFocus>
-                                {t("OK")}
-                                </Button>
-                        </DialogActions>
-                </Dialog>}
-            </div>
-        );
-    }
+            </Typography>
+            { !props.feeds && <div class={classes.emptyMsg}>
+                <Typography variant="caption">{t("No feeds loaded")}</Typography> 
+            </div>}
+            <List subheader={<li />}>
+                {[...arrangedFeeds].map(([index, value]) => (
+                    <li key={`dateStr-${index}`} className={classes.listSection}>
+                        <ul className={classes.ul}>
+                            <ListItem>
+                                <ListItemText primary={t(value.dateString)}></ListItemText>
+                                <ListItemSecondaryAction>
+                                    <IconButton className={classes.collapseIcon} onClick={() => handleSubheaderClick(index)}>
+                                        {collapseStatus[index] ? <ExpandLess /> : <ExpandMore />}
+                                    </IconButton>
+                                </ListItemSecondaryAction>
+                            </ListItem>
+                            <Collapse in={!collapseStatus[index]} timeout="auto" unmountOnExit>
+                                {value.items.sort((a, b)=> (new Date(b.isoDate) - new Date(a.isoDate))).map(feed => (
+                                    <ListItem 
+                                        button  
+                                        dense={true} 
+                                        key={`item-${feed.readerId}`} 
+                                        onClick={() => {
+                                            !feed.isRead && props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId, true);
+                                            props.openFeed(feed.readerId);
+                                            GA.sendAppView('ContentView');
+                                        }}
+                                        onContextMenu={e => handleItemContextMenu(e, feed)}
+                                    >
+                                        <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={<div className={classes.itemSecondaryContainer}>{feed.channelId && renderChannelIcon(feed.channelId)} {getTime(feed.isoDate, index)}</div>} />
+                                        
+                                    </ListItem>
+                                ))}
+                            </Collapse>
+                            <Divider light />
+                        </ul>
+                    </li>
+                ))}
+            </List>
+            {props.allUnreadLinks &&
+            <Dialog open={openAllUnreadConfirm}>
+                    <DialogTitle>{t("Confirm")}</DialogTitle>
+                    <DialogContent>
+                            <DialogContentText>
+                            {t("This will open all", {unreadCount: props.allUnreadLinks.length})}
+                            </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                            <Button onClick={closeOpenAllUnreadConfirm} color="primary">
+                            {t("Cancel")}
+                            </Button>
+                            <Button onClick={handleOpenAllUnread} color="primary" autoFocus>
+                            {t("OK")}
+                            </Button>
+                    </DialogActions>
+            </Dialog>}
+        </div>
+    );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTranslation()(FeedList)));
+export default connect(mapStateToProps, mapDispatchToProps)(withTranslation()(FeedList));
