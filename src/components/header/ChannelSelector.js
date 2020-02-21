@@ -165,7 +165,7 @@ class ChannelSelector extends Component {
                     </div>
                 </div>
                 <Dialog
-                    open={this.props.editOpen}
+                    open={this.props.editOpen || false}
                     onClose={this.handleEditClose}
                     aria-labelledby="form-dialog-title"
                     >

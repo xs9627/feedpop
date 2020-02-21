@@ -166,9 +166,9 @@ const ChannelGestureListItem = props => {
                             height: '2em'
                         }}
                     >
-                        <ListItemIcon className={classes.editItemIcon}>
-                            {!channel.fixed && <EditIcon />}
-                        </ListItemIcon>
+                        {!channel.fixed && <ListItemIcon className={classes.editItemIcon}>
+                            <EditIcon />
+                        </ListItemIcon>}
                     </animated.div>
                     <ListItemText primary={<div className={classes.channelName}>{channel.icon} <Typography noWrap variant="body1">{channel.name}</Typography></div>} />
                     {
