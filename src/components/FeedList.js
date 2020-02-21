@@ -127,11 +127,13 @@ const FeedList = props => {
     const [currentFeedItem, setCurrentFeedItem] = useState()
     const [openAllUnreadConfirm, setOpenAllUnreadConfirm] = useState()
     const [lastChannelId, setLastChannelId] = useState()
+    const [stickyId, setStickyId] = useState()
 
     const classes = useStyles(props);
 
     const feedTitle = useRef(null)
     const feedList = useRef(null)
+    const arrangedGroups = useRef([])
 
     const {feeds, currentChannelId, channels, loadHistoryFeeds, historyFeedsLoaded, t } = props;
     
@@ -161,7 +163,6 @@ const FeedList = props => {
         }
         const trackScrolling = (e) => {
             if (isBottom(e)) {
-                console.log(123)
                 setPage(prevState => prevState + 1)
             }
         }
@@ -180,6 +181,7 @@ const FeedList = props => {
             setLastChannelId(currentChannelId)
             setCollapseStatus({})
             setPage(1)
+            setStickyId(null)
         }
         setArrangedFeeds(prevState => {
             if (feeds) {
@@ -204,6 +206,7 @@ const FeedList = props => {
                     }
                     return r;
                 }, isChannelChange ? new Map() : prevState);
+                arrangedGroups.current = [...arrangedMap].map(React.createRef)
                 return new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]))
             } else {
                 return new Map()
@@ -220,6 +223,22 @@ const FeedList = props => {
         // return {...state, arrangedFeeds: arrangeFeeds(props.feeds, state)};
     //}
     }, [feeds, page, currentChannelId, collapseStatus, historyFeedsLoaded, lastChannelId, loadHistoryFeeds])
+
+    useEffect(() => {
+        arrangedGroups.current.forEach(item => {
+            if (item.current) {
+                const observer = new IntersectionObserver(
+                    ([e]) => {
+                        if (e.intersectionRatio < 1 && e.intersectionRatio  > 0 && item.current ) {
+                            setStickyId(parseInt(item.current.getAttribute('data-id')))
+                        }
+                    },
+                    {threshold: [1]}
+                )
+                observer.observe(item.current)
+            }
+        })
+    });
 
     const getDateStr = date => {
         const itemDate = new Date(date);
@@ -264,7 +283,11 @@ const FeedList = props => {
             return { index: 13, dateString: "Older" };
         }
     }
-    const handleSubheaderClick = index => {
+    const handleSubheaderClick = (index, e) => {
+        if (index === stickyId) {
+            const groupContainer = e.currentTarget.closest(`.${classes.listSection}`)
+            groupContainer.scrollIntoView()
+        }
         const newCollapseStatus = {...collapseStatus, [index]: !collapseStatus[index]}
         if (!newCollapseStatus[index] && arrangedFeeds.get(index).items.length < props.feeds.items.reduce((r, a) => (r += getDateStr(a.isoDate).index === index ? 1 : 0), 0)) {
             arrangedFeeds.forEach((value, key) => {
@@ -279,6 +302,7 @@ const FeedList = props => {
         }
         setCollapseStatus(newCollapseStatus)
     }
+
     const getTime = (isoDate, groupIndex) => {
         if (!isNaN(new Date(isoDate))) {
             const date = new Date(isoDate);
@@ -357,12 +381,18 @@ const FeedList = props => {
     const [{ headerTop }, set] = useSpring(() => ({headerTop: 0}))
     const onListScroll = (yDirection) => {
         if (yDirection === 1 || yDirection === -1) {
-            set({headerTop: yDirection > 0 ? -1 * feedTitle.current.clientHeight : 0})    
+            set({headerTop: yDirection > 0 ? -1 * feedTitle.current.clientHeight : 0})
         }
     }
     const listScrollBind = useGesture({
         onWheel: ({direction: [, yDirection]}) => onListScroll(yDirection)
     })
+
+    /*const handleHoverHeader = (index, isHover) => {
+        if (index === stickyId) {
+            set({headerTop: isHover ? 0 : -1 * feedTitle.current.clientHeight})  
+        }
+    }*/
 
     const channelMenuOpen = Boolean(anchorEl);
 
@@ -429,20 +459,25 @@ const FeedList = props => {
                         <ul className={classes.ul}>
                             <animated.div className={classes.stickyHeader}
                                 style={{
-                                    top: headerTop.interpolate((top) => `${top + feedTitle.current.clientHeight}px`),
+                                    top: headerTop.interpolate((top) => `${top + feedTitle.current.clientHeight - 1}px`),
                                     zIndex: 1,
+                                    paddingTop: 1
                                 }}
+                                data-id={index}
+                                ref={arrangedGroups.current[index - 1]}
+                                //onMouseEnter={() => handleHoverHeader(index, true)}
+                                //onMouseLeave={() => handleHoverHeader(index, false)}
                             >
                                 <ListItem>
                                     <ListItemText primary={t(value.dateString)}></ListItemText>
                                     <ListItemSecondaryAction>
-                                        <IconButton className={classes.collapseIcon} onClick={() => handleSubheaderClick(index)}>
+                                        <IconButton className={classes.collapseIcon} onClick={e => handleSubheaderClick(index, e)}>
                                             {collapseStatus[index] ? <ExpandLess /> : <ExpandMore />}
                                         </IconButton>
                                     </ListItemSecondaryAction>
                                 </ListItem>
                             </animated.div>
-                            <Collapse in={!collapseStatus[index]} timeout="auto" unmountOnExit>
+                            <Collapse in={!collapseStatus[index]} timeout={200} unmountOnExit>
                                 {value.items.sort((a, b)=> (new Date(b.isoDate) - new Date(a.isoDate))).map(feed => (
                                     <ListItem 
                                         button  

@@ -186,7 +186,7 @@ class ChannelGestureList extends Component {
                             </Spring>
                         )
                     })}
-                    <Dialog open={this.state.deleteChannelConfirm}>
+                    <Dialog open={this.state.deleteChannelConfirm || false}>
                             <DialogTitle id="delete-channel-dialog-title">{t("Confirm")}</DialogTitle>
                             <DialogContent>
                                     <DialogContentText id="delete-channel-description">
