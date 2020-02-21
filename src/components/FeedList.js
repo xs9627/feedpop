@@ -62,8 +62,12 @@ const useStyles = makeStyles(theme => ({
         overflow: 'auto',
         wordBreak: 'break-word',
     },
+    list: {
+        backgroundColor: 'inherit',
+    },
     listSection: {
         backgroundColor: 'inherit',
+        position: 'relative',
     },
     ul: {
         backgroundColor: 'inherit',
@@ -75,6 +79,16 @@ const useStyles = makeStyles(theme => ({
         '&::before': {
             content: '"● "',
         },
+    },
+    sentinel: {
+        // background: 'yellow',
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        visibility: 'hidden',
+    },
+    sentinelBottom: {
+        bottom: 0,
     },
     feedInfoContainer: {
         padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
@@ -91,7 +105,7 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: 'inherit',
     },
     stickyShadow: {
-        boxShadow: `rgba(0, 0, 0, 0.1) 0px 1px 1px 0px`,
+        boxShadow: `rgba(0, 0, 0, 0.1) 0px 12px 24px 0px`,
     },
     feedTitle: {
         lineHeight: '16px',
@@ -135,12 +149,15 @@ const FeedList = props => {
     const [openAllUnreadConfirm, setOpenAllUnreadConfirm] = useState()
     const [lastChannelId, setLastChannelId] = useState()
     const [stickyId, setStickyId] = useState()
+    const [sentinelFired, setSentinelFired] = useState(false)
 
     const classes = useStyles(props);
 
     const feedTitle = useRef(null)
     const feedList = useRef(null)
     const arrangedGroups = useRef([])
+    const sentinelTops = useRef([])
+    const sentinelBottoms = useRef([])
 
     const {feeds, currentChannelId, channels, loadHistoryFeeds, historyFeedsLoaded, t } = props;
     
@@ -189,6 +206,7 @@ const FeedList = props => {
             setCollapseStatus({})
             setPage(1)
             setStickyId(null)
+            setSentinelFired(false)
         }
         setArrangedFeeds(prevState => {
             if (feeds) {
@@ -214,6 +232,8 @@ const FeedList = props => {
                     return r;
                 }, isChannelChange ? new Map() : prevState);
                 arrangedGroups.current = [...arrangedMap].map(React.createRef)
+                sentinelTops.current = [...arrangedMap].map(React.createRef)
+                sentinelBottoms.current = [...arrangedMap].map(React.createRef)
                 return new Map([...arrangedMap.entries()].sort((a, b) => a[0] - b[0]))
             } else {
                 return new Map()
@@ -231,25 +251,79 @@ const FeedList = props => {
     //}
     }, [feeds, page, currentChannelId, collapseStatus, historyFeedsLoaded, lastChannelId, loadHistoryFeeds])
 
+    // useEffect(() => {
+    //     arrangedGroups.current.forEach(item => {
+    //         if (item.current) {
+    //             const groupIndex = parseInt(item.current.getAttribute('data-id'))
+    //             const observer = new IntersectionObserver(
+    //                 ([e]) => {
+    //                     const {intersectionRatio} = e
+    //                     if (intersectionRatio < 1 && intersectionRatio  > 0) {
+    //                         stickyId !== groupIndex && setStickyId(groupIndex)
+    //                     } else if (stickyId){
+    //                         stickyId === groupIndex && setStickyId(null)
+    //                     }
+    //                 },
+    //                 {threshold: [1]}
+    //             )
+    //             observer.observe(item.current)
+    //         }
+    //     })
+    // });
+
     useEffect(() => {
-        arrangedGroups.current.forEach(item => {
-            if (item.current) {
-                const groupIndex = parseInt(item.current.getAttribute('data-id'))
-                const observer = new IntersectionObserver(
-                    ([e]) => {
-                        const {intersectionRatio} = e
-                        if (intersectionRatio < 1 && intersectionRatio  > 0) {
-                            stickyId !== groupIndex && setStickyId(groupIndex)
-                        } else if (stickyId){
-                            stickyId === groupIndex && setStickyId(null)
-                        }
-                    },
-                    {threshold: [1]}
-                )
-                observer.observe(item.current)
+        const topObserver = new IntersectionObserver((records, observer) => {
+            for (const record of records) {
+                const targetInfo = record.boundingClientRect;
+                const stickyTarget = record.target.parentElement.querySelector(`.${classes.stickyHeader}`);
+                const rootBoundsInfo = record.rootBounds;
+            
+                const groupId = parseInt(stickyTarget.getAttribute('data-id'))
+                if (targetInfo.bottom < rootBoundsInfo.top) {
+                    setSentinelFired(true)
+                    setStickyId(groupId)
+                }
+            
+                if (targetInfo.bottom >= rootBoundsInfo.top && targetInfo.bottom < rootBoundsInfo.bottom) {
+                    setStickyId(prevState => prevState === groupId ? null : prevState)
+                }
             }
-        })
-    });
+        }, {
+            threshold: [0],
+            root: feedList.current
+        });
+        sentinelTops.current.forEach(sentinelTop => { sentinelTop.current && topObserver.observe(sentinelTop.current)})
+        return () => {
+            sentinelTops.current.forEach(sentinelTop => { sentinelTop.current && topObserver.unobserve(sentinelTop.current)})
+        }
+    }, [arrangedFeeds, classes.stickyHeader])
+
+    useEffect(() => {
+        const observer = new IntersectionObserver((records, observer) => { 
+            for (const record of records) {
+                const targetInfo = record.boundingClientRect;
+                const stickyTarget = record.target.parentElement.querySelector(`.${classes.stickyHeader}`);
+                const rootBoundsInfo = record.rootBounds;
+                const ratio = record.intersectionRatio;
+            
+                const groupId = parseInt(stickyTarget.getAttribute('data-id'))
+                if (targetInfo.bottom > rootBoundsInfo.top && ratio === 1) {
+                    sentinelFired && setStickyId(prevState => prevState === null ? groupId : prevState)
+                }
+            
+                if (targetInfo.top < rootBoundsInfo.top && targetInfo.bottom < rootBoundsInfo.bottom) {
+                    setStickyId(prevState => prevState === groupId ? null : prevState)
+                }
+            }
+        }, {
+            threshold: [1],
+            root: feedList.current
+        });
+        sentinelBottoms.current.forEach(sentinelBottom => sentinelBottom.current && observer.observe(sentinelBottom.current))
+        return () => {
+            sentinelBottoms.current.forEach(sentinelBottom => sentinelBottom.current && observer.unobserve(sentinelBottom.current))
+        }
+    }, [arrangedFeeds, classes.stickyHeader, sentinelFired])
 
     const getDateStr = date => {
         const itemDate = new Date(date);
@@ -390,9 +464,12 @@ const FeedList = props => {
     }
 
     const [{ headerTop }, set] = useSpring(() => ({headerTop: 0}))
+    useEffect(() => {
+        set({headerTop: -1 * feedTitle.current.clientHeight})
+    }, [feedTitle, set])
     const onListScroll = (yDirection) => {
         if (yDirection === 1 || yDirection === -1) {
-            set({headerTop: yDirection > 0 ? -1 * feedTitle.current.clientHeight : 0})
+            set({headerTop: (yDirection > 0 || feedList.current.scrollTop === 0) ? -1 * feedTitle.current.clientHeight : 0})
         }
     }
     const listScrollBind = useGesture({
@@ -464,15 +541,14 @@ const FeedList = props => {
             { !props.feeds && <div class={classes.emptyMsg}>
                 <Typography variant="caption">{t("No feeds loaded")}</Typography> 
             </div>}
-            <List subheader={<li />} className={classes.listSection}>
+            <List subheader={<li />} className={classes.list}>
                 {[...arrangedFeeds].map(([index, value]) => (
                     <li key={`dateStr-${index}`} className={classes.listSection}>
                         <ul className={classes.ul}>
                             <animated.div className={classNames({[classes.stickyHeader]: true, [classes.stickyShadow]: stickyId === index})}
                                 style={{
-                                    top: headerTop.interpolate((top) => `${top + feedTitle.current.clientHeight - 1}px`),
+                                    top: headerTop.interpolate((top) => `${top + feedTitle.current.clientHeight}px`),
                                     zIndex: 1,
-                                    paddingTop: 1
                                 }}
                                 data-id={index}
                                 ref={arrangedGroups.current[index - 1]}
@@ -506,6 +582,14 @@ const FeedList = props => {
                                     </ListItem>
                                 ))}
                             </Collapse>
+                            <animated.div style={{
+                                    top: headerTop.interpolate((top) => `${-1 * (top + feedTitle.current.clientHeight)}px`),
+                                    height: 1
+                                }} className={classes.sentinel} ref={sentinelTops.current[index - 1]}/>
+                            <animated.div style={{
+                                    bottom: headerTop.interpolate((top) => `${top + feedTitle.current.clientHeight}px`),
+                                    height: arrangedGroups.current[index - 1].current && arrangedGroups.current[index - 1].current.clientHeight
+                                }} className={classes.sentinel} ref={sentinelBottoms.current[index - 1]}/>
                             <Divider light />
                         </ul>
                     </li>
