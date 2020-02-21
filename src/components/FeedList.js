@@ -82,9 +82,16 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         alignItems: 'center',
     },
+    groupHeader: {
+        paddingTop: theme.spacing.unit / 2,
+        paddingBottom: theme.spacing.unit / 2,
+    },
     stickyHeader: {
         position: 'sticky',
         backgroundColor: 'inherit',
+    },
+    stickyShadow: {
+        boxShadow: `rgba(0, 0, 0, 0.1) 0px 1px 1px 0px`,
     },
     feedTitle: {
         lineHeight: '16px',
@@ -96,7 +103,7 @@ const useStyles = makeStyles(theme => ({
         marginRight: theme.spacing.unit,
     },
     collapseIcon: {
-        padding: theme.spacing.unit,
+        padding: theme.spacing.unit / 2,
     },
     emptyMsg: {
         textAlign: 'center',
@@ -227,10 +234,14 @@ const FeedList = props => {
     useEffect(() => {
         arrangedGroups.current.forEach(item => {
             if (item.current) {
+                const groupIndex = parseInt(item.current.getAttribute('data-id'))
                 const observer = new IntersectionObserver(
                     ([e]) => {
-                        if (e.intersectionRatio < 1 && e.intersectionRatio  > 0 && item.current ) {
-                            setStickyId(parseInt(item.current.getAttribute('data-id')))
+                        const {intersectionRatio} = e
+                        if (intersectionRatio < 1 && intersectionRatio  > 0) {
+                            stickyId !== groupIndex && setStickyId(groupIndex)
+                        } else if (stickyId){
+                            stickyId === groupIndex && setStickyId(null)
                         }
                     },
                     {threshold: [1]}
@@ -457,7 +468,7 @@ const FeedList = props => {
                 {[...arrangedFeeds].map(([index, value]) => (
                     <li key={`dateStr-${index}`} className={classes.listSection}>
                         <ul className={classes.ul}>
-                            <animated.div className={classes.stickyHeader}
+                            <animated.div className={classNames({[classes.stickyHeader]: true, [classes.stickyShadow]: stickyId === index})}
                                 style={{
                                     top: headerTop.interpolate((top) => `${top + feedTitle.current.clientHeight - 1}px`),
                                     zIndex: 1,
@@ -468,8 +479,8 @@ const FeedList = props => {
                                 //onMouseEnter={() => handleHoverHeader(index, true)}
                                 //onMouseLeave={() => handleHoverHeader(index, false)}
                             >
-                                <ListItem>
-                                    <ListItemText primary={t(value.dateString)}></ListItemText>
+                                <ListItem className={classes.groupHeader}>
+                                    <ListItemText primary={<Typography variant="body2">{t(value.dateString)}</Typography>}></ListItemText>
                                     <ListItemSecondaryAction>
                                         <IconButton className={classes.collapseIcon} onClick={e => handleSubheaderClick(index, e)}>
                                             {collapseStatus[index] ? <ExpandLess /> : <ExpandMore />}
