@@ -91,8 +91,8 @@ const useStyles = makeStyles(theme => ({
         bottom: 0,
     },
     feedInfoContainer: {
-        padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-        paddingRight: '4px',
+        padding: `${theme.spacing.unit / 2}px ${theme.spacing.unit * 2}px`,
+        paddingRight: '12px',
         display: 'flex',
         alignItems: 'center',
     },
@@ -109,7 +109,7 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: 'inherit',
     },
     stickyShadow: {
-        boxShadow: `rgba(0, 0, 0, 0.1) 0px 12px 24px 0px`,
+        boxShadow: `rgba(0, 0, 0, 0.1) 0px 6px 12px 0px`,
     },
     feedTitle: {
         lineHeight: '16px',
@@ -539,7 +539,7 @@ const FeedList = props => {
                                 //onMouseLeave={() => handleHoverHeader(index, false)}
                             >
                                 <ListItem className={classes.groupHeader}>
-                            <ListItemText primary={<Typography variant="body2">{t(value.dateString)}</Typography>}></ListItemText>
+                                    <ListItemText primary={<Typography variant="body2">{t(value.dateString)}</Typography>}></ListItemText>
                                     <ListItemSecondaryAction>
                                         <IconButton className={classes.collapseIcon} onClick={e => handleSubheaderClick(index, e)}>
                                             {collapseStatus[index] ? <ExpandLess /> : <ExpandMore />}
