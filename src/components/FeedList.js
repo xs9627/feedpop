@@ -95,6 +95,7 @@ const useStyles = makeStyles(theme => ({
         paddingRight: '12px',
         display: 'flex',
         alignItems: 'center',
+        height: 48,
     },
     groupHeader: {
         paddingTop: theme.spacing.unit / 2,
@@ -447,12 +448,13 @@ const FeedList = props => {
         props.openAllUnread()
     }
 
+    const headerHeight = 48
     const [{ headerTop }, set] = useSpring(() => ({headerTop: 0}))
     const onListScroll = (yDirection) => {
         if (yDirection === 1 || yDirection === -1) {
             const scrollDown = yDirection > 0 || feedList.current.scrollTop === 0
             setScrollDown(scrollDown)
-            set({headerTop: scrollDown ? -1 * feedTitle.current.clientHeight : 0})
+            set({headerTop: scrollDown ? -1 * headerHeight : 0})
         }
     }
     const listScrollBind = useGesture({
@@ -461,7 +463,7 @@ const FeedList = props => {
 
     /*const handleHoverHeader = (index, isHover) => {
         if (index === stickyId) {
-            set({headerTop: isHover ? 0 : -1 * feedTitle.current.clientHeight})  
+            set({headerTop: isHover ? 0 : -1 * headerHeight})  
         }
     }*/
 
@@ -530,7 +532,7 @@ const FeedList = props => {
                         <ul className={classes.ul}>
                             <animated.div className={classes.stickyTitle}
                                 style={{
-                                    top: headerTop.interpolate((top) => top + feedTitle.current.clientHeight),
+                                    top: headerTop.interpolate((top) => top + headerHeight),
                                     zIndex: 1,
                                 }}
                                 // data-id={i}
@@ -566,11 +568,11 @@ const FeedList = props => {
                                 ))}
                             </Collapse>
                             <animated.div style={{
-                                    top: !scrollDown ? -1 * feedTitle.current.clientHeight : 0,
+                                    top: !scrollDown ? -1 * headerHeight : 0,
                                     height: 1,
                                 }} className={classes.sentinel} ref={sentinelTops.current[i]}/>
                             <animated.div style={{
-                                    bottom: !scrollDown ? feedTitle.current.clientHeight : 0,
+                                    bottom: !scrollDown ? headerHeight : 0,
                                     height: 10,
                                 }} className={classes.sentinel} ref={sentinelBottoms.current[i]}/>
                             <Divider light />
