@@ -288,7 +288,7 @@ const FeedList = props => {
                 const ratio = record.intersectionRatio;
             
                 // const groupId = parseInt(stickyTarget.getAttribute('data-id'))
-                if (targetInfo.bottom > rootBoundsInfo.top && targetInfo.bottom - rootBoundsInfo.top < 50 && ratio === 1) {
+                if (targetInfo.bottom < 190 && targetInfo.bottom - rootBoundsInfo.top < 50 && ratio === 1) {
                     // setStickyId(groupId)
                     sentinelFire(stickyTarget, true)
                 }
