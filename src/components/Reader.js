@@ -18,6 +18,7 @@ const mapStateToProps = state => {
         showContent: state.showContent,
         theme: state.theme,
         fontSize: state.fontSize,
+        extendView: state.extendView,
     };
 };
 
@@ -48,12 +49,12 @@ const useStyles = makeStyles(theme => ({
             outline: '1px solid slategrey',
         },
     },
-    root: {
+    root: props => ({
         height: 600,
-        minWidth: 320,
+        minWidth: `${props.extendView ? '640px' : '320px'}`,
         display: 'flex',
-        flexFlow: 'column',
-    }
+        flexFlow: `${props.extendView ? 'row' : 'column'}`,
+    })
 }));
 
 // class Reader extends Component {
