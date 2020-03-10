@@ -1,3 +1,9 @@
+## [1.2.0] - 2020-03-10
+### Added
+- Expand view
+- Open in new tab in list view
+### Chaged
+- Sticky header of channel name and date group name in list view 
 ## [1.1.5] - 2020-02-05
 ### Added
 - Open all unread feeds in new tabs
@@ -58,6 +64,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.2.0]:https://github.com/xs9627/feedpop/compare/v1.1.5...v1.2.0
 [1.1.5]:https://github.com/xs9627/feedpop/compare/v1.1.4...v1.1.5
 [1.1.4]:https://github.com/xs9627/feedpop/compare/v1.1.3...v1.1.4
 [1.1.3]:https://github.com/xs9627/feedpop/compare/v1.1.2...v1.1.3
