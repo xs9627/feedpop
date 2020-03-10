@@ -27,6 +27,7 @@ import Button from '@material-ui/core/Button';
 import { useGesture } from 'react-use-gesture'
 import { useSpring, animated } from 'react-spring'
 
+import ChromeUtil from '../utils/ChromeUtil';
 import { ChannelFixedID } from '../constants/index';
 import { setFeedReadStatus, openFeed, loadHistoryFeeds, markAllAsRead, getAllUnreadLinks, openAllUnread } from '../actions/index';
 import { withTranslation } from 'react-i18next';
@@ -425,6 +426,12 @@ const FeedList = props => {
         setFeedReadStatus(currentFeedItem.channelId || currentChannelId, currentFeedItem.readerId, !currentFeedItem.isRead);
         handleCloseContextMenu();
     }
+    const handleOpenInNewTab = () => {
+        const {setFeedReadStatus, currentChannelId} = props
+        setFeedReadStatus(currentFeedItem.channelId || currentChannelId, currentFeedItem.readerId, true);
+        ChromeUtil.openTab(currentFeedItem.link)
+        handleCloseContextMenu();
+    }
     const handleChannelMenuClick = event => {
         setAnchorEl(event.currentTarget)
     };
@@ -491,6 +498,7 @@ const FeedList = props => {
                 }}
                 >
                 <MenuItem onClick={handleToggleIsRead}>{currentFeedItem && currentFeedItem.isRead ? t('Mark as unread') : t('Mark as read')}</MenuItem>
+                <MenuItem onClick={handleOpenInNewTab}>{t('Open in new tab')}</MenuItem>
             </Menu>
             <Menu
                 id="channel-menu"
