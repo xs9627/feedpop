@@ -27,6 +27,7 @@
     "Channel maximum feeds": "Channel maximum feeds",
     "Unlimite": "Unlimite",
     "Update period (mins)": "Update period (mins)",
+    "Expand View": "Expand View",
     "Clean Cache": "Clean cache",
     "About": "About",
     "Source": "Source",
@@ -44,6 +45,8 @@
     "Restore failed": "Restore failed. Please check the backup file.",
 
     "Open in new tab": "Open in new tab",
+    "Enter expand view": "Enter expand view",
+    "Exit expand view": "Exit expand view",
     "Feed has been deleted": "Feed has been deleted",
 
     "No feeds loaded": "No feeds loaded",

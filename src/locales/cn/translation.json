@@ -27,6 +27,7 @@
     "Channel maximum feeds": "源订阅文章数",
     "Unlimite": "无限制",
     "Update period (mins)": "更新频率（分钟）",
+    "Expand View": "宽屏模式",
     "Clean Cache": "清除缓存",
     "About": "关于",
     "Source": "源代码",
@@ -44,6 +45,8 @@
     "Restore failed": "恢复失败，请检查备份文件",
 
     "Open in new tab": "在新标签页打开",
+    "Enter expand view": "进入宽屏模式",
+    "Exit expand view": "退出宽屏模式",
     "Feed has been deleted": "内容已经被删除",
 
     "No feeds loaded": "无更新内容",

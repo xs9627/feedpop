@@ -237,7 +237,7 @@ const FeedContent = props => {
                                 <OpenIcon />
                             </IconButton>
                         </Tooltip>
-                        <Tooltip title={!props.expandView ? t("Expand view") : t("Collapse view")}>
+                        <Tooltip title={!props.expandView ? t("Enter expand view") : t("Exit expand view")}>
                             <IconButton key="open" className={classes.icon} onClick={ () => props.setSettins({ expandView: !props.expandView })}>
                                 {!props.expandView ? <ArrowExpandIcon /> : <ArrowCollapseIcon />}
                             </IconButton>
