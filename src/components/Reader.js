@@ -18,7 +18,7 @@ const mapStateToProps = state => {
         showContent: state.showContent,
         theme: state.theme,
         fontSize: state.fontSize,
-        extendView: state.extendView,
+        expandView: state.expandView,
     };
 };
 
@@ -51,9 +51,9 @@ const useStyles = makeStyles(theme => ({
     },
     root: props => ({
         height: 600,
-        minWidth: `${props.extendView ? '640px' : '320px'}`,
+        minWidth: `${props.expandView ? '640px' : '320px'}`,
         display: 'flex',
-        flexFlow: `${props.extendView ? 'row' : 'column'}`,
+        flexFlow: `${props.expandView ? 'row' : 'column'}`,
     })
 }));
 

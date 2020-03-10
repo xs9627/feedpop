@@ -2,7 +2,7 @@ import React, { useEffect, useRef }  from 'react'
 import { connect } from "react-redux";
 import { makeStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
-import { closeFeed, scrollFeedContent } from '../actions/index'
+import { closeFeed, scrollFeedContent, setSettins } from '../actions/index'
 
 import { useGesture } from 'react-use-gesture'
 import { useSpring, animated } from 'react-spring'
@@ -10,6 +10,8 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import OpenIcon from '@material-ui/icons/OpenInBrowser';
+import {ArrowExpand as ArrowExpandIcon} from 'mdi-material-ui';
+import {ArrowCollapse as ArrowCollapseIcon} from 'mdi-material-ui';
 import {Qrcode as QRCodeIcon} from 'mdi-material-ui';
 import Tooltip from '@material-ui/core/Tooltip';
 import Grid from '@material-ui/core/Grid';
@@ -23,6 +25,7 @@ const mapStateToProps = state => {
     return {
         feed: (state.currentFeeds && state.currentFeeds.items.find(i => i.readerId === state.currentFeedItemId)) || { deleted: true },
         feedContentTop: state.feedContentTop,
+        expandView: state.expandView,
     };
 };
   
@@ -30,6 +33,7 @@ const mapDispatchToProps = dispatch => {
     return {
         scrollFeedContent: top => dispatch(scrollFeedContent(top)),
         closeFeed: () => dispatch(closeFeed()),
+        setSettins: settings => dispatch(setSettins(settings)),
     };
 };
 
@@ -231,6 +235,11 @@ const FeedContent = props => {
                         <Tooltip title={t("Open in new tab")}>
                             <IconButton key="open" className={classes.icon} onClick={ () => openFeed(props.feed.link)}>
                                 <OpenIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={!props.expandView ? t("Expand view") : t("Collapse view")}>
+                            <IconButton key="open" className={classes.icon} onClick={ () => props.setSettins({ expandView: !props.expandView })}>
+                                {!props.expandView ? <ArrowExpandIcon /> : <ArrowCollapseIcon />}
                             </IconButton>
                         </Tooltip>
                     </Grid>

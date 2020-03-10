@@ -26,9 +26,9 @@ import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restore
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
-    const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, extendView } = state;
+    const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView } = state;
     return {
-        config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, extendView },
+        config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView },
         logs: state.logs,
         showRestoreResult: state.tmp.showRestoreResult,
         restoreSuccess: state.tmp.restoreSuccess,
@@ -70,9 +70,9 @@ class Settings extends Component {
         this.props.setSettins({ fontSize });
     }
 
-    handleChangeExtendView = event => {
-        const extendView = event.target.checked;
-        this.props.setSettins({ extendView });
+    handleChangeexpandView = event => {
+        const expandView = event.target.checked;
+        this.props.setSettins({ expandView });
     }
 
     handleChangeKeepHistoricFeeds = event => {
@@ -216,11 +216,11 @@ class Settings extends Component {
                         </ListItemSecondaryAction>
                     </ListItem>
                     <ListItem>
-                        <ListItemText primary={t("Extend View")}></ListItemText>
+                        <ListItemText primary={t("Expand View")}></ListItemText>
                         <ListItemSecondaryAction>
                             <Switch
-                                checked={this.props.config.extendView}
-                                onChange={this.handleChangeExtendView}
+                                checked={this.props.config.expandView}
+                                onChange={this.handleChangeexpandView}
                                 color="primary"
                             />
                         </ListItemSecondaryAction>

@@ -35,7 +35,7 @@ const mapStateToProps = state => {
         isUrlInvalid: state.getComponentState(componentStateName, 'isUrlInvalid'),
         urlErrorMessage: state.getComponentState(componentStateName, 'urlErrorMessage'),
         isTourOpen: state.tourOption.isTourOpen,
-        extendView: state.extendView,
+        expandView: state.expandView,
     };
 };
 
@@ -58,10 +58,10 @@ const useStyles = makeStyles(theme => ({
       backgroundColor: theme.palette.background.paper,
       display: 'flex',
       flexDirection: 'column',
-      height: `${props.extendView ? '100%' : 'auto'}`,
+      height: `${props.expandView ? '100%' : 'auto'}`,
     }),
     list: props => ({
-        maxHeight: `${props.extendView ? 'auto' : '470px'}`,
+        maxHeight: `${props.expandView ? 'auto' : '470px'}`,
         overflowY: 'auto',
         overflowX: 'hidden',
     }),

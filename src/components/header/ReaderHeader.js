@@ -28,7 +28,7 @@ const mapStateToProps = state => {
         currentChannelId: state.currentChannelId,
         isTourOpen: state.tourOption.isTourOpen,
         channelFeedUpdating: state.channelFeedUpdating,
-        extendView: state.extendView,
+        expandView: state.expandView,
     };
 };
 
@@ -44,24 +44,24 @@ const mapDispatchToProps = dispatch => {
 
 const useStyles = makeStyles(theme => ({
     readerHeader: props => ({
-        width: `${props.extendView ? '62px' : '100%'}`,
+        width: `${props.expandView ? '62px' : '100%'}`,
         flex: '0 1 auto',
         zIndex: theme.zIndex.drawer + 1,
     }),
     actionPanel: props => ({
         width: '100%',
         background: theme.palette.background.default,
-        height: `${props.extendView ? '100%' : 'auto'}`,
-        flexFlow: `${props.extendView ? 'column' : 'row'}`,
+        height: `${props.expandView ? '100%' : 'auto'}`,
+        flexFlow: `${props.expandView ? 'column' : 'row'}`,
     }),
     menuDrawer: {
         zIndex: `${theme.zIndex.drawer} !important`,
     },
     menuContentPanel: props => ({
-        marginTop: `${props.extendView ? 'auto' : `${theme.mixins.toolbar.minHeight}px`}`,
-        marginLeft: `${props.extendView ? '62px' : 'auto'}`,
-        width: `${props.extendView ? '320px' : '100%'}`,
-        height: `${props.extendView ? '100%' : 'auto'}`,
+        marginTop: `${props.expandView ? 'auto' : `${theme.mixins.toolbar.minHeight}px`}`,
+        marginLeft: `${props.expandView ? '62px' : 'auto'}`,
+        width: `${props.expandView ? '320px' : '100%'}`,
+        height: `${props.expandView ? '100%' : 'auto'}`,
     }),
     horizonButton: {
         minWidth: 62,
@@ -152,13 +152,13 @@ const ReaderHeader = props => {
                 return null;
         };
     }
-    const {allUnreadCount, showContent, contentName, isTourOpen, channelFeedUpdating, extendView, t } = props;
+    const {allUnreadCount, showContent, contentName, isTourOpen, channelFeedUpdating, expandView, t } = props;
     
     return (
         <Paper square={true} className={classes.readerHeader}>
             <BottomNavigation value={ showContent ? contentName : null } onChange={setHeaderContent} className={classes.actionPanel}>
                 <BottomNavigationAction label={t('List')} value="List" 
-                classes={extendView && { root: classes.horizonButton, label: classes.actionLabel }}
+                classes={expandView && { root: classes.horizonButton, label: classes.actionLabel }}
                 icon={
                     !(showContent && contentName === "List") && allUnreadCount > 0 ? (
                         <Badge badgeContent={allUnreadCount < 10000 ? allUnreadCount : (
@@ -171,14 +171,14 @@ const ReaderHeader = props => {
                     ) : <List className='ListAction' />
                 } />
                 <BottomNavigationAction label={t('Update')} value="Update" icon={<Autorenew />}
-                classes={{ root: classNames({[classes.updating]: channelFeedUpdating, [classes.horizonButton]: extendView}), label: extendView && classes.actionLabel }} />
+                classes={{ root: classNames({[classes.updating]: channelFeedUpdating, [classes.horizonButton]: expandView}), label: expandView && classes.actionLabel }} />
                 {/* <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} /> */}
                 <BottomNavigationAction label={t('Settings')} value="Settings" icon={<Settings />}
-                classes={extendView && { root: `${classes.horizonButton} ${classes.horizonSettingButton}`, label: classes.actionLabel }} />
+                classes={expandView && { root: `${classes.horizonButton} ${classes.horizonSettingButton}`, label: classes.actionLabel }} />
             </BottomNavigation>
             <Drawer
                 classes={{root: classes.menuDrawer}}
-                anchor={props.extendView ? "left" : "top"}
+                anchor={props.expandView ? "left" : "top"}
                 open={showContent && contentName !== 'Update'}
                 onClose={closeActionMenu}
                 transitionDuration={isTourOpen ? 0 : 200}
