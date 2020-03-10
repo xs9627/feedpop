@@ -26,6 +26,7 @@ const mapStateToProps = state => {
         recentChannelIndex: state.recentChannelIndex,
         recentFeeds: state.recentFeeds,
         listItemHeight: state.fontSize + 32,
+        expandView: state.expandView,
     };
 }
 const mapDispatchToProps = dispatch => {
@@ -158,7 +159,7 @@ class ChannelGestureList extends Component {
         const { classes, t, listItemHeight } = this.props
         return (
             <RootRef rootRef={this.channelListContainer}>
-                <List className={classes.list} style={{height: this.getShowChannelCount() * listItemHeight + 14}} >
+                <List className={this.props.listClass} style={this.props.expandView ? {flexGrow: 1} : {height: this.getShowChannelCount() * listItemHeight + 14}} >
                     {channels.map((channel, i) => {
                         const active = originalPosOfLastPressed === i && isPressed
                         const style = active
@@ -186,7 +187,7 @@ class ChannelGestureList extends Component {
                             </Spring>
                         )
                     })}
-                    <Dialog open={this.state.deleteChannelConfirm}>
+                    <Dialog open={this.state.deleteChannelConfirm || false}>
                             <DialogTitle id="delete-channel-dialog-title">{t("Confirm")}</DialogTitle>
                             <DialogContent>
                                     <DialogContentText id="delete-channel-description">

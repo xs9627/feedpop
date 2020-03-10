@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import ChannelGestureList from './ChannelGestureList'
 import Button from '@material-ui/core/Button';
 import IconButton from '@material-ui/core/IconButton';
@@ -35,6 +35,7 @@ const mapStateToProps = state => {
         isUrlInvalid: state.getComponentState(componentStateName, 'isUrlInvalid'),
         urlErrorMessage: state.getComponentState(componentStateName, 'urlErrorMessage'),
         isTourOpen: state.tourOption.isTourOpen,
+        expandView: state.expandView,
     };
 };
 
@@ -52,15 +53,18 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-const styles = theme => ({
-    root: {
+const useStyles = makeStyles(theme => ({
+    root: props => ({
       backgroundColor: theme.palette.background.paper,
-    },
-    list: {
-        maxHeight: 470,
+      display: 'flex',
+      flexDirection: 'column',
+      height: `${props.expandView ? '100%' : 'auto'}`,
+    }),
+    list: props => ({
+        maxHeight: `${props.expandView ? 'auto' : '470px'}`,
         overflowY: 'auto',
         overflowX: 'hidden',
-    },
+    }),
     actionPanel: {
         display: 'flex',
         backgroundColor: theme.palette.background.default,
@@ -116,98 +120,98 @@ const styles = theme => ({
         marginTop: -12,
         marginLeft: -12,
     },
-});
+}));
 
-class ChannelSelector extends Component {
-    state = {};
+const ChannelSelector = props => {
+    const classes = useStyles(props);
 
-    handleAddClick = () => {
-        this.props.setComponentState(state => ({
+    const handleAddClick = () => {
+        props.setComponentState(state => ({
             isAdd: true,
             editOpen: true,
             editName: '',
             editUrl: '',
         }));
-        this.props.toggleTourOpen({isTourOpen: false});
+        props.toggleTourOpen({isTourOpen: false});
     }
-    handleEditClose = () => {
-        this.props.setComponentState({ editOpen: false, isCheckingUrl: false, isUrlInvalid: false, });
+    const handleEditClose = () => {
+        props.setComponentState({ editOpen: false, isCheckingUrl: false, isUrlInvalid: false, });
     }
-    handleEditConfirmClose = () => {
+    const handleEditConfirmClose = () => {
         const withHttp = url => !/^https?:\/\//i.test(url) ? `http://${url}` : url; 
 
-        if (this.props.isAdd) {
-            this.props.addChannel(withHttp(this.props.editUrl));
+        if (props.isAdd) {
+            props.addChannel(withHttp(props.editUrl));
         } else {
-            this.props.editChannel({
-                id: this.props.editChannelId, 
-                name: this.props.editName,
-                url: withHttp(this.props.editUrl),
+            props.editChannel({
+                id: props.editChannelId, 
+                name: props.editName,
+                url: withHttp(props.editUrl),
             });
         }
     }
-    componentDidMount = () => {
-        this.props.isTourOpen && this.props.toggleTourOpen({tourStep: 1});
-    }
-    render () {
-        const { classes, isCheckingUrl, isAdd, isUrlInvalid, t } = this.props;
-        return (
-            <div className={classes.root}>
-                <ChannelGestureList />
-                <div className={classes.actionPanel}>
-                    <div className={classes.actionRight}>
-                        <IconButton className={classes.actionButton} onClick={this.handleAddClick}>
-                            <Add fontSize="small" className="AddAction" />
-                        </IconButton>
-                        <IconButton className={classes.actionButton} onClick={this.props.toggleEditMode}>
-                            <Edit fontSize="small" className={classNames({ [classes.actionButtonIconActive]: this.props.editMode })} />
-                        </IconButton>
-                    </div>
+    const {isTourOpen, toggleTourOpen} = props
+    useEffect(() => {
+        isTourOpen && toggleTourOpen({tourStep: 1});
+    }, [isTourOpen, toggleTourOpen])
+    
+    const { isCheckingUrl, isAdd, isUrlInvalid, t } = props;
+    return (
+        <div className={classes.root}>
+            <ChannelGestureList listClass={classes.list}/>
+            <div className={classes.actionPanel}>
+                <div className={classes.actionRight}>
+                    <IconButton className={classes.actionButton} onClick={handleAddClick}>
+                        <Add fontSize="small" className="AddAction" />
+                    </IconButton>
+                    <IconButton className={classes.actionButton} onClick={props.toggleEditMode}>
+                        <Edit fontSize="small" className={classNames({ [classes.actionButtonIconActive]: props.editMode })} />
+                    </IconButton>
                 </div>
-                <Dialog
-                    open={this.props.editOpen}
-                    onClose={this.handleEditClose}
-                    aria-labelledby="form-dialog-title"
-                    >
-                    <DialogTitle id="form-dialog-title">{this.props.isAdd ? t('Add') : t('Edit')}</DialogTitle>
-                    <DialogContent>
-                        { !isAdd && <TextField
-                        autoFocus={ !isAdd }
-                        margin="dense"
-                        id="chanelName"
-                        label={t("ChannelName")}
-                        fullWidth
-                        value={this.props.editName}
-                        onChange={e => this.props.setComponentState({ editName: e.target.value })}
-                        /> }
-                        <TextField
-                        autoFocus={ isAdd }
-                        error={ isUrlInvalid }
-                        helperText={ isUrlInvalid && 'Url Invalid' }
-                        margin="dense"
-                        id="channelUrl"
-                        label={t("ChannelUrl")}
-                        fullWidth
-                        value={this.props.editUrl}
-                        onChange={e => this.props.setComponentState({ editUrl: e.target.value, isUrlInvalid: false })}
-                        />
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={this.handleEditClose} color="primary">
-                            {t("Cancel")}
-                        </Button>
-                        <div className={classes.buttonWrapper}>
-                            <Button disabled={ isCheckingUrl } onClick={this.handleEditConfirmClose} color="primary">
-                                {t('OK')}
-                            </Button>
-                            { isCheckingUrl && <CircularProgress size={24} className={classes.buttonProgress} /> }
-                        </div>
-                    </DialogActions>
-                </Dialog>
-                
             </div>
-        );
-    }
+            <Dialog
+                open={props.editOpen || false}
+                onClose={handleEditClose}
+                aria-labelledby="form-dialog-title"
+                >
+                <DialogTitle id="form-dialog-title">{props.isAdd ? t('Add') : t('Edit')}</DialogTitle>
+                <DialogContent>
+                    { !isAdd && <TextField
+                    autoFocus={ !isAdd }
+                    margin="dense"
+                    id="chanelName"
+                    label={t("ChannelName")}
+                    fullWidth
+                    value={props.editName}
+                    onChange={e => props.setComponentState({ editName: e.target.value })}
+                    /> }
+                    <TextField
+                    autoFocus={ isAdd }
+                    error={ isUrlInvalid }
+                    helperText={ isUrlInvalid && 'Url Invalid' }
+                    margin="dense"
+                    id="channelUrl"
+                    label={t("ChannelUrl")}
+                    fullWidth
+                    value={props.editUrl}
+                    onChange={e => props.setComponentState({ editUrl: e.target.value, isUrlInvalid: false })}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleEditClose} color="primary">
+                        {t("Cancel")}
+                    </Button>
+                    <div className={classes.buttonWrapper}>
+                        <Button disabled={ isCheckingUrl } onClick={handleEditConfirmClose} color="primary">
+                            {t('OK')}
+                        </Button>
+                        { isCheckingUrl && <CircularProgress size={24} className={classes.buttonProgress} /> }
+                    </div>
+                </DialogActions>
+            </Dialog>
+            
+        </div>
+    );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTranslation()(ChannelSelector)));
+export default connect(mapStateToProps, mapDispatchToProps)(withTranslation()(ChannelSelector));

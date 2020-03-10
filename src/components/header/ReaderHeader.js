@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { useRef, useEffect } from 'react';
 import classNames from 'classnames';
 import ChannelSelector from './ChannelSelector';
 import ReaderSettings from './ReaderSettings';
 
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Badge from '@material-ui/core/Badge';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
@@ -28,6 +28,7 @@ const mapStateToProps = state => {
         currentChannelId: state.currentChannelId,
         isTourOpen: state.tourOption.isTourOpen,
         channelFeedUpdating: state.channelFeedUpdating,
+        expandView: state.expandView,
     };
 };
 
@@ -41,21 +42,37 @@ const mapDispatchToProps = dispatch => {
     };
 };
 
-const styles = theme => ({
-    readerHeader: {
-        width: '100%',
+const useStyles = makeStyles(theme => ({
+    readerHeader: props => ({
+        width: `${props.expandView ? '62px' : '100%'}`,
         flex: '0 1 auto',
         zIndex: theme.zIndex.drawer + 1,
-    },
-    actionPanel: {
+    }),
+    actionPanel: props => ({
         width: '100%',
         background: theme.palette.background.default,
-    },
+        height: `${props.expandView ? '100%' : 'auto'}`,
+        flexFlow: `${props.expandView ? 'column' : 'row'}`,
+    }),
     menuDrawer: {
         zIndex: `${theme.zIndex.drawer} !important`,
     },
-    menuContentPanel: {
-        marginTop: theme.mixins.toolbar.minHeight
+    menuContentPanel: props => ({
+        marginTop: `${props.expandView ? 'auto' : `${theme.mixins.toolbar.minHeight}px`}`,
+        marginLeft: `${props.expandView ? '62px' : 'auto'}`,
+        width: `${props.expandView ? '320px' : '100%'}`,
+        height: `${props.expandView ? '100%' : 'auto'}`,
+    }),
+    horizonButton: {
+        minWidth: 62,
+        flexGrow: 0,
+        minHeight: 62,
+    },
+    horizonSettingButton: {
+        marginTop: 'auto'
+    },
+    actionLabel: {
+        fontSize: `${theme.typography.overline.fontSize} !important`,
     },
     loadingContainer: {
         display: 'flex',
@@ -75,47 +92,55 @@ const styles = theme => ({
             animation: 'rotate 1.5s ease infinite',
         },
     }
-});
-class ReaderHeader extends Component {
-    setHeaderContent = (event, contentName) => {
-        if (!this.props.showContent || this.props.contentName !== contentName) {
+}));
+
+const ReaderHeader = props => {
+    const classes = useStyles(props);
+
+    const contentNameRef = useRef();
+    useEffect(() => {
+        contentNameRef.current = props.contentName;
+    });
+
+    const setHeaderContent = (event, contentName) => {
+        if (!props.showContent || props.contentName !== contentName) {
             if (contentName === 'Update') {
-                if (!this.props.channelFeedUpdating) {
+                if (!props.channelFeedUpdating) {
                     const updateCallback = () => {
-                        if (this.props.contentName === 'Update') {
-                            this.props.closeActionMenu();
+                        if (contentNameRef.current === 'Update') {
+                            props.closeActionMenu();
                         }
                     }
-                    this.props.currentChannelId === ChannelFixedID.RECENT ? this.props.updateAllChannelsFeed().then(updateCallback) : 
-                    this.props.updateChannelFeed(this.props.currentChannelId).then(updateCallback);
+                    props.currentChannelId === ChannelFixedID.RECENT ? props.updateAllChannelsFeed().then(updateCallback) : 
+                    props.updateChannelFeed(props.currentChannelId).then(updateCallback);
                 } else {
                     return;
                 }
             } else if (contentName === 'List') {
-                this.props.setChannelSelectorEditMode(false);
+                props.setChannelSelectorEditMode(false);
             }
-            this.props.openActionMenu(contentName);
+            props.openActionMenu(contentName);
         } else {
-            this.closeActionMenu();
+            closeActionMenu();
         }
     }
-    closeActionMenu = () => {
-        this.props.closeActionMenu();
+    const closeActionMenu = () => {
+        props.closeActionMenu();
     }
-    getHeaderContent = () => {
-        switch(this.props.contentName){
+    const getHeaderContent = () => {
+        switch(props.contentName){
             case 'List': 
-                return <ChannelSelector onChange={() => { this.closeActionMenu(); }} />;
+                return <ChannelSelector onChange={() => { closeActionMenu(); }} />;
             // case 'Update': 
             //     return (
-            //         <Dialog open={this.props.showContent}>
+            //         <Dialog open={props.showContent}>
             //             <DialogContent>
-            //                 <div className={this.props.classes.loadingContainer}>
+            //                 <div className={props.classes.loadingContainer}>
             //                     <CircularProgress />
             //                 </div>
             //                 <div>
-            //                     <Button className={this.props.classes.cancelLoading} onClick={this.props.closeActionMenu} color="primary">
-            //                         {this.props.t("Cancel")}
+            //                     <Button className={props.classes.cancelLoading} onClick={props.closeActionMenu} color="primary">
+            //                         {props.t("Cancel")}
             //                     </Button>
             //                 </div>
             //             </DialogContent>
@@ -127,40 +152,43 @@ class ReaderHeader extends Component {
                 return null;
         };
     }
-    render () {
-        const { classes, allUnreadCount, showContent, contentName, isTourOpen, channelFeedUpdating, t } = this.props;
-        return (
-            <Paper square={true} className={classes.readerHeader}>
-                <BottomNavigation value={ showContent ? contentName : null } onChange={this.setHeaderContent} className={classes.actionPanel}>
-                    <BottomNavigationAction label={t('List')} value="List" icon={
-                        !(showContent && contentName === "List") && allUnreadCount > 0 ? (
-                            <Badge badgeContent={allUnreadCount < 10000 ? allUnreadCount : (
-                                <Tooltip title={allUnreadCount} enterDelay={100}>
-                                    <span>9999+</span>
-                                </Tooltip>
-                            )} max={9999} color="primary">
-                                <List className='ListAction' />
-                            </Badge>
-                        ) : <List className='ListAction' />
-                    } />
-                    <BottomNavigationAction label={t('Update')} value="Update" icon={<Autorenew />} className={classNames({[classes.updating]: channelFeedUpdating})} />
-                    {/* <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} /> */}
-                    <BottomNavigationAction label={t('Settings')} value="Settings" icon={<Settings />} />
-                </BottomNavigation>
-                <Drawer
-                    classes={{root: classes.menuDrawer}}
-                    anchor="top"
-                    open={showContent && contentName !== 'Update'}
-                    onClose={this.closeActionMenu}
-                    transitionDuration={isTourOpen ? 0 : 200}
-                >
-                    <div className={classes.menuContentPanel}>
-                        {this.getHeaderContent()}
-                    </div>
-                </Drawer>
-            </Paper>
-        );
-    }
+    const {allUnreadCount, showContent, contentName, isTourOpen, channelFeedUpdating, expandView, t } = props;
+    
+    return (
+        <Paper square={true} className={classes.readerHeader}>
+            <BottomNavigation value={ showContent ? contentName : null } onChange={setHeaderContent} className={classes.actionPanel}>
+                <BottomNavigationAction label={t('List')} value="List" 
+                classes={expandView && { root: classes.horizonButton, label: classes.actionLabel }}
+                icon={
+                    !(showContent && contentName === "List") && allUnreadCount > 0 ? (
+                        <Badge badgeContent={allUnreadCount < 10000 ? allUnreadCount : (
+                            <Tooltip title={allUnreadCount} enterDelay={100}>
+                                <span>9999+</span>
+                            </Tooltip>
+                        )} max={9999} color="primary">
+                            <List className='ListAction' />
+                        </Badge>
+                    ) : <List className='ListAction' />
+                } />
+                <BottomNavigationAction label={t('Update')} value="Update" icon={<Autorenew />}
+                classes={{ root: classNames({[classes.updating]: channelFeedUpdating, [classes.horizonButton]: expandView}), label: expandView && classes.actionLabel }} />
+                {/* <BottomNavigationAction label="Edit" value="Edit" icon={<Edit />} /> */}
+                <BottomNavigationAction label={t('Settings')} value="Settings" icon={<Settings />}
+                classes={expandView && { root: `${classes.horizonButton} ${classes.horizonSettingButton}`, label: classes.actionLabel }} />
+            </BottomNavigation>
+            <Drawer
+                classes={{root: classes.menuDrawer}}
+                anchor={props.expandView ? "left" : "top"}
+                open={showContent && contentName !== 'Update'}
+                onClose={closeActionMenu}
+                transitionDuration={isTourOpen ? 0 : 200}
+            >
+                <div className={classes.menuContentPanel}>
+                    {getHeaderContent()}
+                </div>
+            </Drawer>
+        </Paper>
+    );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(withTranslation()(ReaderHeader)));
+export default connect(mapStateToProps, mapDispatchToProps)(withTranslation()(ReaderHeader));

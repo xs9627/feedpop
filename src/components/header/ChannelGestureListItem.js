@@ -151,7 +151,7 @@ const ChannelGestureListItem = props => {
                     <RemoveIcon fontSize="small" />
                 </Fab>
             </ListItem>
-            <animated.div {...bind()} className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`) }}>
+            <animated.div {...bind()} className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`), width: x.interpolate(x => `calc(100% - ${x}px)`) }}>
                 <ListItem button
                     key={channel.id}
                     className={classes.listItem}
@@ -166,9 +166,9 @@ const ChannelGestureListItem = props => {
                             height: '2em'
                         }}
                     >
-                        <ListItemIcon className={classes.editItemIcon}>
-                            {!channel.fixed && <EditIcon />}
-                        </ListItemIcon>
+                        {!channel.fixed && <ListItemIcon className={classes.editItemIcon}>
+                            <EditIcon />
+                        </ListItemIcon>}
                     </animated.div>
                     <ListItemText primary={<div className={classes.channelName}>{channel.icon} <Typography noWrap variant="body1">{channel.name}</Typography></div>} />
                     {

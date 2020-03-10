@@ -123,6 +123,7 @@ const initialState = {
     showRecentUpdate: true,
     currentChannelId: ChannelFixedID.RECENT,
     tourOption: {},
+    expandView: false,
     tmp: {},
     ...defaultState,
     getComponentState(componentName, stateName) {
