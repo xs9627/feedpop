@@ -184,7 +184,6 @@ const FeedContent = props => {
 
     const getTitleOpacity = (top) => {
         const showTitleTop = 50
-        const showDelta = 50
         const calTop = top - showTitleTop
         const ttitleOpacity = calTop > 0 ? 1 : 0
         return {titleOpacity: ttitleOpacity, titleCursor: ttitleOpacity === 1 ? 'auto': 'default'}
