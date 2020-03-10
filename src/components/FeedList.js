@@ -164,6 +164,11 @@ const FeedList = props => {
     const sentinelTops = useRef([])
     const sentinelBottoms = useRef([])
 
+    const allUnreadLinksRef = useRef();
+    useEffect(() => {
+        allUnreadLinksRef.current = props.allUnreadLinks;
+    });
+
     const {feeds, currentChannelId, channels, loadHistoryFeeds, historyFeedsLoaded, t } = props;
     
     //getDerivedStateFromProps(props, state) {
@@ -432,8 +437,8 @@ const FeedList = props => {
     };
     const handleOpenAllUnreadClick = async () => {
         await props.getAllUnreadLinks()
-        if (props.allUnreadLinks && props.allUnreadLinks.length > 0) {
-            if (props.allUnreadLinks.length < 10) {
+        if (allUnreadLinksRef.current && allUnreadLinksRef.current.length > 0) {
+            if (allUnreadLinksRef.current.length < 10) {
                 props.openAllUnread()
             } else {
                 setOpenAllUnreadConfirm(true)
