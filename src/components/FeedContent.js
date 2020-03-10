@@ -186,7 +186,7 @@ const FeedContent = props => {
         const showTitleTop = 50
         const showDelta = 50
         const calTop = top - showTitleTop
-        const ttitleOpacity = calTop > 0 ? (calTop < showDelta ? calTop / showTitleTop : 1) : 0
+        const ttitleOpacity = calTop > 0 ? 1 : 0
         return {titleOpacity: ttitleOpacity, titleCursor: ttitleOpacity === 1 ? 'auto': 'default'}
     }
     const [{ titleOpacity, titleCursor }, contentScrollSet] = useSpring(() => (getTitleOpacity(feedContentTop)))
