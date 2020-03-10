@@ -151,7 +151,7 @@ const ChannelGestureListItem = props => {
                     <RemoveIcon fontSize="small" />
                 </Fab>
             </ListItem>
-            <animated.div {...bind()} className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`) }}>
+            <animated.div {...bind()} className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`), width: x.interpolate(x => `calc(100% - ${x}px)`) }}>
                 <ListItem button
                     key={channel.id}
                     className={classes.listItem}
