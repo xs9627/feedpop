@@ -429,7 +429,7 @@ const FeedList = props => {
     const handleOpenInNewTab = () => {
         const {setFeedReadStatus, currentChannelId} = props
         setFeedReadStatus(currentFeedItem.channelId || currentChannelId, currentFeedItem.readerId, true);
-        ChromeUtil.openTab(currentFeedItem.link)
+        ChromeUtil.openTab(currentFeedItem.link, false)
         handleCloseContextMenu();
     }
     const handleChannelMenuClick = event => {
@@ -572,6 +572,11 @@ const FeedList = props => {
                                             !feed.isRead && props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId, true);
                                             props.openFeed(feed.readerId);
                                             GA.sendAppView('ContentView');
+                                        }}
+                                        onMouseDown={e => {
+                                            if (e.nativeEvent.button === 1) {
+                                                ChromeUtil.openTab(feed.link, false)
+                                            }
                                         }}
                                         onContextMenu={e => handleItemContextMenu(e, feed)}
                                     >
