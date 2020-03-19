@@ -633,6 +633,9 @@ const rootReducer = (state = initialState, action) => {
         case types.CHECK_ALL_HISTORY_UNREAD: {
             return {...state, tmp: {...state.tmp, allUnreadLinks: [...state.tmp.allUnreadLinks, ...action.payload.historyFeeds.items.filter(i => !i.isRead).map(i => i.link).flat()]}}
         }
+        case types.TOGGLE_OPEN_ALL_UNREAD_CONFIRM: {
+            return {...state, showOpenAllUnreadConfirm: !state.showOpenAllUnreadConfirm}
+        }
         default:
             return state;
     }
