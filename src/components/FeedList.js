@@ -42,7 +42,7 @@ const mapStateToProps = state => {
         feeds: state.currentFeeds,
         needResetChannelList: state.tmp.needResetChannelList,
         allUnreadLinks: state.tmp.allUnreadLinks,
-        showOpenAllUnreadConfirm: state.showOpenAllUnreadConfirm,
+        showOpenAllUnreadConfirm: state.tmp.showOpenAllUnreadConfirm,
     };
 };
 
