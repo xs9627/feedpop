@@ -10962,10 +10962,10 @@ react-transition-group@^4.3.0:
     loose-envify "^1.4.0"
     prop-types "^15.6.2"
 
-react-use-gesture@^7.0.6:
-  version "7.0.6"
-  resolved "https://registry.yarnpkg.com/react-use-gesture/-/react-use-gesture-7.0.6.tgz#c3bd1f711401a5b591995467fbdf22b988e70a5d"
-  integrity sha512-JARLfiF1h9JYbB5FTCADMAsYtYjaDN2IVRDvk51n+8YtgQveJdw8AKvzkJSCd6YgJAmJ8qJsVQoIWWz2cJerVg==
+react-use-gesture@^7.0.8:
+  version "7.0.8"
+  resolved "https://registry.yarnpkg.com/react-use-gesture/-/react-use-gesture-7.0.8.tgz#0a0663d96ab375b14a8e9126287187390995e454"
+  integrity sha512-Fy50US06pVkfsIEKDV18v3835Xa65/3QH9gDYRStjCgM273jnaH8WUsx4UxUag/NgevLnB3RPePUHkxtJheoSw==
 
 react@^16.13.1:
   version "16.13.1"
