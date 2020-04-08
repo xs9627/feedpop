@@ -272,6 +272,17 @@ export const restoreConfig = file => async (dispatch, getState) => {
 
 export const closeRestoreResult = () => ({ type: types.CLOSE_RESTORE_RESULT });
 
+export const confirmOpenAllUnread = () => async (dispatch, getState) => {
+    await dispatch(getAllUnreadLinks())
+    if (getState().tmp.allUnreadLinks.length > 0) {
+        if (getState().tmp.allUnreadLinks.length < 10) {
+            await dispatch(openAllUnread(false))
+        } else {
+            dispatch(toggleOpenAllUnreadConfirm())
+        }
+    }
+}
+
 export const getAllUnreadLinks = () => async (dispatch, getState) => {
     dispatch({type: types.CHECK_ALL_UNREAD})
     if (getState().tmp.needLoadHistory) {
@@ -280,11 +291,13 @@ export const getAllUnreadLinks = () => async (dispatch, getState) => {
     }
 }
 
-export const openAllUnread = () => async (dispatch, getState) => {
-    await dispatch(getAllUnreadLinks())
+export const openAllUnread = reloadAllUnreadLinks => async (dispatch, getState) => {
+    reloadAllUnreadLinks && await dispatch(getAllUnreadLinks())
     await dispatch(markAllAsRead(getState().currentChannelId))
     getState().tmp.allUnreadLinks.forEach(url => ChromeUtil.openTab(url))
 }
+
+export const toggleOpenAllUnreadConfirm = () => ({type: types.TOGGLE_OPEN_ALL_UNREAD_CONFIRM})
 
 export const triggerAction = type => async (dispatch, getState) => {
     switch(type) {

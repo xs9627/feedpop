@@ -57,8 +57,8 @@ let ChromeUtil = {
             });
         });
     },
-    openTab: url => {
-        chrome.tabs.create({url:url});
+    openTab: (url, active = true) => {
+        chrome.tabs.create({url, active});
     },
     connect: (state, receiveMessage) => {
         const port = chrome.runtime.connect({name: "reader"});

@@ -1,3 +1,8 @@
+## [1.2.1] - 2020-04-08
+### Added
+- Middle click to open in new tab
+### Changed
+- Fix open all unread feeds in recent updates
 ## [1.2.0] - 2020-03-10
 ### Added
 - Expand view
@@ -64,6 +69,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.2.1]:https://github.com/xs9627/feedpop/compare/v1.2.0...v1.2.1
 [1.2.0]:https://github.com/xs9627/feedpop/compare/v1.1.5...v1.2.0
 [1.1.5]:https://github.com/xs9627/feedpop/compare/v1.1.4...v1.1.5
 [1.1.4]:https://github.com/xs9627/feedpop/compare/v1.1.3...v1.1.4

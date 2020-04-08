@@ -29,7 +29,7 @@ import { useSpring, animated } from 'react-spring'
 
 import ChromeUtil from '../utils/ChromeUtil';
 import { ChannelFixedID } from '../constants/index';
-import { setFeedReadStatus, openFeed, loadHistoryFeeds, markAllAsRead, getAllUnreadLinks, openAllUnread } from '../actions/index';
+import { setFeedReadStatus, openFeed, loadHistoryFeeds, markAllAsRead, getAllUnreadLinks, openAllUnread, confirmOpenAllUnread, toggleOpenAllUnreadConfirm } from '../actions/index';
 import { withTranslation } from 'react-i18next';
 import GA from '../utils/GA';
 
@@ -42,6 +42,7 @@ const mapStateToProps = state => {
         feeds: state.currentFeeds,
         needResetChannelList: state.tmp.needResetChannelList,
         allUnreadLinks: state.tmp.allUnreadLinks,
+        showOpenAllUnreadConfirm: state.tmp.showOpenAllUnreadConfirm,
     };
 };
 
@@ -52,7 +53,9 @@ const mapDispatchToProps = dispatch => {
         loadHistoryFeeds: () => dispatch(loadHistoryFeeds()),
         markAllAsRead: channelId => dispatch(markAllAsRead(channelId)),
         getAllUnreadLinks: () => dispatch(getAllUnreadLinks()),
-        openAllUnread: () => dispatch(openAllUnread()),
+        openAllUnread: () => dispatch(openAllUnread(true)),
+        confirmOpenAllUnread: () => dispatch(confirmOpenAllUnread()),
+        toggleOpenAllUnreadConfirm: () => dispatch(toggleOpenAllUnreadConfirm()),
     };
 };
 
@@ -152,7 +155,6 @@ const FeedList = props => {
     const [menuTop, setMenuTop] = useState()
     const [faviconsApi, setFaviconsApi] = useState()
     const [currentFeedItem, setCurrentFeedItem] = useState()
-    const [openAllUnreadConfirm, setOpenAllUnreadConfirm] = useState()
     const [lastChannelId, setLastChannelId] = useState()
     // const [stickyId, setStickyId] = useState()
     const [scrollDown, setScrollDown] = useState(true)
@@ -164,11 +166,6 @@ const FeedList = props => {
     const arrangedGroups = useRef([])
     const sentinelTops = useRef([])
     const sentinelBottoms = useRef([])
-
-    const allUnreadLinksRef = useRef();
-    useEffect(() => {
-        allUnreadLinksRef.current = props.allUnreadLinks;
-    });
 
     const {feeds, currentChannelId, channels, loadHistoryFeeds, historyFeedsLoaded, t } = props;
     
@@ -429,7 +426,7 @@ const FeedList = props => {
     const handleOpenInNewTab = () => {
         const {setFeedReadStatus, currentChannelId} = props
         setFeedReadStatus(currentFeedItem.channelId || currentChannelId, currentFeedItem.readerId, true);
-        ChromeUtil.openTab(currentFeedItem.link)
+        ChromeUtil.openTab(currentFeedItem.link, false)
         handleCloseContextMenu();
     }
     const handleChannelMenuClick = event => {
@@ -442,19 +439,12 @@ const FeedList = props => {
         props.markAllAsRead(props.currentChannelId);
         handleChannelMenuClose();
     };
-    const handleOpenAllUnreadClick = async () => {
-        await props.getAllUnreadLinks()
-        if (allUnreadLinksRef.current && allUnreadLinksRef.current.length > 0) {
-            if (allUnreadLinksRef.current.length < 10) {
-                props.openAllUnread()
-            } else {
-                setOpenAllUnreadConfirm(true)
-            }
-        }
+    const handleOpenAllUnreadClick = () => {
+        props.confirmOpenAllUnread()
         handleChannelMenuClose()
     }
     const closeOpenAllUnreadConfirm = () => {
-        setOpenAllUnreadConfirm(false)
+        props.toggleOpenAllUnreadConfirm()
     }
     const handleOpenAllUnread = () => {
         props.openAllUnread()
@@ -573,6 +563,12 @@ const FeedList = props => {
                                             props.openFeed(feed.readerId);
                                             GA.sendAppView('ContentView');
                                         }}
+                                        onMouseDown={e => {
+                                            if (e.nativeEvent.button === 1) {
+                                                !feed.isRead && props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId, true);
+                                                ChromeUtil.openTab(feed.link, false)
+                                            }
+                                        }}
                                         onContextMenu={e => handleItemContextMenu(e, feed)}
                                     >
                                         <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={<div className={classes.itemSecondaryContainer}>{feed.channelId && renderChannelIcon(feed.channelId)} {getTime(feed.isoDate, index)}</div>} />
@@ -594,7 +590,7 @@ const FeedList = props => {
                 ))}
             </List>
             {props.allUnreadLinks &&
-            <Dialog open={openAllUnreadConfirm}>
+            <Dialog open={props.showOpenAllUnreadConfirm}>
                     <DialogTitle>{t("Confirm")}</DialogTitle>
                     <DialogContent>
                             <DialogContentText>
