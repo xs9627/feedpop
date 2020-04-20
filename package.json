@@ -8,7 +8,7 @@
     "classnames": "^2.2.6",
     "i": "^0.3.6",
     "i18next": "^19.4.2",
-    "i18next-browser-languagedetector": "^4.0.2",
+    "i18next-browser-languagedetector": "^4.1.1",
     "lodash.range": "^3.2.0",
     "mdi-material-ui": "^6.13.2",
     "npm": "^6.14.4",
