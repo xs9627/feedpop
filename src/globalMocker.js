@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 /* global chrome */
 chrome.runtime.getManifest.returns({version: "1.*.*"});
 chrome.runtime.connect.returns({onMessage: { addListener: () => {}}});
@@ -13,7 +15,7 @@ const mockFeedItem = i => ({
   "isoDate": new Date(new Date() - 1000 * 60 * 60 * i).toISOString(),
   "link": `http://daily.zhihu.com/story/9664845-test-${i}`,
   "pubDate": new Date(new Date() - 1000 * 60 * 60 * i).toISOString(),
-  "readerId": require('uuid/v4')(),
+  "readerId": uuidv4(),
   "title": `从小到大，这些谣言让我深受其害-test-${i}`
 });
 const mockFeedItem2 = i => ({
@@ -23,7 +25,7 @@ const mockFeedItem2 = i => ({
   "isoDate": new Date(new Date() - 1000 * 60 * 60 * i).toISOString(),
   "link": `https://sourceforge.net/projects/arrow-os/files/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181210.zip/download-test-${i}`,
   "pubDate": new Date(new Date() - 1000 * 60 * 60 * i).toISOString(),
-  "readerId": require('uuid/v4')(),
+  "readerId": uuidv4(),
   "title": `/arrow-9.x/whyred/Arrow-v9.0-whyred-OFFICIAL-20181210.zip-test-${i}`
 });
 
