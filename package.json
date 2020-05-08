@@ -22,7 +22,7 @@
     "react-use-gesture": "^7.0.15",
     "reactour": "https://github.com/xs9627/reactour/tarball/test",
     "redux-thunk": "^2.3.0",
-    "rss-parser": "https://github.com/xs9627/rss-parser/tarball/master",
+    "rss-parser": "https://github.com/xs9627/rss-parser/tarball/v3.8.0.0",
     "sinon-chrome": "^3.0.1",
     "styled-components": "^5.1.0",
     "typeface-roboto-material": "0.0.1",
