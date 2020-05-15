@@ -12,4 +12,4 @@ Install in chrome web store: https://chrome.google.com/webstore/detail/feedpop-s
 Load unpacked extension manually: https://github.com/xs9627/feedpop/releases
 
 [CHANGELOG]: ./CHANGELOG.md
-[version-badge]: https://img.shields.io/badge/version-1.2.1-blue.svg
+[version-badge]: https://img.shields.io/badge/version-1.2.2-blue.svg
