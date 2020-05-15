@@ -567,6 +567,7 @@ const FeedList = props => {
                                             if (e.nativeEvent.button === 1) {
                                                 !feed.isRead && props.setFeedReadStatus(feed.channelId || currentChannelId, feed.readerId, true);
                                                 ChromeUtil.openTab(feed.link, false)
+                                                e.preventDefault()
                                             }
                                         }}
                                         onContextMenu={e => handleItemContextMenu(e, feed)}

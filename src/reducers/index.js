@@ -1,10 +1,10 @@
 import * as types from "../constants/action-types";
 import {ChannelFixedID} from "../constants/index";
 import ChromeUtil from "../utils/ChromeUtil";
+import { v4 as uuidv4 } from 'uuid';
 
 const recentCount = 30;
 const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds) => {
-    const uuidv4 = require('uuid/v4');
     if (oldFeed) {
         const mergedItems = !keepHistoricFeeds ? [...oldFeed.items.filter(i => newFeed.items.some(j => i.link === j.link))] : [...oldFeed.items];
         newFeed.items.forEach((ni, i) => {
@@ -194,13 +194,12 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.ADD_CHANNEL: {
             const { channel, feeds } = action.payload;
-            channel.id = require('uuid/v4')();
+            channel.id = uuidv4();
             channel.unreadCount = feeds.items.length;
             const splitedFeeds = splitFeedsToRecent(feeds);
             const recentFeeds = [...state.recentFeeds, {channelId: channel.id, feed: splitedFeeds[0]}];
             const updated = { recentFeeds, mergedFeed:splitedFeeds[1], channels: [...state.channels, channel], allUnreadCount: (state.allUnreadCount || 0) + channel.unreadCount };
             feeds.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
-            const uuidv4 = require('uuid/v4');
             feeds.items.forEach((item, i) => {
                 if (!item.readerId) {
                     item.readerId = uuidv4();

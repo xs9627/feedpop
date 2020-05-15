@@ -1,11 +1,12 @@
-/* global RSSParser */
-import 'rss-parser/dist/rss-parser.min.js';
+import Parser from 'rss-parser/dist/rss-parser.min.js';
 import * as types from "../constants/action-types";
 import ChromeUtil from '../utils/ChromeUtil';
 
 const fetchFeed = url => {
     return new Promise((resolve, reject) => {
-        let parser = new RSSParser();
+        let parser = new Parser({
+            timeout: 30000,
+        });
         parser.parseURL(url, (err, feed) => {
             if(err) {
                 reject(err);

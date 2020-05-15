@@ -1,3 +1,6 @@
+## [1.2.2] - 2020-05-15
+### Changed
+- Fix scroll caused by middle click
 ## [1.2.1] - 2020-04-08
 ### Added
 - Middle click to open in new tab
