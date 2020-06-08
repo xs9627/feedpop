@@ -10,7 +10,7 @@
     "i18next": "^19.4.5",
     "i18next-browser-languagedetector": "^4.2.0",
     "lodash.range": "^3.2.0",
-    "mdi-material-ui": "^6.15.0",
+    "mdi-material-ui": "^6.16.0",
     "npm": "^6.14.5",
     "qrcode.react": "^1.0.0",
     "react": "^16.13.1",
