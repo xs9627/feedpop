@@ -1,19 +1,14 @@
 /* global chrome */
 import store from './store/index';
-import { syncState, updateChannelFeed, updateLastActiveTime, cleanCache, markAllChannelAsRead, saveConfig } from './actions/index';
-import { BACKGROUND_UPDATE_CHANNEL } from './constants/action-types';
+import { syncState, updateAllChannelsFeed, updateLastActiveTime, cleanCache, markAllChannelAsRead, saveConfig, setFeedReadStatus } from './actions/index';
+import { BACKGROUND_UPDATE_CHANNEL, CLEAR_NOTIFICATION } from './constants/action-types';
 import ChromeUtil from './utils/ChromeUtil';
 
 const ports = [];
-const refreshAll = state => {
-    const promises = [];
-    state.channels.forEach(channel => {
-        promises.push(store.dispatch(updateChannelFeed(channel.id)));
-    });
-    Promise.all(promises).then(() => {
-        ports.forEach(port => {
-            port.postMessage({ type: BACKGROUND_UPDATE_CHANNEL });
-        });
+const refreshAll = async () => {
+    await store.dispatch(updateAllChannelsFeed(true))
+    ports.forEach(port => {
+        port.postMessage({ type: BACKGROUND_UPDATE_CHANNEL });
     });
 }
 chrome.runtime.onInstalled.addListener(() => {
@@ -24,7 +19,7 @@ chrome.runtime.onInstalled.addListener(() => {
         chrome.contextMenus.removeAll();
         chrome.contextMenus.create({id: "markAllAsRead", "title": chrome.i18n.getMessage('markAllAsRead'), contexts: ["browser_action"]});
         chrome.contextMenus.create({id: "cleanCache", "title": chrome.i18n.getMessage('cleanCache'), contexts: ["browser_action"]});
-        refreshAll(state);
+        refreshAll();
         ChromeUtil.recreateAlarm("refreshAll", state.refreshPeriod);
     });
 });
@@ -33,12 +28,25 @@ chrome.alarms.onAlarm.addListener(alarm => {
     if (alarm.name === "refreshAll") {
         console.log('Starting update all channels - ' + Date());
         store.dispatch(syncState(true)).then(() => {
-            const state = store.getState();
             //store.dispatch(log('Starting update all channels'));
-            refreshAll(state);
+            refreshAll();
         });
     }
 });
+
+chrome.notifications.onClicked.addListener(notificationId => {
+    store.dispatch(syncState(true)).then(() => {
+        const notification = store.getState().notifications.find(n => n.id === notificationId)
+        if (notification && notification.data) {
+            const {link, readerId, channelId} = notification.data
+            if (link) {
+                ChromeUtil.openTab(link)
+                store.dispatch(setFeedReadStatus(channelId, readerId))
+            }
+        }
+        store.dispatch({type: CLEAR_NOTIFICATION, payload: {id: notificationId}})
+    })
+})
 
 chrome.runtime.onConnect.addListener(externalPort => {
     ports.push(externalPort);

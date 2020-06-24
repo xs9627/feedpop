@@ -17,7 +17,7 @@ const fetchFeed = url => {
     });
 }
 
-const updateSingleChannelFeed = async (id, dispatch, getState) => {
+const updateSingleChannelFeed = async (id, dispatch, getState, isBackground) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
     const channel = getState().channels.find(c => c.id === id);
     let feeds;
@@ -29,8 +29,9 @@ const updateSingleChannelFeed = async (id, dispatch, getState) => {
         return;
     }
     const oldFeeds = await getChannelFeeds(id);
-    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
+    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id, isBackground } });
     await saveChannelFeeds(id, getState().mergedFeed);
+    return {channelId: id, updatedFeeds: getState().updatedFeeds}
 }
 
 const getChannelFeeds = channelId => {
@@ -104,14 +105,48 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
     await updateSingleChannelFeed(id, dispatch, getState);
     dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
-export const updateAllChannelsFeed = () => async (dispatch, getState) => {
+export const updateAllChannelsFeed = isBackground => async (dispatch, getState) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
+    if (isBackground) {
+        dispatch({type: types.CREATE_UPDATE_HISTORY});
+    }
     const promises = [];
     getState().channels.forEach(channel => {
-        promises.push(updateSingleChannelFeed(channel.id, dispatch, getState));
+        promises.push(updateSingleChannelFeed(channel.id, dispatch, getState, isBackground));
     });
-    await Promise.all(promises);
-    await dispatch(setCurrentFeeds());
+    const updateFeeds = await Promise.all(promises);
+    if (!isBackground) {
+        await dispatch(setCurrentFeeds());
+    } else {
+        const allUpdateFeedsList = getState().updateHistory.map(auf => ({...auf, channelName: getState().channels.find(c => c.id === auf.channelId).name}) )
+            .flatMap(({channelId, channelName, updatedFeeds}) => updatedFeeds.map(uf => ({channelId, channelName, ...uf})))
+            .sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
+        if (allUpdateFeedsList.length > 0) {
+            allUpdateFeedsList.forEach(f => {
+                ChromeUtil.createNotification('', {
+                    type: "basic", 
+                    iconUrl: "icon128.png", 
+                    title: f.channelName, 
+                    message: f.content,
+                    contextMessage: f.title,
+                }, notificationId => {
+                    dispatch({type: types.CREATE_NOTIFICATION, payload: {
+                        id: notificationId,
+                        data: {link: f.link, readerId: f.readerId, channelId: f.channelId}
+                    }})
+                })
+                
+            })
+            // ChromeUtil.createNotification(latestUpdateHistory.id, {
+            //     type: "basic", 
+            //     iconUrl: "icon128.png", 
+            //     title: allUpdateFeedsList.length + " Updated", 
+            //     message: allUpdateFeedsList[0].channelName,
+            //     contextMessage: allUpdateFeedsList[0].title
+            // })
+            // dispatch({type: types.CREATE_NOTIFICATION, payload: {id: latestUpdateHistory.id, link: allUpdateFeedsList[0].link}})
+        }
+    }
     dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
 export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (dispatch, getState) => {

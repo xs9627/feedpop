@@ -83,7 +83,13 @@ let ChromeUtil = {
     },
     download: config => {
         chrome.downloads.download(config);
-    }
+    },
+    createNotification: (id, options, callback) => {
+        chrome.notifications.create(id, options, callback)
+    },
+    clearNotification: (id, callback) => {
+        chrome.notifications.clear(id, callback)
+    },
 };
 
 export default ChromeUtil;

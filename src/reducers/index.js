@@ -4,16 +4,21 @@ import ChromeUtil from "../utils/ChromeUtil";
 import { v4 as uuidv4 } from 'uuid';
 
 const recentCount = 30;
-const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds) => {
+const notificationCount = 100;
+const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds, updatedFeeds) => {
     if (oldFeed) {
         const mergedItems = !keepHistoricFeeds ? [...oldFeed.items.filter(i => newFeed.items.some(j => i.link === j.link))] : [...oldFeed.items];
         newFeed.items.forEach((ni, i) => {
             if (!mergedItems.find(mi => mi.link === ni.link)) {
-                mergedItems.push({
+                const item = {
                     ...ni,
                     readerId: uuidv4(),
                     isoDate: isInvalidDateStr(ni.isoDate) ? getIsoDateNow(i) : ni.isoDate
-                });
+                }
+                mergedItems.push(item);
+                updatedFeeds.push({readerId: item.readerId, title: item.title, isoDate: item.isoDate, link: item.link,
+                    content: extractContent(item.content).substring(0, 100)
+                })
             }
         });
         newFeed.items = mergedItems;
@@ -25,11 +30,17 @@ const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds) => {
             if (isInvalidDateStr(item.isoDate)) {
                 item.isoDate = getIsoDateNow(i);
             }
+            updatedFeeds.push({readerId: item.readerId, title: item.title, isoDate: item.isoDate, link: item.link})
         });
     }
 
     newFeed.items.sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
 }
+const extractContent = (s) => {
+    var span = document.createElement('span');
+    span.innerHTML = s;
+    return span.textContent || span.innerText;
+};
 
 const isInvalidDateStr = dateStr => {
     return isNaN(new Date(dateStr));
@@ -124,6 +135,7 @@ const initialState = {
     currentChannelId: ChannelFixedID.RECENT,
     tourOption: {},
     expandView: false,
+    notifications: [],
     tmp: {},
     ...defaultState,
     getComponentState(componentName, stateName) {
@@ -291,12 +303,13 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, {channelFeedUpdating: false});
         }
         case types.UPDATE_CHANNEL_FEED: {
-            const { feeds, oldFeeds, channelId} = action.payload;
+            const { feeds, oldFeeds, channelId, isBackground} = action.payload;
             const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === channelId);
             const oldFeedsWithRecent = recentChannelFeeds ? 
             (oldFeeds ? {...recentChannelFeeds.feed, items: [...recentChannelFeeds.feed.items, ...oldFeeds.items]} : recentChannelFeeds.feed)
             : oldFeeds;
-            mergeFeed(oldFeedsWithRecent, feeds, state.keepHistoricFeeds);
+            const updatedFeeds = []
+            mergeFeed(oldFeedsWithRecent, feeds, state.keepHistoricFeeds, updatedFeeds);
             if (state.maxFeedsCount && state.maxFeedsCount > 0) {
                 feeds.items = feeds.items.slice(0, state.maxFeedsCount);
             }
@@ -306,7 +319,29 @@ const rootReducer = (state = initialState, action) => {
                 recentFeeds,
                 currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds,
                 mergedFeed: splitedFeeds[1],
+                updatedFeeds,
+                updateHistory: !isBackground ? state.updateHistory : [{channelId, updatedFeeds}, ...state.updateHistory],
                 ...updateUnreadCount(feeds, state.channels, channelId) 
+            });
+        }
+        case types.CREATE_UPDATE_HISTORY: {
+            return persistence(state, {
+                updateHistory: []
+            });
+        }
+        case types.CREATE_NOTIFICATION: {
+            const { id, data } = action.payload;
+            const notifications = [{id, data}, ...state.notifications]
+            notifications.slice(notificationCount).forEach(n => ChromeUtil.clearNotification(n.id))
+            return persistence(state, {
+                notifications: notifications.slice(0, notificationCount)
+            });
+        }
+        case types.CLEAR_NOTIFICATION: {
+            const { id } = action.payload;
+            ChromeUtil.clearNotification(id)
+            return persistence(state, {
+                notifications: state.notifications.filter(n => n.id !==id)
             });
         }
         case types.SET_FEED_READ_STATUS: {
