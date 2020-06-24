@@ -84,11 +84,27 @@ let ChromeUtil = {
     download: config => {
         chrome.downloads.download(config);
     },
-    createNotification: (id, options, callback) => {
-        chrome.notifications.create(id, options, callback)
+    createNotification: (id, options) => {
+        return new Promise((resolve, reject) => {
+            chrome.notifications.create(id, options, notificationId => {
+                if (notificationId) {
+                    resolve(notificationId)
+                } else {
+                    reject()
+                }
+            })
+        })
     },
-    clearNotification: (id, callback) => {
-        chrome.notifications.clear(id, callback)
+    clearNotification: (id) => {
+        return new Promise((resolve, reject) => {
+            chrome.notifications.clear(id, notificationId => {
+                if (notificationId) {
+                    resolve(notificationId)
+                } else {
+                    reject()
+                }
+            })
+        })
     },
 };
 

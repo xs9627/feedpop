@@ -17,7 +17,7 @@ const fetchFeed = url => {
     });
 }
 
-const updateSingleChannelFeed = async (id, dispatch, getState, isBackground) => {
+const updateSingleChannelFeed = async (id, dispatch, getState) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
     const channel = getState().channels.find(c => c.id === id);
     let feeds;
@@ -29,9 +29,10 @@ const updateSingleChannelFeed = async (id, dispatch, getState, isBackground) => 
         return;
     }
     const oldFeeds = await getChannelFeeds(id);
-    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id, isBackground } });
-    await saveChannelFeeds(id, getState().mergedFeed);
-    return {channelId: id, updatedFeeds: getState().updatedFeeds}
+    dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
+    const {mergedFeed, updatedFeeds} = getState()
+    await saveChannelFeeds(id, mergedFeed)
+    return {channelId: id, updatedFeeds}
 }
 
 const getChannelFeeds = channelId => {
@@ -107,35 +108,34 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
 }
 export const updateAllChannelsFeed = isBackground => async (dispatch, getState) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
-    if (isBackground) {
-        dispatch({type: types.CREATE_UPDATE_HISTORY});
-    }
     const promises = [];
     getState().channels.forEach(channel => {
-        promises.push(updateSingleChannelFeed(channel.id, dispatch, getState, isBackground));
+        promises.push(updateSingleChannelFeed(channel.id, dispatch, getState));
     });
     const updateFeeds = await Promise.all(promises);
     if (!isBackground) {
         await dispatch(setCurrentFeeds());
     } else {
-        const allUpdateFeedsList = getState().updateHistory.map(auf => ({...auf, channelName: getState().channels.find(c => c.id === auf.channelId).name}) )
+        const allUpdateFeedsList = updateFeeds
+            .filter(uf => (uf))
+            .map(auf => ({...auf, channelName: getState().channels.find(c => c.id === auf.channelId).name}) )
             .flatMap(({channelId, channelName, updatedFeeds}) => updatedFeeds.map(uf => ({channelId, channelName, ...uf})))
             .sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
         if (allUpdateFeedsList.length > 0) {
-            allUpdateFeedsList.forEach(f => {
-                ChromeUtil.createNotification('', {
-                    type: "basic", 
-                    iconUrl: "icon128.png", 
-                    title: f.channelName, 
-                    message: f.content,
-                    contextMessage: f.title,
-                }, notificationId => {
-                    dispatch({type: types.CREATE_NOTIFICATION, payload: {
-                        id: notificationId,
-                        data: {link: f.link, readerId: f.readerId, channelId: f.channelId}
-                    }})
+            const notificationPromises = allUpdateFeedsList.map(f => ChromeUtil.createNotification('', {
+                type: "basic", 
+                iconUrl: "icon128.png", 
+                title: f.channelName, 
+                message: f.content,
+                contextMessage: f.title,
+            }))
+            const notificationIds = await Promise.all(notificationPromises)
+            dispatch({
+                type: types.CREATE_NOTIFICATION, 
+                payload: notificationIds.map((id, i) => {
+                    const {link, readerId, channelId} = allUpdateFeedsList[i]
+                    return {id, data: {link, readerId, channelId}}
                 })
-                
             })
             // ChromeUtil.createNotification(latestUpdateHistory.id, {
             //     type: "basic", 

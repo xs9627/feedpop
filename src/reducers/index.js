@@ -303,7 +303,7 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, {channelFeedUpdating: false});
         }
         case types.UPDATE_CHANNEL_FEED: {
-            const { feeds, oldFeeds, channelId, isBackground} = action.payload;
+            const { feeds, oldFeeds, channelId } = action.payload;
             const recentChannelFeeds = state.recentFeeds.find(rf => rf.channelId === channelId);
             const oldFeedsWithRecent = recentChannelFeeds ? 
             (oldFeeds ? {...recentChannelFeeds.feed, items: [...recentChannelFeeds.feed.items, ...oldFeeds.items]} : recentChannelFeeds.feed)
@@ -320,18 +320,11 @@ const rootReducer = (state = initialState, action) => {
                 currentFeeds: state.currentChannelId === channelId ? feeds : state.currentFeeds,
                 mergedFeed: splitedFeeds[1],
                 updatedFeeds,
-                updateHistory: !isBackground ? state.updateHistory : [{channelId, updatedFeeds}, ...state.updateHistory],
                 ...updateUnreadCount(feeds, state.channels, channelId) 
             });
         }
-        case types.CREATE_UPDATE_HISTORY: {
-            return persistence(state, {
-                updateHistory: []
-            });
-        }
         case types.CREATE_NOTIFICATION: {
-            const { id, data } = action.payload;
-            const notifications = [{id, data}, ...state.notifications]
+            const notifications = [...action.payload, ...state.notifications]
             notifications.slice(notificationCount).forEach(n => ChromeUtil.clearNotification(n.id))
             return persistence(state, {
                 notifications: notifications.slice(0, notificationCount)
