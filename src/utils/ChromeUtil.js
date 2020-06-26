@@ -106,6 +106,9 @@ let ChromeUtil = {
             })
         })
     },
+    getMessage: (messageName, substitutions) => {
+        return chrome.i18n.getMessage(messageName, substitutions)
+    }
 };
 
 export default ChromeUtil;

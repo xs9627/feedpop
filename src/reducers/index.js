@@ -136,6 +136,8 @@ const initialState = {
     tourOption: {},
     expandView: false,
     notifications: [],
+    enableNotifaction: false,
+    notifactionLevel: 'summary',
     tmp: {},
     ...defaultState,
     getComponentState(componentName, stateName) {

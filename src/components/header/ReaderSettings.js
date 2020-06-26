@@ -26,9 +26,9 @@ import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restore
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
-    const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView } = state;
+    const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView, enableNotifaction, notifactionLevel, } = state;
     return {
-        config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView },
+        config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView, enableNotifaction, notifactionLevel, },
         logs: state.logs,
         showRestoreResult: state.tmp.showRestoreResult,
         restoreSuccess: state.tmp.restoreSuccess,
@@ -68,6 +68,15 @@ class Settings extends Component {
     handleChangeFontSize = event => {
         const fontSize = event.target.value;
         this.props.setSettins({ fontSize });
+    }
+
+    handleChangeNotification = event => {
+        const enableNotifaction = event.target.checked;
+        this.props.setSettins({ enableNotifaction });
+    }
+
+    handleChangeNotificationLevel = event => {
+        this.props.setSettins({ notifactionLevel: event.target.value });
     }
 
     handleChangeexpandView = event => {
@@ -245,6 +254,32 @@ class Settings extends Component {
                             />
                         </ListItemSecondaryAction>
                     </ListItem>
+                    <ListItem>
+                        <ListItemText primary={t("Notification")}></ListItemText>
+                        <ListItemSecondaryAction>
+                            <Switch
+                                checked={this.props.config.enableNotifaction}
+                                onChange={this.handleChangeNotification}
+                                color="primary"
+                            />
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                    <Collapse in={this.props.config.enableNotifaction} timeout="auto" unmountOnExit>
+                        <ListItem className={classes.nested}>
+                            <ListItemText primary={t("Notification Level")}></ListItemText>
+                            <ListItemSecondaryAction className={classes.select}>
+                                <Select
+                                    value={this.props.config.notifactionLevel}
+                                    onChange={this.handleChangeNotificationLevel}
+                                    displayEmpty
+                                    name="notificationLevel"
+                                >
+                                    <MenuItem value={'summary'}>{t("Summary")}</MenuItem>
+                                    <MenuItem value={'detail'}>{t("Detail")}</MenuItem>
+                                </Select>
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    </Collapse>
                     <ListItem button onClick={this.openCleanCacheConfirm}>
                         <ListItemText primary={t("Clean Cache")}></ListItemText>
                     </ListItem>

@@ -1,6 +1,7 @@
 import Parser from 'rss-parser/dist/rss-parser.min.js';
 import * as types from "../constants/action-types";
 import ChromeUtil from '../utils/ChromeUtil';
+import i18n from '../i18n'
 
 const fetchFeed = url => {
     return new Promise((resolve, reject) => {
@@ -108,43 +109,47 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
 }
 export const updateAllChannelsFeed = isBackground => async (dispatch, getState) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
+    const {channels, enableNotifaction, notifactionLevel} = getState()
     const promises = [];
-    getState().channels.forEach(channel => {
+    channels.forEach(channel => {
         promises.push(updateSingleChannelFeed(channel.id, dispatch, getState));
     });
     const updateFeeds = await Promise.all(promises);
     if (!isBackground) {
         await dispatch(setCurrentFeeds());
-    } else {
+    } else if (enableNotifaction) {
         const allUpdateFeedsList = updateFeeds
             .filter(uf => (uf))
-            .map(auf => ({...auf, channelName: getState().channels.find(c => c.id === auf.channelId).name}) )
+            .map(auf => ({...auf, channelName: channels.find(c => c.id === auf.channelId).name}) )
             .flatMap(({channelId, channelName, updatedFeeds}) => updatedFeeds.map(uf => ({channelId, channelName, ...uf})))
             .sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
         if (allUpdateFeedsList.length > 0) {
-            const notificationPromises = allUpdateFeedsList.map(f => ChromeUtil.createNotification('', {
-                type: "basic", 
-                iconUrl: "icon128.png", 
-                title: f.channelName, 
-                message: f.content,
-                contextMessage: f.title,
-            }))
-            const notificationIds = await Promise.all(notificationPromises)
-            dispatch({
-                type: types.CREATE_NOTIFICATION, 
-                payload: notificationIds.map((id, i) => {
-                    const {link, readerId, channelId} = allUpdateFeedsList[i]
-                    return {id, data: {link, readerId, channelId}}
+            if (notifactionLevel === 'summary') {
+                const notificationId = await ChromeUtil.createNotification('', {
+                    type: "basic", 
+                    iconUrl: "icon128.png", 
+                    title: ChromeUtil.getMessage('notificationSummary', [allUpdateFeedsList.length]), 
+                    message: '',
+                    // contextMessage: allUpdateFeedsList[0].title
                 })
-            })
-            // ChromeUtil.createNotification(latestUpdateHistory.id, {
-            //     type: "basic", 
-            //     iconUrl: "icon128.png", 
-            //     title: allUpdateFeedsList.length + " Updated", 
-            //     message: allUpdateFeedsList[0].channelName,
-            //     contextMessage: allUpdateFeedsList[0].title
-            // })
-            // dispatch({type: types.CREATE_NOTIFICATION, payload: {id: latestUpdateHistory.id, link: allUpdateFeedsList[0].link}})
+                dispatch({type: types.CREATE_NOTIFICATION, payload: [{id: notificationId}]})
+            } else {
+                const notificationPromises = allUpdateFeedsList.map(f => ChromeUtil.createNotification('', {
+                    type: "basic", 
+                    iconUrl: "icon128.png", 
+                    title: f.channelName, 
+                    message: f.content,
+                    contextMessage: f.title,
+                }))
+                const notificationIds = await Promise.all(notificationPromises)
+                dispatch({
+                    type: types.CREATE_NOTIFICATION, 
+                    payload: notificationIds.map((id, i) => {
+                        const {link, readerId, channelId} = allUpdateFeedsList[i]
+                        return {id, data: {link, readerId, channelId}}
+                    })
+                })
+            }
         }
     }
     dispatch({type: types.UPDATE_CHANNEL_FEED_END});
