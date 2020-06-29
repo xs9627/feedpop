@@ -1,7 +1,6 @@
 import Parser from 'rss-parser/dist/rss-parser.min.js';
 import * as types from "../constants/action-types";
 import ChromeUtil from '../utils/ChromeUtil';
-import i18n from '../i18n'
 
 const fetchFeed = url => {
     return new Promise((resolve, reject) => {
