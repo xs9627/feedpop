@@ -125,8 +125,6 @@ export const updateAllChannelsFeed = isBackground => async (dispatch, getState) 
         if (allUpdateFeedsList.length > 0) {
             if (notifactionLevel === 'summary') {
                 const notificationId = await ChromeUtil.createNotification('', {
-                    type: "basic", 
-                    iconUrl: "icon128.png", 
                     title: ChromeUtil.getMessage('notificationSummary', [allUpdateFeedsList.length]), 
                     message: '',
                     // contextMessage: allUpdateFeedsList[0].title
@@ -134,8 +132,6 @@ export const updateAllChannelsFeed = isBackground => async (dispatch, getState) 
                 dispatch({type: types.CREATE_NOTIFICATION, payload: [{id: notificationId}]})
             } else {
                 const notificationPromises = allUpdateFeedsList.map(f => ChromeUtil.createNotification('', {
-                    type: "basic", 
-                    iconUrl: "icon128.png", 
                     title: f.channelName, 
                     message: f.content,
                     contextMessage: f.title,
@@ -152,6 +148,12 @@ export const updateAllChannelsFeed = isBackground => async (dispatch, getState) 
         }
     }
     dispatch({type: types.UPDATE_CHANNEL_FEED_END});
+}
+export const showTestNotification = () => async (dispatch, getState) => {
+    dispatch({type: types.CREAT_TEST_NOTIFICATION})
+    const {testNotificationOptions} = getState()
+    const notificationId = await ChromeUtil.createNotification('', testNotificationOptions)
+    ChromeUtil.clearNotification(notificationId)
 }
 export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (dispatch, getState) => {
     const recentChannelFeed = getState().recentFeeds.find(rf => rf.channelId === channelId);

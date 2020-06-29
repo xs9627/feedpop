@@ -86,7 +86,11 @@ let ChromeUtil = {
     },
     createNotification: (id, options) => {
         return new Promise((resolve, reject) => {
-            chrome.notifications.create(id, options, notificationId => {
+            chrome.notifications.create(id, {
+                type: "basic", 
+                iconUrl: "icon128.png", 
+                ...options
+            }, notificationId => {
                 if (notificationId) {
                     resolve(notificationId)
                 } else {

@@ -20,9 +20,11 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import LaunchIcon from '@material-ui/icons/Launch';
 
 import { connect } from "react-redux";
-import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult } from "../../actions/index"
+import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult, showTestNotification } from "../../actions/index"
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
@@ -43,6 +45,7 @@ const mapDispatchToProps = dispatch => {
         downloadConfig: () => dispatch(downloadConfig()),
         restoreConfig: file => dispatch(restoreConfig(file)),
         closeRestoreResult: () => dispatch(closeRestoreResult()),
+        showTestNotification: () => dispatch(showTestNotification()),
     };
 };
 
@@ -266,7 +269,7 @@ class Settings extends Component {
                     </ListItem>
                     <Collapse in={this.props.config.enableNotifaction} timeout="auto" unmountOnExit>
                         <ListItem className={classes.nested}>
-                            <ListItemText primary={t("Notification Level")}></ListItemText>
+                            <ListItemText primary={t("Show for")}></ListItemText>
                             <ListItemSecondaryAction className={classes.select}>
                                 <Select
                                     value={this.props.config.notifactionLevel}
@@ -274,9 +277,12 @@ class Settings extends Component {
                                     displayEmpty
                                     name="notificationLevel"
                                 >
-                                    <MenuItem value={'summary'}>{t("Summary")}</MenuItem>
-                                    <MenuItem value={'detail'}>{t("Detail")}</MenuItem>
+                                    <MenuItem value={'summary'}>{t("Updated count")}</MenuItem>
+                                    <MenuItem value={'detail'}>{t("Each new feed")}</MenuItem>
                                 </Select>
+                                <IconButton size="small" onClick={this.props.showTestNotification}>
+                                    <LaunchIcon />
+                                </IconButton>
                             </ListItemSecondaryAction>
                         </ListItem>
                     </Collapse>

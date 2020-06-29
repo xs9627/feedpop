@@ -30,7 +30,9 @@ const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds, updatedFeeds) => {
             if (isInvalidDateStr(item.isoDate)) {
                 item.isoDate = getIsoDateNow(i);
             }
-            updatedFeeds.push({readerId: item.readerId, title: item.title, isoDate: item.isoDate, link: item.link})
+            updatedFeeds.push({readerId: item.readerId, title: item.title, isoDate: item.isoDate, link: item.link,
+                content: extractContent(item.content).substring(0, 100)
+            })
         });
     }
 
@@ -97,7 +99,7 @@ const getSafe = (fn, defaultVal) => {
 
 const persistence = (state, updated) => {
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, tourOption, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, tourOption, testNotificationOptions, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -338,6 +340,33 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, {
                 notifications: state.notifications.filter(n => n.id !==id)
             });
+        }
+        case types.CREAT_TEST_NOTIFICATION: {
+            const {notifactionLevel} = state
+            let testNotificationOptions
+            if (notifactionLevel === 'summary') {
+                testNotificationOptions = {
+                    title: ChromeUtil.getMessage('notificationSummary', '5'), 
+                    message: '',
+                }
+            } else {
+                const {currentFeeds, channels, currentChannelId} = state
+                if (currentFeeds) {
+                    const feedItem = currentFeeds.items[0]
+                    testNotificationOptions = {
+                        title: channels.find(c => c.id === (currentChannelId ===ChannelFixedID.RECENT ? feedItem.channelId : currentChannelId)).name, 
+                        message: extractContent(feedItem.content) || '',
+                        contextMessage: feedItem.title,
+                    }
+                } else {
+                    testNotificationOptions = {
+                        title: 'Lorem ipsum feed', 
+                        message: 'Laboris adipisicing pariatur mollit nostrud ad officia proident.',
+                        contextMessage: 'Lorem ipsum',
+                    }
+                }
+            }
+            return {...state, testNotificationOptions}
         }
         case types.SET_FEED_READ_STATUS: {
             const {channelId, feedId, isRead, needUpdateHistoryReadStatus, historyFeeds} = action.payload;
