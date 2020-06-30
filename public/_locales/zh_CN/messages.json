@@ -10,5 +10,13 @@
     },
     "cleanCache": {
       "message": "清除缓存"
+    },
+    "notificationSummary": {
+      "message": "已更新$COUNT$条内容",
+      "placeholders": {
+        "count": {
+          "content": "$1"
+        }
+      }
     }
   }

@@ -10,5 +10,13 @@
     },
     "cleanCache": {
       "message": "Clean cache"
+    },
+    "notificationSummary": {
+      "message": "$COUNT$ feed(s) updated",
+      "placeholders": {
+        "count": {
+          "content": "$1"
+        }
+      }
     }
   }

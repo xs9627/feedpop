@@ -20,15 +20,17 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
+import LaunchIcon from '@material-ui/icons/Launch';
 
 import { connect } from "react-redux";
-import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult } from "../../actions/index"
+import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult, showTestNotification } from "../../actions/index"
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
-    const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView } = state;
+    const { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView, enableNotifaction, notifactionLevel, } = state;
     return {
-        config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView },
+        config: { theme, fontSize, maxFeedsCount, refreshPeriod, source, version, showRecentUpdate, keepHistoricFeeds, expandView, enableNotifaction, notifactionLevel, },
         logs: state.logs,
         showRestoreResult: state.tmp.showRestoreResult,
         restoreSuccess: state.tmp.restoreSuccess,
@@ -43,6 +45,7 @@ const mapDispatchToProps = dispatch => {
         downloadConfig: () => dispatch(downloadConfig()),
         restoreConfig: file => dispatch(restoreConfig(file)),
         closeRestoreResult: () => dispatch(closeRestoreResult()),
+        showTestNotification: () => dispatch(showTestNotification()),
     };
 };
 
@@ -68,6 +71,15 @@ class Settings extends Component {
     handleChangeFontSize = event => {
         const fontSize = event.target.value;
         this.props.setSettins({ fontSize });
+    }
+
+    handleChangeNotification = event => {
+        const enableNotifaction = event.target.checked;
+        this.props.setSettins({ enableNotifaction });
+    }
+
+    handleChangeNotificationLevel = event => {
+        this.props.setSettins({ notifactionLevel: event.target.value });
     }
 
     handleChangeexpandView = event => {
@@ -245,6 +257,35 @@ class Settings extends Component {
                             />
                         </ListItemSecondaryAction>
                     </ListItem>
+                    <ListItem>
+                        <ListItemText primary={t("Notification")}></ListItemText>
+                        <ListItemSecondaryAction>
+                            <Switch
+                                checked={this.props.config.enableNotifaction}
+                                onChange={this.handleChangeNotification}
+                                color="primary"
+                            />
+                        </ListItemSecondaryAction>
+                    </ListItem>
+                    <Collapse in={this.props.config.enableNotifaction} timeout="auto" unmountOnExit>
+                        <ListItem className={classes.nested}>
+                            <ListItemText primary={t("Show for")}></ListItemText>
+                            <ListItemSecondaryAction className={classes.select}>
+                                <Select
+                                    value={this.props.config.notifactionLevel}
+                                    onChange={this.handleChangeNotificationLevel}
+                                    displayEmpty
+                                    name="notificationLevel"
+                                >
+                                    <MenuItem value={'summary'}>{t("Updated count")}</MenuItem>
+                                    <MenuItem value={'detail'}>{t("Each new feed")}</MenuItem>
+                                </Select>
+                                <IconButton size="small" onClick={this.props.showTestNotification}>
+                                    <LaunchIcon />
+                                </IconButton>
+                            </ListItemSecondaryAction>
+                        </ListItem>
+                    </Collapse>
                     <ListItem button onClick={this.openCleanCacheConfirm}>
                         <ListItemText primary={t("Clean Cache")}></ListItemText>
                     </ListItem>

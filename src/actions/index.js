@@ -30,7 +30,9 @@ const updateSingleChannelFeed = async (id, dispatch, getState) => {
     }
     const oldFeeds = await getChannelFeeds(id);
     dispatch({ type: types.UPDATE_CHANNEL_FEED, payload: { oldFeeds, feeds, channelId: id } });
-    await saveChannelFeeds(id, getState().mergedFeed);
+    const {mergedFeed, updatedFeeds} = getState()
+    await saveChannelFeeds(id, mergedFeed)
+    return {channelId: id, updatedFeeds}
 }
 
 const getChannelFeeds = channelId => {
@@ -104,15 +106,57 @@ export const updateChannelFeed = id => async (dispatch, getState) => {
     await updateSingleChannelFeed(id, dispatch, getState);
     dispatch({type: types.UPDATE_CHANNEL_FEED_END});
 }
-export const updateAllChannelsFeed = () => async (dispatch, getState) => {
+export const updateAllChannelsFeed = isBackground => async (dispatch, getState) => {
     dispatch({type: types.UPDATE_CHANNEL_FEED_BEGIN});
+    const {channels, enableNotifaction, notifactionLevel} = getState()
     const promises = [];
-    getState().channels.forEach(channel => {
+    channels.forEach(channel => {
         promises.push(updateSingleChannelFeed(channel.id, dispatch, getState));
     });
-    await Promise.all(promises);
-    await dispatch(setCurrentFeeds());
+    const updateFeeds = await Promise.all(promises);
+    if (!isBackground) {
+        await dispatch(setCurrentFeeds());
+    } else if (enableNotifaction) {
+        const allUpdateFeedsList = updateFeeds
+            .filter(uf => (uf))
+            .map(auf => ({...auf, channelName: channels.find(c => c.id === auf.channelId).name}) )
+            .flatMap(({channelId, channelName, updatedFeeds}) => updatedFeeds.map(uf => ({channelId, channelName, ...uf})))
+            .sort((a, b) => new Date(b.isoDate) - new Date(a.isoDate));
+        if (allUpdateFeedsList.length > 0) {
+            if (notifactionLevel === 'summary') {
+                const notificationId = await ChromeUtil.createNotification('', {
+                    title: ChromeUtil.getMessage('notificationSummary', [allUpdateFeedsList.length]), 
+                    message: '',
+                    // contextMessage: allUpdateFeedsList[0].title
+                })
+                dispatch({type: types.CREATE_NOTIFICATION, payload: [{id: notificationId}]})
+            } else {
+                const notificationPromises = allUpdateFeedsList.map(f => ChromeUtil.createNotification('', {
+                    title: f.channelName, 
+                    message: f.content || '',
+                    contextMessage: f.title,
+                }))
+                const notificationIds = await Promise.all(notificationPromises)
+                dispatch({
+                    type: types.CREATE_NOTIFICATION, 
+                    payload: notificationIds.map((id, i) => {
+                        const {link, readerId, channelId} = allUpdateFeedsList[i]
+                        return {id, data: {link, readerId, channelId}}
+                    })
+                })
+            }
+        }
+    }
     dispatch({type: types.UPDATE_CHANNEL_FEED_END});
+}
+export const showTestNotification = () => async (dispatch, getState) => {
+    dispatch({type: types.CREAT_TEST_NOTIFICATION})
+    const {testNotificationOptions} = getState()
+    const notificationId = await ChromeUtil.createNotification('', testNotificationOptions)
+    setTimeout(() => {
+        ChromeUtil.clearNotification(notificationId)
+    }, 5000);
+    
 }
 export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (dispatch, getState) => {
     const recentChannelFeed = getState().recentFeeds.find(rf => rf.channelId === channelId);

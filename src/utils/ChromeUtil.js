@@ -83,6 +83,35 @@ let ChromeUtil = {
     },
     download: config => {
         chrome.downloads.download(config);
+    },
+    createNotification: (id, options) => {
+        return new Promise((resolve, reject) => {
+            chrome.notifications.create(id, {
+                type: "basic", 
+                iconUrl: "icon128.png", 
+                ...options
+            }, notificationId => {
+                if (notificationId) {
+                    resolve(notificationId)
+                } else {
+                    reject()
+                }
+            })
+        })
+    },
+    clearNotification: (id) => {
+        return new Promise((resolve, reject) => {
+            chrome.notifications.clear(id, notificationId => {
+                if (notificationId) {
+                    resolve(notificationId)
+                } else {
+                    reject()
+                }
+            })
+        })
+    },
+    getMessage: (messageName, substitutions) => {
+        return chrome.i18n.getMessage(messageName, substitutions)
     }
 };
 

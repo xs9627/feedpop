@@ -59,6 +59,11 @@
     "No feeds here, start to ": "未添加RSS源 ",
     "add one": "开始添加",
 
+    "Notification": "通知",
+    "Show for": "显示信息",
+    "Updated count": "更新条数",
+    "Each new feed": "每条更新内容",
+
     "Today": "今天",
     "Yesterday": "昨天",
     "Sunday": "星期日",
