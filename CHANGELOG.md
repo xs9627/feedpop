@@ -1,3 +1,8 @@
+## [1.2.3] - 2020-06-30
+### Added
+- Notification(#137)
+### Changed
+- Fix open link without host name(#139)
 ## [1.2.2] - 2020-05-15
 ### Changed
 - Fix scroll caused by middle click
@@ -72,6 +77,8 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.2.3]:https://github.com/xs9627/feedpop/compare/v1.2.2...v1.2.3
+[1.2.2]:https://github.com/xs9627/feedpop/compare/v1.2.1...v1.2.2
 [1.2.1]:https://github.com/xs9627/feedpop/compare/v1.2.0...v1.2.1
 [1.2.0]:https://github.com/xs9627/feedpop/compare/v1.1.5...v1.2.0
 [1.1.5]:https://github.com/xs9627/feedpop/compare/v1.1.4...v1.1.5
