@@ -133,7 +133,7 @@ export const updateAllChannelsFeed = isBackground => async (dispatch, getState) 
             } else {
                 const notificationPromises = allUpdateFeedsList.map(f => ChromeUtil.createNotification('', {
                     title: f.channelName, 
-                    message: f.content,
+                    message: f.content || '',
                     contextMessage: f.title,
                 }))
                 const notificationIds = await Promise.all(notificationPromises)
@@ -153,7 +153,10 @@ export const showTestNotification = () => async (dispatch, getState) => {
     dispatch({type: types.CREAT_TEST_NOTIFICATION})
     const {testNotificationOptions} = getState()
     const notificationId = await ChromeUtil.createNotification('', testNotificationOptions)
-    ChromeUtil.clearNotification(notificationId)
+    setTimeout(() => {
+        ChromeUtil.clearNotification(notificationId)
+    }, 5000);
+    
 }
 export const setFeedReadStatus = (channelId, feedId, isRead = true) => async (dispatch, getState) => {
     const recentChannelFeed = getState().recentFeeds.find(rf => rf.channelId === channelId);

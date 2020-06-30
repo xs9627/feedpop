@@ -17,7 +17,7 @@ const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds, updatedFeeds) => {
                 }
                 mergedItems.push(item);
                 updatedFeeds.push({readerId: item.readerId, title: item.title, isoDate: item.isoDate, link: item.link,
-                    content: extractContent(item.content).substring(0, 100)
+                    content: extractContent(item['content:encoded'] || item.content).substring(0, 100)
                 })
             }
         });
@@ -31,7 +31,7 @@ const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds, updatedFeeds) => {
                 item.isoDate = getIsoDateNow(i);
             }
             updatedFeeds.push({readerId: item.readerId, title: item.title, isoDate: item.isoDate, link: item.link,
-                content: extractContent(item.content).substring(0, 100)
+                content: extractContent(item['content:encoded'] || item.content).substring(0, 100)
             })
         });
     }
@@ -355,7 +355,7 @@ const rootReducer = (state = initialState, action) => {
                     const feedItem = currentFeeds.items[0]
                     testNotificationOptions = {
                         title: channels.find(c => c.id === (currentChannelId ===ChannelFixedID.RECENT ? feedItem.channelId : currentChannelId)).name, 
-                        message: extractContent(feedItem.content) || '',
+                        message: extractContent(feedItem['content:encoded'] || feedItem.content) || '',
                         contextMessage: feedItem.title,
                     }
                 } else {
