@@ -146,7 +146,12 @@ const FeedContent = props => {
 
         const handleClick = e => {
             if (curContentContainer.contains(e.target) && e.target.href !== undefined) {
-                ChromeUtil.openTab(e.target.href);
+                let url = e.target.href
+                if (e.target.protocol === 'chrome-extension:') {
+                    const linkUrl = new URL(props.feed.link)
+                    url = url.replace(e.target.origin, linkUrl.origin)
+                }
+                ChromeUtil.openTab(url)
             }
         }
 
