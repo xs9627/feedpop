@@ -109,7 +109,7 @@ const FeedContent = props => {
         ChromeUtil.openTab(url);
     }
     
-    const { feed, t, feedContentTop, scrollFeedContent } = props;
+    const { feed, t, feedContentTop, scrollFeedContent, feed: {link} } = props;
     const classes = useStyles(props);
     const contentContainer = useRef(null)
     const contentHtml = {__html: feed['content:encoded'] ? feed['content:encoded'] : feed.content}
@@ -148,7 +148,7 @@ const FeedContent = props => {
             if (curContentContainer.contains(e.target) && e.target.href !== undefined) {
                 let url = e.target.href
                 if (e.target.protocol === 'chrome-extension:') {
-                    const linkUrl = new URL(props.feed.link)
+                    const linkUrl = new URL(link)
                     url = url.replace(e.target.origin, linkUrl.origin)
                 }
                 ChromeUtil.openTab(url)
@@ -161,7 +161,7 @@ const FeedContent = props => {
             document.removeEventListener('click', handleClick);
             curContentContainer.removeEventListener('scroll', trackScrolling);
         }
-    }, [feedContentTop, scrollFeedContent])
+    }, [feedContentTop, scrollFeedContent, link])
 
     const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
     let xMove = 0

@@ -351,7 +351,7 @@ const rootReducer = (state = initialState, action) => {
                 }
             } else {
                 const {currentFeeds, channels, currentChannelId} = state
-                if (currentFeeds) {
+                if (currentFeeds && currentFeeds.items.length > 0) {
                     const feedItem = currentFeeds.items[0]
                     testNotificationOptions = {
                         title: channels.find(c => c.id === (currentChannelId ===ChannelFixedID.RECENT ? feedItem.channelId : currentChannelId)).name, 
