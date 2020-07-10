@@ -32,6 +32,7 @@ import { ChannelFixedID } from '../constants/index';
 import { setFeedReadStatus, openFeed, loadHistoryFeeds, markAllAsRead, getAllUnreadLinks, openAllUnread, confirmOpenAllUnread, toggleOpenAllUnreadConfirm } from '../actions/index';
 import { withTranslation } from 'react-i18next';
 import GA from '../utils/GA';
+import Utils from '../utils/Utils';
 
 const mapStateToProps = state => {
     return {
@@ -572,7 +573,7 @@ const FeedList = props => {
                                         }}
                                         onContextMenu={e => handleItemContextMenu(e, feed)}
                                     >
-                                        <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={feed.title} secondary={<div className={classes.itemSecondaryContainer}>{feed.channelId && renderChannelIcon(feed.channelId)} {getTime(feed.isoDate, index)}</div>} />
+                                        <ListItemText classes={{ primary: classNames({[classes.unRead]: !feed.isRead}) }} primary={Utils.replaceXmlCharacter(feed.title)} secondary={<div className={classes.itemSecondaryContainer}>{feed.channelId && renderChannelIcon(feed.channelId)} {getTime(feed.isoDate, index)}</div>} />
                                         
                                     </ListItem>
                                 ))}

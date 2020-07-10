@@ -1,6 +1,7 @@
 import * as types from "../constants/action-types";
 import {ChannelFixedID} from "../constants/index";
 import ChromeUtil from "../utils/ChromeUtil";
+import Utils from "../utils/Utils";
 import { v4 as uuidv4 } from 'uuid';
 
 const recentCount = 30;
@@ -12,6 +13,7 @@ const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds, updatedFeeds) => {
             if (!mergedItems.find(mi => mi.link === ni.link)) {
                 const item = {
                     ...ni,
+                    title: Utils.replaceXmlCharacter(ni.title),
                     readerId: uuidv4(),
                     isoDate: isInvalidDateStr(ni.isoDate) ? getIsoDateNow(i) : ni.isoDate
                 }
@@ -30,6 +32,7 @@ const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds, updatedFeeds) => {
             if (isInvalidDateStr(item.isoDate)) {
                 item.isoDate = getIsoDateNow(i);
             }
+            item.title = Utils.replaceXmlCharacter(item.title)
             updatedFeeds.push({readerId: item.readerId, title: item.title, isoDate: item.isoDate, link: item.link,
                 content: extractContent(item['content:encoded'] || item.content).substring(0, 100)
             })
