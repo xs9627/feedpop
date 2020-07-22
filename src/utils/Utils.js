@@ -1,3 +1,6 @@
+import opmlToJSON from 'opml-to-json';
+import opml from 'opml-generator'
+
 export default {
     replaceXmlCharacter: raw => {
         return raw.replace(/&(lt|gt|quot|#xA);/g, function(a, b){
@@ -12,3 +15,17 @@ export default {
         })
     }
 }
+
+export const opmlToJson = xmlString => {
+    return new Promise((resolve, reject) => {
+        opmlToJSON(xmlString, (error, json) => {
+            if (error) {
+                reject()
+            } else {
+                resolve(json)
+            }
+        })
+    })
+}
+
+export const objectToOpml = (header, outlines) => (opml(header, outlines))

@@ -24,7 +24,7 @@ import IconButton from '@material-ui/core/IconButton';
 import LaunchIcon from '@material-ui/icons/Launch';
 
 import { connect } from "react-redux";
-import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult, showTestNotification } from "../../actions/index"
+import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult, showTestNotification, importOPML, exportOPML } from "../../actions/index"
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
@@ -46,6 +46,8 @@ const mapDispatchToProps = dispatch => {
         restoreConfig: file => dispatch(restoreConfig(file)),
         closeRestoreResult: () => dispatch(closeRestoreResult()),
         showTestNotification: () => dispatch(showTestNotification()),
+        importOPML: file => dispatch(importOPML(file)),
+        exportOPML: () => dispatch(exportOPML()),
     };
 };
 
@@ -149,6 +151,10 @@ class Settings extends Component {
 
     handleRestore = event => {
         this.props.restoreConfig(event.target.files[0])
+    }
+
+    handleImportOPML = event => {
+        this.props.importOPML(event.target.files[0])
     }
 
     handleCloseRestoreResult = () => {
@@ -303,6 +309,13 @@ class Settings extends Component {
                             <ListItem button className={classes.nested} onClick={() => {this.refs.fileUploader.click()}}>
                                 <ListItemText primary={t("Restore from local")} />
                                 <input type="file" id="file" ref="fileUploader" style={{display: "none"}} onChange={this.handleRestore}/>
+                            </ListItem>
+                            <ListItem button className={classes.nested} onClick={this.props.exportOPML}>
+                                <ListItemText primary={t("Export OPML")} />
+                            </ListItem>
+                            <ListItem button className={classes.nested} onClick={() => {this.refs.opmlFileUploader.click()}}>
+                                <ListItemText primary={t("Import OPML")} />
+                                <input type="file" id="file" ref="opmlFileUploader" style={{display: "none"}} onChange={this.handleImportOPML}/>
                             </ListItem>
                         </List>
                     </Collapse>

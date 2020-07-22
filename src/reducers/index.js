@@ -697,6 +697,13 @@ const rootReducer = (state = initialState, action) => {
         case types.TOGGLE_OPEN_ALL_UNREAD_CONFIRM: {
             return {...state, tmp: {...state.tmp, showOpenAllUnreadConfirm: !state.tmp.showOpenAllUnreadConfirm}}
         }
+        case types.IMPORT_OPML: {
+            const {importChannels} = action.payload
+            const newImportChannels = importChannels.filter(ic => !state.channels.find(c => c.url === ic.url))
+            const channels = [...state.channels, ...(newImportChannels.map(nic => ({...nic, id: uuidv4(), unreadCount: 0})))]
+            const currentChannelId = state.currentChannelId || channels.length > 0 ? channels[0].id : null
+            return persistence(state, {channels, currentChannelId, allUnreadCount: channels.reduce((r, a) => (r + a.unreadCount), 0)})
+        }
         default:
             return state;
     }
