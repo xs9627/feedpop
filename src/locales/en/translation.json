@@ -45,6 +45,8 @@
     "Information": "Information",
     "Restore completed": "Restore completed",
     "Restore failed": "Restore failed. Please check the backup file.",
+    "Import completed": "Import completed",
+    "Import failed": "Import failed. Please check the backup file.",
 
     "Open in new tab": "Open in new tab",
     "Enter expand view": "Enter expand view",

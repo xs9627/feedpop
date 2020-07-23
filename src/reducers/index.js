@@ -604,11 +604,13 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, {channels, currentChannelId, recentFeeds, allUnreadCount: channels.reduce((r, a) => (r + a.unreadCount), 0), ...restConfig});
         }
         case types.RESTORE_CONFIG_SUCCESS: {
-            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: true}
+            const {type} = action.payload
+            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: true, restoreType: type}
             return {...state, tmp};
         }
         case types.RESTORE_CONFIG_ERROR: {
-            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: false}
+            const {type} = action.payload
+            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: false, restoreType: type}
             return {...state, tmp};
         }
         case types.CLOSE_RESTORE_RESULT: {

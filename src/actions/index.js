@@ -322,9 +322,9 @@ export const restoreConfig = file => async (dispatch, getState) => {
         if (bkpSource === 'feedpop') {
             dispatch(({type: types.LOAD_CONFIG, payload: config}))
         }
-        dispatch(({type: types.RESTORE_CONFIG_SUCCESS}))
+        dispatch(({type: types.RESTORE_CONFIG_SUCCESS, payload: {type: 'json'}}))
     } catch (e) {
-        dispatch(({type: types.RESTORE_CONFIG_ERROR}))
+        dispatch(({type: types.RESTORE_CONFIG_ERROR, payload: {type: 'json'}}))
     }
 }
 
@@ -343,10 +343,10 @@ export const importOPML = file => async (dispatch, getState) => {
             dispatch(({type: types.IMPORT_OPML, payload: {importChannels}}))
             dispatch({ type: types.SET_CURRENT_FEEDS })
         }
-        dispatch(({type: types.RESTORE_CONFIG_SUCCESS}))
+        dispatch(({type: types.RESTORE_CONFIG_SUCCESS, payload: {type: 'opml'}}))
     } catch (e) {
         console.log(e)
-        dispatch(({type: types.RESTORE_CONFIG_ERROR}))
+        dispatch(({type: types.RESTORE_CONFIG_ERROR, payload: {type: 'opml'}}))
     }
 }
 
@@ -359,7 +359,7 @@ export const exportOPML = () => (dispatch, getState) => {
             type: "rss",
             xmlUrl: c.url,
         }))
-    )], {type: "application/xml;charset=utf-8"});
+    )], {type: "application/opml;charset=utf-8"});
     var url = URL.createObjectURL(blob);
     ChromeUtil.download({
         url: url,

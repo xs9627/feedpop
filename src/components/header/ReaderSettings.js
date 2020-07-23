@@ -34,6 +34,7 @@ const mapStateToProps = state => {
         logs: state.logs,
         showRestoreResult: state.tmp.showRestoreResult,
         restoreSuccess: state.tmp.restoreSuccess,
+        restoreType: state.tmp.restoreType,
     };
 };
 
@@ -372,7 +373,10 @@ class Settings extends Component {
                     <DialogTitle>{t("Information")}</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                        {this.props.restoreSuccess ? t("Restore completed") : t("Restore failed")}
+                        {this.props.restoreSuccess ? 
+                            (this.props.restoreType === 'opml' ? t("Import completed") : t("Restore completed")) : 
+                            (this.props.restoreType === 'opml' ? t("Import failed") : t("Restore failed"))
+                        }
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

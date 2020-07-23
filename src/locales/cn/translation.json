@@ -45,6 +45,8 @@
     "Information": "提示",
     "Restore completed": "恢复完成",
     "Restore failed": "恢复失败，请检查备份文件",
+    "Import completed": "导入完成",
+    "Import failed": "导入失败，请检查备份文件",
 
     "Open in new tab": "在新标签页打开",
     "Enter expand view": "进入宽屏模式",
