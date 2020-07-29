@@ -24,7 +24,7 @@ import IconButton from '@material-ui/core/IconButton';
 import LaunchIcon from '@material-ui/icons/Launch';
 
 import { connect } from "react-redux";
-import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult, showTestNotification } from "../../actions/index"
+import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult, showTestNotification, importOPML, exportOPML } from "../../actions/index"
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
@@ -34,6 +34,7 @@ const mapStateToProps = state => {
         logs: state.logs,
         showRestoreResult: state.tmp.showRestoreResult,
         restoreSuccess: state.tmp.restoreSuccess,
+        restoreType: state.tmp.restoreType,
     };
 };
 
@@ -46,6 +47,8 @@ const mapDispatchToProps = dispatch => {
         restoreConfig: file => dispatch(restoreConfig(file)),
         closeRestoreResult: () => dispatch(closeRestoreResult()),
         showTestNotification: () => dispatch(showTestNotification()),
+        importOPML: file => dispatch(importOPML(file)),
+        exportOPML: () => dispatch(exportOPML()),
     };
 };
 
@@ -149,6 +152,10 @@ class Settings extends Component {
 
     handleRestore = event => {
         this.props.restoreConfig(event.target.files[0])
+    }
+
+    handleImportOPML = event => {
+        this.props.importOPML(event.target.files[0])
     }
 
     handleCloseRestoreResult = () => {
@@ -304,6 +311,13 @@ class Settings extends Component {
                                 <ListItemText primary={t("Restore from local")} />
                                 <input type="file" id="file" ref="fileUploader" style={{display: "none"}} onChange={this.handleRestore}/>
                             </ListItem>
+                            <ListItem button className={classes.nested} onClick={this.props.exportOPML}>
+                                <ListItemText primary={t("Export OPML")} />
+                            </ListItem>
+                            <ListItem button className={classes.nested} onClick={() => {this.refs.opmlFileUploader.click()}}>
+                                <ListItemText primary={t("Import OPML")} />
+                                <input type="file" id="file" ref="opmlFileUploader" style={{display: "none"}} onChange={this.handleImportOPML}/>
+                            </ListItem>
                         </List>
                     </Collapse>
                     <ListItem button onClick={this.handleAboutClick}>
@@ -359,7 +373,10 @@ class Settings extends Component {
                     <DialogTitle>{t("Information")}</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                        {this.props.restoreSuccess ? t("Restore completed") : t("Restore failed")}
+                        {this.props.restoreSuccess ? 
+                            (this.props.restoreType === 'opml' ? t("Import completed") : t("Restore completed")) : 
+                            (this.props.restoreType === 'opml' ? t("Import failed") : t("Restore failed"))
+                        }
                         </DialogContentText>
                     </DialogContent>
                     <DialogActions>

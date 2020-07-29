@@ -1,6 +1,7 @@
 import Parser from 'rss-parser/dist/rss-parser.min.js';
 import * as types from "../constants/action-types";
 import ChromeUtil from '../utils/ChromeUtil';
+import {opmlToJson, objectToOpml} from '../utils/Utils'
 
 const fetchFeed = url => {
     return new Promise((resolve, reject) => {
@@ -41,6 +42,18 @@ const getChannelFeeds = channelId => {
 
 const saveChannelFeeds = (channelId, feeds) => {
     return ChromeUtil.set({ ['f-' + channelId]: feeds });
+}
+
+const padZero = val => (String(val).padStart(2, "0"))
+const currentDateTime = () => {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = padZero(today.getMonth() + 1)
+    const d = padZero(today.getDate())
+    const h = padZero(today.getHours())
+    const mi = padZero(today.getMinutes())
+    const s = padZero(today.getSeconds())
+    return `${y}${m}${d}-${h}${mi}${s}`
 }
 
 export const log = msg => ({ type: types.LOG, payload: msg });
@@ -309,10 +322,49 @@ export const restoreConfig = file => async (dispatch, getState) => {
         if (bkpSource === 'feedpop') {
             dispatch(({type: types.LOAD_CONFIG, payload: config}))
         }
-        dispatch(({type: types.RESTORE_CONFIG_SUCCESS}))
+        dispatch(({type: types.RESTORE_CONFIG_SUCCESS, payload: {type: 'json'}}))
     } catch (e) {
-        dispatch(({type: types.RESTORE_CONFIG_ERROR}))
+        dispatch(({type: types.RESTORE_CONFIG_ERROR, payload: {type: 'json'}}))
     }
+}
+
+export const importOPML = file => async (dispatch, getState) => {
+    const loadPath = file => new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = function (e) {
+            resolve(e.target.result)
+        }
+        reader.readAsText(file)
+    })
+    try {
+        const opmlJson = await opmlToJson(await loadPath(file))
+        if (opmlJson) {
+            const importChannels = opmlJson.children.map(c => ({name: c.text, url: c.xmlurl}))
+            dispatch(({type: types.IMPORT_OPML, payload: {importChannels}}))
+            dispatch({ type: types.SET_CURRENT_FEEDS })
+        }
+        dispatch(({type: types.RESTORE_CONFIG_SUCCESS, payload: {type: 'opml'}}))
+    } catch (e) {
+        console.log(e)
+        dispatch(({type: types.RESTORE_CONFIG_ERROR, payload: {type: 'opml'}}))
+    }
+}
+
+export const exportOPML = () => (dispatch, getState) => {
+    const {channels} = getState();
+    const blob = new Blob([objectToOpml(
+        {title: "FeedPop Subscriptions",},
+        channels.map(c => ({
+            text: c.name,
+            type: "rss",
+            xmlUrl: c.url,
+        }))
+    )], {type: "application/opml;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    ChromeUtil.download({
+        url: url,
+        filename: `feedpop-${currentDateTime()}.opml`
+    });
 }
 
 export const closeRestoreResult = () => ({ type: types.CLOSE_RESTORE_RESULT });

@@ -1,6 +1,7 @@
 import * as types from "../constants/action-types";
 import {ChannelFixedID} from "../constants/index";
 import ChromeUtil from "../utils/ChromeUtil";
+import Utils from "../utils/Utils";
 import { v4 as uuidv4 } from 'uuid';
 
 const recentCount = 30;
@@ -12,6 +13,7 @@ const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds, updatedFeeds) => {
             if (!mergedItems.find(mi => mi.link === ni.link)) {
                 const item = {
                     ...ni,
+                    title: Utils.replaceXmlCharacter(ni.title),
                     readerId: uuidv4(),
                     isoDate: isInvalidDateStr(ni.isoDate) ? getIsoDateNow(i) : ni.isoDate
                 }
@@ -30,6 +32,7 @@ const mergeFeed = (oldFeed, newFeed, keepHistoricFeeds, updatedFeeds) => {
             if (isInvalidDateStr(item.isoDate)) {
                 item.isoDate = getIsoDateNow(i);
             }
+            item.title = Utils.replaceXmlCharacter(item.title)
             updatedFeeds.push({readerId: item.readerId, title: item.title, isoDate: item.isoDate, link: item.link,
                 content: extractContent(item['content:encoded'] || item.content).substring(0, 100)
             })
@@ -601,11 +604,13 @@ const rootReducer = (state = initialState, action) => {
             return persistence(state, {channels, currentChannelId, recentFeeds, allUnreadCount: channels.reduce((r, a) => (r + a.unreadCount), 0), ...restConfig});
         }
         case types.RESTORE_CONFIG_SUCCESS: {
-            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: true}
+            const {type} = action.payload
+            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: true, restoreType: type}
             return {...state, tmp};
         }
         case types.RESTORE_CONFIG_ERROR: {
-            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: false}
+            const {type} = action.payload
+            const tmp = {...state.tmp, showRestoreResult: true, restoreSuccess: false, restoreType: type}
             return {...state, tmp};
         }
         case types.CLOSE_RESTORE_RESULT: {
@@ -693,6 +698,13 @@ const rootReducer = (state = initialState, action) => {
         }
         case types.TOGGLE_OPEN_ALL_UNREAD_CONFIRM: {
             return {...state, tmp: {...state.tmp, showOpenAllUnreadConfirm: !state.tmp.showOpenAllUnreadConfirm}}
+        }
+        case types.IMPORT_OPML: {
+            const {importChannels} = action.payload
+            const newImportChannels = importChannels.filter(ic => !state.channels.find(c => c.url === ic.url))
+            const channels = [...state.channels, ...(newImportChannels.map(nic => ({...nic, id: uuidv4(), unreadCount: 0})))]
+            const currentChannelId = state.currentChannelId || channels.length > 0 ? channels[0].id : null
+            return persistence(state, {channels, currentChannelId, allUnreadCount: channels.reduce((r, a) => (r + a.unreadCount), 0)})
         }
         default:
             return state;

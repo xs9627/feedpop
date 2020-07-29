@@ -2,6 +2,7 @@ import React, { useEffect, useRef }  from 'react'
 import { connect } from "react-redux";
 import { makeStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
+import Utils from '../utils/Utils';
 import { closeFeed, scrollFeedContent, setSettins } from '../actions/index'
 
 import { useGesture } from 'react-use-gesture'
@@ -217,9 +218,9 @@ const FeedContent = props => {
                                     opacity: titleOpacity,
                                     cursor: titleCursor,
                                 }}>
-                                    <Tooltip title={feed.title} enterDelay={300} PopperProps={{disablePortal: true}}>
+                                    <Tooltip title={Utils.replaceXmlCharacter(feed.title)} enterDelay={300} PopperProps={{disablePortal: true}}>
                                         <Typography noWrap>
-                                            {feed.title}
+                                            {Utils.replaceXmlCharacter(feed.title)}
                                         </Typography>
                                     </Tooltip>
                                 </animated.div>
@@ -257,7 +258,7 @@ const FeedContent = props => {
                     <Grid className={classes.feedInfo} container wrap="nowrap" direction="column">
                         <Grid item xs={12}>
                             <Typography variant="h6">
-                                {feed.title}
+                                {Utils.replaceXmlCharacter(feed.title)}
                             </Typography>
                         </Grid>
                         <Grid item container>
