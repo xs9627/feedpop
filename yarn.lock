@@ -6359,10 +6359,10 @@ hyphenate-style-name@^1.0.3:
   resolved "https://registry.yarnpkg.com/hyphenate-style-name/-/hyphenate-style-name-1.0.3.tgz#097bb7fa0b8f1a9cf0bd5c734cf95899981a9b48"
   integrity sha512-EcuixamT82oplpoJ2XU4pDtKGWQ7b00CD9f1ug9IaQ3p1bkHMiKCZ9ut9QDI6qsa6cpUuB+A/I+zLtdNK4n2DQ==
 
-i18next-browser-languagedetector@^5.0.1:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/i18next-browser-languagedetector/-/i18next-browser-languagedetector-5.0.1.tgz#02a18f57f79b5de06279feb9a84c80ea4dde7da9"
-  integrity sha512-7K4A6DJ2rNz3Yd835Y493UgkzUxgpGsCeIMKLGkt6Ps0cbgSaJ+LdATFNFA+ujp2brmsUM9BeDThXKhabXUbUw==
+i18next-browser-languagedetector@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/i18next-browser-languagedetector/-/i18next-browser-languagedetector-6.0.0.tgz#df8ef60bfee7d330c220568cfaee43b591f605c3"
+  integrity sha512-DCPWKnEdluI5A+ggUR5x3bajlaGE0HCTZYGk9y1lujztZTkfi9vSomC7Iu/M9hbksFQpHbnKGMGj36yOrBgt4A==
   dependencies:
     "@babel/runtime" "^7.5.5"
 
