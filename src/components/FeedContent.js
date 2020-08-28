@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { makeStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
 import Utils from '../utils/Utils';
-import { closeFeed, scrollFeedContent, setSettins } from '../actions/index'
+import { closeFeed, setSettins } from '../actions/index'
 
 import { useGesture } from 'react-use-gesture'
 import { useSpring, animated } from 'react-spring'
@@ -25,15 +25,17 @@ import QRCode from 'qrcode.react';
 const mapStateToProps = state => {
     return {
         feed: (state.currentFeeds && state.currentFeeds.items.find(i => i.readerId === state.currentFeedItemId)) || { deleted: true },
-        feedContentTop: state.lastFeedContentTop,
+        feedContentTop: state.feedContentTop,
         expandView: state.expandView,
     };
 };
   
 const mapDispatchToProps = dispatch => {
     return {
-        scrollFeedContent: top => dispatch(scrollFeedContent(top)),
-        closeFeed: () => dispatch(closeFeed()),
+        closeFeed: () => {
+            ChromeUtil.sendMessageToBackground({key: 'setFeedContentTop', value: 0})
+            dispatch(closeFeed())
+        },
         setSettins: settings => dispatch(setSettins(settings)),
     };
 };
@@ -111,7 +113,7 @@ const FeedContent = props => {
         ChromeUtil.openTab(url);
     }
     
-    const { feed, t, feedContentTop, scrollFeedContent, feed: {link} } = props;
+    const { feed, t, feedContentTop, feed: {link} } = props;
     const classes = useStyles(props);
     const contentContainer = useRef(null)
     const contentHtml = {__html: feed['content:encoded'] ? feed['content:encoded'] : feed.content}
@@ -200,7 +202,7 @@ const FeedContent = props => {
         onScroll: ({xy: [, y], offset: [, yOffSet], vxvy: [, vy], distance}) => {
             onContentScroll(y)
             if (vy === 0 && distance > 10) {
-                scrollFeedContent(yOffSet)
+                ChromeUtil.sendMessageToBackground({key: 'setFeedContentTop', value: yOffSet})
             }
         }
     })

@@ -102,7 +102,7 @@ const getSafe = (fn, defaultVal) => {
 
 const persistence = (state, updated) => {
     const newState = { ...state,  ...updated };
-    const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, tourOption, testNotificationOptions, lastFeedContentTop, ...persistenceState } = newState;
+    const { getComponentState, currentFeeds, mergedFeed, source, version, tmp, tourOption, testNotificationOptions, ...persistenceState } = newState;
     ChromeUtil.set({ state: persistenceState });
     ChromeUtil.setUnreadCount(newState.allUnreadCount);
     return newState;
@@ -176,7 +176,7 @@ const rootReducer = (state = initialState, action) => {
                 const { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded, showRecentUpdate, recentChannelIndex, channels } = state;
                 const showGoBack = showContent && lastActiveSpan <= 5 * 60 * 1000;
                 const updated = { ...defaultState,
-                    lastActiveState: { currentChannelId, currentFeedItemId, showContent, lastFeedContentTop: feedContentTop, historyFeedsLoaded },
+                    lastActiveState: { currentChannelId, currentFeedItemId, showContent, feedContentTop, historyFeedsLoaded },
                     readerMessageBar: showGoBack ? {
                         open: true,
                         mainActionName: 'GO',
@@ -197,7 +197,7 @@ const rootReducer = (state = initialState, action) => {
                 }
                 return persistence(state, updated);
             } else {
-                return {...state, channelFeedUpdating: false, lastFeedContentTop: state.showContent ? state.feedContentTop : 0};
+                return {...state};
             }   
         }
         case types.SELECT_CHANNEL: {
@@ -494,7 +494,7 @@ const rootReducer = (state = initialState, action) => {
         case types.OPEN_FEED:
             return persistence(state, { currentFeedItemId: action.payload, showContent: true });
         case types.CLOSE_FEED:
-            return persistence(state, { showContent: false, feedContentTop: 0, lastFeedContentTop: 0 });
+            return persistence(state, { showContent: false });
         case types.SCROLL_FEED_CONTENT: {
             return persistence(state, { feedContentTop: action.payload });
         }
