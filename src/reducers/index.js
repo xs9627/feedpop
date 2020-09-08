@@ -197,7 +197,7 @@ const rootReducer = (state = initialState, action) => {
                 }
                 return persistence(state, updated);
             } else {
-                return {...state, channelFeedUpdating: false};
+                return {...state};
             }   
         }
         case types.SELECT_CHANNEL: {
@@ -494,7 +494,7 @@ const rootReducer = (state = initialState, action) => {
         case types.OPEN_FEED:
             return persistence(state, { currentFeedItemId: action.payload, showContent: true });
         case types.CLOSE_FEED:
-            return persistence(state, { showContent: false, feedContentTop: 0 });
+            return persistence(state, { showContent: false });
         case types.SCROLL_FEED_CONTENT: {
             return persistence(state, { feedContentTop: action.payload });
         }
