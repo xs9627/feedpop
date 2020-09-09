@@ -494,7 +494,7 @@ const rootReducer = (state = initialState, action) => {
         case types.OPEN_FEED:
             return persistence(state, { currentFeedItemId: action.payload, showContent: true });
         case types.CLOSE_FEED:
-            return persistence(state, { showContent: false });
+            return persistence(state, { showContent: false, feedContentTop: 0 });
         case types.SCROLL_FEED_CONTENT: {
             return persistence(state, { feedContentTop: action.payload });
         }
