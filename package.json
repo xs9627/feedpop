@@ -16,7 +16,7 @@
     "opml-to-json": "^0.0.3",
     "qrcode.react": "^1.0.0",
     "react": "^16.14.0",
-    "react-dom": "^16.13.1",
+    "react-dom": "^16.14.0",
     "react-i18next": "^11.7.3",
     "react-scripts": "^3.4.4",
     "react-spring": "^8.0.27",
