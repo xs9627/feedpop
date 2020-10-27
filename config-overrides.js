@@ -33,7 +33,7 @@ module.exports = {
 		config.entry = {
 			main: [
 				isEnvDevelopment && paths.globalMocker,
-				...config.entry
+				config.entry,
 			].filter(Boolean),
 			background: paths.backgroundJs,
 		};
