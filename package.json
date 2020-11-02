@@ -21,7 +21,7 @@
     "react-scripts": "^4.0.0",
     "react-spring": "^8.0.27",
     "react-transition-group": "^4.4.1",
-    "react-use-gesture": "^7.0.16",
+    "react-use-gesture": "^8.0.0",
     "reactour": "https://github.com/xs9627/reactour/tarball/test",
     "redux-thunk": "^2.3.0",
     "rss-parser": "https://github.com/xs9627/rss-parser/tarball/v3.9.0.0",
@@ -42,7 +42,7 @@
   "devDependencies": {
     "cross-env": "^7.0.2",
     "react-app-rewired": "^2.1.6",
-    "react-redux": "^7.2.1",
+    "react-redux": "^7.2.2",
     "redux": "^4.0.5"
   },
   "browserslist": [
