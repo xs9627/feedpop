@@ -7,7 +7,7 @@
     "@material-ui/icons": "^4.9.1",
     "classnames": "^2.2.6",
     "i": "^0.3.6",
-    "i18next": "^19.8.3",
+    "i18next": "^19.8.4",
     "i18next-browser-languagedetector": "^6.0.1",
     "lodash.range": "^3.2.0",
     "mdi-material-ui": "^6.20.0",
