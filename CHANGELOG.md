@@ -1,3 +1,6 @@
+## [1.2.5] - 2020-11-28
+### Changed
+- Optimize back to read
 ## [1.2.4] - 2020-07-29
 ### Added
 - Import/Export OPML (#149)
@@ -82,6 +85,7 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.2.5]:https://github.com/xs9627/feedpop/compare/v1.2.4...v1.2.5
 [1.2.4]:https://github.com/xs9627/feedpop/compare/v1.2.3...v1.2.4
 [1.2.3]:https://github.com/xs9627/feedpop/compare/v1.2.2...v1.2.3
 [1.2.2]:https://github.com/xs9627/feedpop/compare/v1.2.1...v1.2.2
