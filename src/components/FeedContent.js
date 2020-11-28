@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { makeStyles } from '@material-ui/core/styles';
 import ChromeUtil from '../utils/ChromeUtil';
 import Utils from '../utils/Utils';
-import { closeFeed, scrollFeedContent, setSettins } from '../actions/index'
+import { closeFeed, setSettins } from '../actions/index'
 
 import { useGesture } from 'react-use-gesture'
 import { useSpring, animated } from 'react-spring'
@@ -32,8 +32,10 @@ const mapStateToProps = state => {
   
 const mapDispatchToProps = dispatch => {
     return {
-        scrollFeedContent: top => dispatch(scrollFeedContent(top)),
-        closeFeed: () => dispatch(closeFeed()),
+        closeFeed: () => {
+            ChromeUtil.sendMessageToBackground({key: 'setFeedContentTop', value: 0})
+            dispatch(closeFeed())
+        },
         setSettins: settings => dispatch(setSettins(settings)),
     };
 };
@@ -106,24 +108,25 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const FeedContent = props => {
+    console.log('renderd')
     const openFeed = url => {
         ChromeUtil.openTab(url);
     }
     
-    const { feed, t, feedContentTop, scrollFeedContent, feed: {link} } = props;
+    const { feed, t, feedContentTop, feed: {link} } = props;
     const classes = useStyles(props);
     const contentContainer = useRef(null)
     const contentHtml = {__html: feed['content:encoded'] ? feed['content:encoded'] : feed.content}
 
     useEffect(() => {
         const curContentContainer = contentContainer.current
-        if (feedContentTop > 0) {
+        if (feedContentTop > 0 && feedContentTop !== curContentContainer.scrollTop) {
             const imgList = curContentContainer.getElementsByTagName('img');
             if (imgList.length > 0) {
                 let count = imgList.length;
                 const countImg = () => {
                     count--;
-                    if (count === 0) {
+                    if (count === 0 && curContentContainer.scrollTop === 0) {
                         curContentContainer.scrollTop = feedContentTop;
                     }
                 }
@@ -131,20 +134,20 @@ const FeedContent = props => {
                     imgList[i].onload = countImg;
                     imgList[i].onerror = countImg;
                 }
+                return () => {
+                    for (let item of imgList) {
+                        item.onload = null
+                        item.onerror = null
+                    }
+                }
             } else {
                 curContentContainer.scrollTop = feedContentTop;
             }
         }
+    }, [feedContentTop])
 
-        const trackScrolling = (e) => {
-            const top  = e.target.scrollTop;
-            setTimeout(() => {
-                if (curContentContainer.scrollTop === top) {
-                    scrollFeedContent(top);
-                }
-            }, 500);
-        }
-
+    useEffect(() => {
+        const curContentContainer = contentContainer.current
         const handleClick = e => {
             if (curContentContainer.contains(e.target) && e.target.href !== undefined) {
                 let url = e.target.href
@@ -155,14 +158,11 @@ const FeedContent = props => {
                 ChromeUtil.openTab(url)
             }
         }
-
         document.addEventListener('click', handleClick);
-        curContentContainer.addEventListener('scroll', trackScrolling);
         return () => {
             document.removeEventListener('click', handleClick);
-            curContentContainer.removeEventListener('scroll', trackScrolling);
         }
-    }, [feedContentTop, scrollFeedContent, link])
+    }, [link])
 
     const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
     let xMove = 0
@@ -194,12 +194,17 @@ const FeedContent = props => {
         const ttitleOpacity = calTop > 0 ? 1 : 0
         return {titleOpacity: ttitleOpacity, titleCursor: ttitleOpacity === 1 ? 'auto': 'default'}
     }
-    const [{ titleOpacity, titleCursor }, contentScrollSet] = useSpring(() => (getTitleOpacity(feedContentTop)))
+    const [{ titleOpacity, titleCursor }, contentScrollSet] = useSpring(() => (getTitleOpacity(0)))
     const onContentScroll = (top) => {
         contentScrollSet(getTitleOpacity(top))
     }
     const contentContainerBind = useGesture({
-        onScroll: ({xy: [, y]}) => onContentScroll(y)
+        onScroll: ({xy: [, y], offset: [, yOffSet], vxvy: [, vy], distance}) => {
+            onContentScroll(y)
+            if (vy === 0 && distance > 10) {
+                ChromeUtil.sendMessageToBackground({key: 'setFeedContentTop', value: yOffSet})
+            }
+        }
     })
 
     return (

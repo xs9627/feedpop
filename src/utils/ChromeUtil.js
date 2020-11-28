@@ -1,4 +1,5 @@
 /* global chrome */
+let port
 let ChromeUtil = {
     get: key => {
         return new Promise((resolve, reject) => {
@@ -61,7 +62,7 @@ let ChromeUtil = {
         chrome.tabs.create({url, active});
     },
     connect: (state, receiveMessage) => {
-        const port = chrome.runtime.connect({name: "reader"});
+        port = chrome.runtime.connect({name: "reader"});
         port.state = state;
         port.onMessage.addListener(msg => {
             receiveMessage(msg);
@@ -112,6 +113,11 @@ let ChromeUtil = {
     },
     getMessage: (messageName, substitutions) => {
         return chrome.i18n.getMessage(messageName, substitutions)
+    },
+    sendMessageToBackground: message => {
+        if (port) {
+            port.postMessage(message)
+        }
     }
 };
 

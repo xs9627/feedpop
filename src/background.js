@@ -1,6 +1,6 @@
 /* global chrome */
 import store from './store/index';
-import { syncState, updateAllChannelsFeed, updateLastActiveTime, cleanCache, markAllChannelAsRead, saveConfig, setFeedReadStatus } from './actions/index';
+import { syncState, updateAllChannelsFeed, updateLastActiveTime, cleanCache, markAllChannelAsRead, saveConfig, setFeedReadStatus, scrollFeedContent } from './actions/index';
 import { BACKGROUND_UPDATE_CHANNEL, CLEAR_NOTIFICATION } from './constants/action-types';
 import ChromeUtil from './utils/ChromeUtil';
 
@@ -50,9 +50,20 @@ chrome.notifications.onClicked.addListener(notificationId => {
 
 chrome.runtime.onConnect.addListener(externalPort => {
     ports.push(externalPort);
+    let feedContentTop
+    externalPort.onMessage.addListener(msg => {
+        switch(msg.key) {
+            case "setFeedContentTop": {
+                feedContentTop = msg.value
+                break
+            }
+            default:
+        }
+    })
     externalPort.onDisconnect.addListener(() => {
         ports.splice(ports.indexOf(externalPort), 1);
         store.dispatch(syncState()).then(() => {
+            store.dispatch(scrollFeedContent(feedContentTop));
             store.dispatch(updateLastActiveTime());
             store.dispatch(saveConfig());
         });
