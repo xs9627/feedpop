@@ -197,7 +197,7 @@ const rootReducer = (state = initialState, action) => {
                 }
                 return persistence(state, updated);
             } else {
-                return {...state};
+                return {...state, channelFeedUpdating: false};
             }   
         }
         case types.SELECT_CHANNEL: {
