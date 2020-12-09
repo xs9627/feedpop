@@ -28,7 +28,7 @@
     "sinon-chrome": "^3.0.1",
     "styled-components": "^5.2.1",
     "typeface-roboto-material": "0.0.1",
-    "uuid": "^8.3.1"
+    "uuid": "^8.3.2"
   },
   "scripts": {
     "start": "react-app-rewired start",
