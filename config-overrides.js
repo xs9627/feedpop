@@ -82,5 +82,9 @@ module.exports = {
 		};
 
 		return config;
+	},
+	jest: (config) => {
+		config.transformIgnorePatterns = ["/node_modules/(?!(@material-ui)/).*/"]
+		return config;
 	}
 };
