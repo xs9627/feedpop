@@ -99,7 +99,7 @@ const Reader = props => {
         <MuiThemeProvider theme={createMuiTheme({
             palette: {
                 primary: !isDarkTheme ? blue : yellow,
-                type: !isDarkTheme ? 'light' : 'dark',
+                mode: !isDarkTheme ? 'light' : 'dark',
             },
             typography: {
                 fontSize: props.fontSize || 14,

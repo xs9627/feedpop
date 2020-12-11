@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
         position: 'absolute',
         height: theme.typography.fontSize + 32,
         backgroundColor: theme.palette.background.default,
-        paddingLeft: theme.spacing.unit
+        paddingLeft: theme.spacing(1)
 
     },
     draggableHandle: {
@@ -63,7 +63,7 @@ const useStyles = makeStyles(theme => ({
             display: 'inherit',
         },
         borderRight: `2px solid ${theme.palette.divider}`,
-        padding: theme.spacing.unit,
+        padding: theme.spacing(1),
         '&:active': {
             cursor: 'grabbing'
         }
@@ -72,12 +72,12 @@ const useStyles = makeStyles(theme => ({
         width: 'auto',
         height: 'auto',
         minHeight: 'auto',
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
 
     },
     itemBadge: {
         width: 20,
-        marginRight: theme.spacing.unit * 2,
+        marginRight: theme.spacing(2),
     },
     editItemIcon: {
         marginRight: 0,
@@ -85,7 +85,7 @@ const useStyles = makeStyles(theme => ({
     channelName: {
         display: 'flex',
         '& svg': {
-            marginRight: theme.spacing.unit,
+            marginRight: theme.spacing(1),
         }
     }
 }))

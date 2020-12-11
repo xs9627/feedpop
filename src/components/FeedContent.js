@@ -49,23 +49,23 @@ const useStyles = makeStyles(theme => ({
     },
     actionContainer: {
         flex: '0 1 auto',
-        paddingLeft: theme.spacing.unit * 2,
-        paddingRight: theme.spacing.unit * 2,
-        paddingTop: theme.spacing.unit,
-        paddingBottom: theme.spacing.unit,
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        paddingTop: theme.spacing(1),
+        paddingBottom: theme.spacing(1),
         zIndex: theme.zIndex.appBar,
     },
     contentContainer: {
         flex: '1 1 auto',
         overflowY: 'auto',
         overflowX: 'hidden',
-        padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+        padding: `${theme.spacing(1)} ${theme.spacing(2)}`,
     },
     content: {
         '& *': {
-            color: theme.palette.type === 'dark' ? 'inherit !important' : 'auto',
+            color: theme.palette.mode === 'dark' ? 'inherit !important' : 'auto',
         },
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
         background: 'inherit',
         fontFamily: 'Roboto',
         fontSize: 'inherit',
@@ -79,19 +79,19 @@ const useStyles = makeStyles(theme => ({
         }
     },
     icon: {
-        padding: theme.spacing.unit / 2,
+        padding: theme.spacing(.5),
     },
     emptyMsg: {
         textAlign: 'center',
-        margin: theme.spacing.unit * 2,
+        margin: theme.spacing(2),
         opacity: .5,
     },
     feedInfo: {
-        marginBottom: theme.spacing.unit * 2,
+        marginBottom: theme.spacing(2),
     },
     qrCodeTip: {
         display: 'flex',
-        padding: `${theme.spacing.unit}px`,
+        padding: `${theme.spacing(1)}`,
     },
     gestureClose: {
         position: 'absolute',

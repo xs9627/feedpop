@@ -96,15 +96,15 @@ const useStyles = makeStyles(theme => ({
         bottom: 0,
     },
     feedInfoContainer: {
-        padding: `${theme.spacing.unit / 2}px ${theme.spacing.unit * 2}px`,
+        padding: `${theme.spacing(.5)} ${theme.spacing(2)}`,
         paddingRight: '12px',
         display: 'flex',
         alignItems: 'center',
         height: 48,
     },
     groupHeader: {
-        paddingTop: theme.spacing.unit / 2,
-        paddingBottom: theme.spacing.unit / 2,
+        paddingTop: theme.spacing(.5),
+        paddingBottom: theme.spacing(.5),
     },
     stickyHeader: {
         position: 'sticky',
@@ -124,14 +124,14 @@ const useStyles = makeStyles(theme => ({
         width: 16,
         height: 16,
         fontSize: 12,
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
     collapseIcon: {
-        padding: theme.spacing.unit / 2,
+        padding: theme.spacing(.5),
     },
     emptyMsg: {
         textAlign: 'center',
-        margin: theme.spacing.unit * 2,
+        margin: theme.spacing(2),
         opacity: .5,
     },
     itemSecondaryContainer: {
@@ -140,7 +140,7 @@ const useStyles = makeStyles(theme => ({
     },
     channelMenuButton: {
         marginLeft: 'auto',
-        padding: theme.spacing.unit,
+        padding: theme.spacing(1),
     },
 }));
 

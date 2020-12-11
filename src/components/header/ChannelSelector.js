@@ -88,7 +88,7 @@ const useStyles = makeStyles(theme => ({
             display: 'inherit',
         },
         borderRight: `2px solid ${theme.palette.divider}`,
-        padding: theme.spacing.unit,
+        padding: theme.spacing(1),
     },
     removeButtonContaniner: {
         right: 'auto',
@@ -98,19 +98,19 @@ const useStyles = makeStyles(theme => ({
         width: 20,
         height: 20,
         minHeight: 20,
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
 
     },
     channelItemEditMode: {
-        paddingLeft: theme.spacing.unit * 10,
-        paddingRight: theme.spacing.unit * 2,
+        paddingLeft: theme.spacing(10),
+        paddingRight: theme.spacing(2),
     },
     channelItemActionPanel: {
         right: 'auto',
-        left: theme.spacing.unit,
+        left: theme.spacing(1),
     },
     buttonWrapper: {
-        margin: theme.spacing.unit,
+        margin: theme.spacing(1),
         position: 'relative',
     },
     buttonProgress: {

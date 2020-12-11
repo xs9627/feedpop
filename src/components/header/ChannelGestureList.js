@@ -10,7 +10,6 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import RootRef from '@material-ui/core/RootRef';
 import Subject from '@material-ui/icons/Subject';
 
 import { deleteChannel, moveChannel } from "../../actions/index"
@@ -158,8 +157,8 @@ class ChannelGestureList extends Component {
         const { mouseY, isPressed, originalPosOfLastPressed, order, channels } = this.state
         const { classes, t, listItemHeight } = this.props
         return (
-            <RootRef rootRef={this.channelListContainer}>
-                <List className={this.props.listClass} style={this.props.expandView ? {flexGrow: 1} : {height: this.getShowChannelCount() * listItemHeight + 14}} >
+            // <div ref={this.channelListContainer}>
+                <List ref={this.channelListContainer} className={this.props.listClass} style={this.props.expandView ? {flexGrow: 1} : {height: this.getShowChannelCount() * listItemHeight + 14}} >
                     {channels.map((channel, i) => {
                         const active = originalPosOfLastPressed === i && isPressed
                         const style = active
@@ -204,7 +203,7 @@ class ChannelGestureList extends Component {
                             </DialogActions>
                     </Dialog>
                 </List>
-            </RootRef>
+            // </div>
         )
     }
 }

@@ -57,10 +57,10 @@ const styles = theme => ({
       backgroundColor: theme.palette.background.paper,
     },
     nested: {
-        paddingLeft: theme.spacing.unit * 4,
+        paddingLeft: theme.spacing(4),
     },
     select: {
-        paddingRight: theme.spacing.unit,
+        paddingRight: theme.spacing(1),
     }
 });
 

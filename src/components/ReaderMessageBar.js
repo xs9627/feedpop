@@ -30,7 +30,7 @@ const styles = theme => ({
         backgroundColor: theme.palette.primary.dark,
     },
     close: {
-        padding: theme.spacing.unit / 2,
+        padding: theme.spacing(.5),
     },
     message: {
         display: 'flex',
@@ -39,7 +39,7 @@ const styles = theme => ({
     icon: {
         fontSize: 20,
         opacity: 0.9,
-        marginRight: theme.spacing.unit,
+        marginRight: theme.spacing(1),
     },
 });
 

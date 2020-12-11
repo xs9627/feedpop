@@ -80,7 +80,7 @@ const useStyles = makeStyles(theme => ({
         justifyContent: 'center',
     },
     cancelLoading: {
-        marginTop: theme.spacing.unit,
+        marginTop: theme.spacing(1),
     },
     '@global @keyframes rotate': {
         to: {

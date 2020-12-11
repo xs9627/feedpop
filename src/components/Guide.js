@@ -32,10 +32,10 @@ const styles = theme => ({
         height: '100%',
     },
     button: {
-        marginLeft: theme.spacing.unit * 2,
+        marginLeft: theme.spacing(2),
     },
     extendedIcon: {
-        marginLeft: theme.spacing.unit,
+        marginLeft: theme.spacing(1),
     },
 });
 
