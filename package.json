@@ -6,20 +6,20 @@
     "@emotion/react": "^11.1.2",
     "@emotion/styled": "^11.0.0",
     "@material-ui/core": "^5.0.0-alpha.18",
-    "@material-ui/icons": "^4.9.1",
+    "@material-ui/icons": "^4.11.2",
     "classnames": "^2.2.6",
     "i": "^0.3.6",
     "i18next": "^19.8.4",
     "i18next-browser-languagedetector": "^6.0.1",
     "lodash.range": "^3.2.0",
-    "mdi-material-ui": "^6.20.0",
-    "npm": "^6.14.9",
+    "mdi-material-ui": "^6.21.0",
+    "npm": "^6.14.10",
     "opml-generator": "^1.1.1",
     "opml-to-json": "^0.0.3",
     "qrcode.react": "^1.0.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "react-i18next": "^11.7.3",
+    "react-i18next": "^11.8.4",
     "react-scripts": "^4.0.1",
     "react-spring": "^8.0.27",
     "react-transition-group": "^4.4.1",
@@ -30,7 +30,7 @@
     "sinon-chrome": "^3.0.1",
     "styled-components": "^5.2.1",
     "typeface-roboto-material": "0.0.1",
-    "uuid": "^8.3.1"
+    "uuid": "^8.3.2"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -42,8 +42,8 @@
     "build:chrome": "node scripts/update-chrome-extensions-prop.js"
   },
   "devDependencies": {
-    "cross-env": "^7.0.2",
-    "react-app-rewired": "^2.1.6",
+    "cross-env": "^7.0.3",
+    "react-app-rewired": "^2.1.8",
     "react-redux": "^7.2.2",
     "redux": "^4.0.5"
   },
