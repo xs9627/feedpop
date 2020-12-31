@@ -39,10 +39,13 @@
     "test": "react-app-rewired test --env=jsdom",
     "test:debug": "react-app-rewired --inspect-brk test --runInBand --no-cache",
     "eject": "react-app-rewired eject",
-    "build:chrome": "node scripts/update-chrome-extensions-prop.js"
+    "build:chrome": "node scripts/update-chrome-extensions-prop.js",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
+    "gh-pages": "^3.1.0",
     "react-app-rewired": "^2.1.8",
     "react-redux": "^7.2.2",
     "redux": "^4.0.5"
@@ -52,5 +55,7 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "homepage": "http://xs9627.github.io/feedpop"
+
 }
