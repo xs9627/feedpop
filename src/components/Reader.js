@@ -6,8 +6,8 @@ import ReaderContent from './ReaderContent';
 import ReaderHeader from './header/ReaderHeader';
 import ReaderMessageBar from './ReaderMessageBar';
 import Guide from './Guide';
-import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
-import { CssBaseline } from "@material-ui/core";
+import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import { CssBaseline, StylesProvider } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 import blue from '@material-ui/core/colors/blue';
 import yellow from '@material-ui/core/colors/yellow';
@@ -94,53 +94,55 @@ const Reader = props => {
     const classes = useStyles(props);
 
     return !synced ? null : (
-        <MuiThemeProvider theme={createMuiTheme({
-            palette: {
-                primary: !isDarkTheme ? blue : yellow,
-                mode: !isDarkTheme ? 'light' : 'dark',
-            },
-            typography: {
-                fontSize: props.fontSize || 14,
-            },
-            overrides: {
-                // Fix multiple scroll bar after upgrade mui to 4.7.0. 
-                // Need to remove this if it fixed in future release. 
-                // Related comments, https://github.com/mui-org/material-ui/issues/17774
-                MuiTooltip: {
-                    popper: {
-                        position: 'absolute',
-                        top: 0,
+        <StylesProvider injectFirst>
+            <ThemeProvider theme={createMuiTheme({
+                palette: {
+                    primary: !isDarkTheme ? blue : yellow,
+                    mode: !isDarkTheme ? 'light' : 'dark',
+                },
+                typography: {
+                    fontSize: props.fontSize || 14,
+                },
+                overrides: {
+                    // Fix multiple scroll bar after upgrade mui to 4.7.0. 
+                    // Need to remove this if it fixed in future release. 
+                    // Related comments, https://github.com/mui-org/material-ui/issues/17774
+                    MuiTooltip: {
+                        popper: {
+                            position: 'absolute',
+                            top: 0,
+                        }
                     }
                 }
-            }
-            // overrides: {
-            //     MuiBottomNavigation: {
-            //         root: {
-            //             height: 46,
-            //         }
-            //     },
-            //     MuiBottomNavigationAction: {
-            //         root: {
-            //             height: 46,
-            //             '& $svg': {
-            //                 fontSize: 16,
-            //             }
-            //         },
-            //         label: {
-            //             '&$selected': {
-            //                 fontSize: 12
-            //             }
-            //         },
-            //     },
-            // },
-        })}>
-            <CssBaseline />
-            <div className={classes.root}>
-                <ReaderHeader />
-                { props.channels.length > 0 ? <ReaderContent /> : <Guide/> }
-                <ReaderMessageBar />
-            </div>
-        </MuiThemeProvider>
+                // overrides: {
+                //     MuiBottomNavigation: {
+                //         root: {
+                //             height: 46,
+                //         }
+                //     },
+                //     MuiBottomNavigationAction: {
+                //         root: {
+                //             height: 46,
+                //             '& $svg': {
+                //                 fontSize: 16,
+                //             }
+                //         },
+                //         label: {
+                //             '&$selected': {
+                //                 fontSize: 12
+                //             }
+                //         },
+                //     },
+                // },
+            })}>
+                <CssBaseline />
+                <div className={classes.root}>
+                    <ReaderHeader />
+                    { props.channels.length > 0 ? <ReaderContent /> : <Guide/> }
+                    <ReaderMessageBar />
+                </div>
+            </ThemeProvider>
+        </StylesProvider>
     );
 }
 
