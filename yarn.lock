@@ -9321,17 +9321,17 @@ opml-generator@^1.1.1:
   dependencies:
     xml "^1.0.0"
 
-opml-to-json@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/opml-to-json/-/opml-to-json-0.0.3.tgz#a14eb44a91beb9ee954f7ba25986c09276e55a9f"
-  integrity sha1-oU60SpG+ue6VT3uiWYbAknblWp8=
+opml-to-json@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/opml-to-json/-/opml-to-json-1.0.1.tgz#a2cd65f9cc533f7d0e31bb0b5fdce8f55f8f1333"
+  integrity sha512-o/czEw150VWKww6Xa9as9ozTqj6L6LnxsVTfmKGFQ3eZiolTQBcDVRA87hzTBtflVZyeP6x0QYTMBM86cTW/kQ==
   dependencies:
-    opmlparser "^0.6.0"
+    opmlparser "^0.8.0"
 
-opmlparser@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/opmlparser/-/opmlparser-0.6.0.tgz#04f00248b9e5c511444bce863567d17ef2364e7d"
-  integrity sha1-BPACSLnlxRFES86GNWfRfvI2Tn0=
+opmlparser@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/opmlparser/-/opmlparser-0.8.0.tgz#a5d74834b136af9a639013f5dc39746b7c27063f"
+  integrity sha1-pddINLE2r5pjkBP13Dl0a3wnBj8=
   dependencies:
     readable-stream "~1.1.10"
     sax "~0.6.0"
