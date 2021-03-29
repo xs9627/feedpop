@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Spring } from 'react-spring/renderprops.cjs.js'
+import { Spring } from 'react-spring'
 import range from 'lodash/range'
 import { connect } from "react-redux"
 import Button from '@material-ui/core/Button';
