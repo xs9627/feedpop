@@ -11,7 +11,7 @@
     "i18next-browser-languagedetector": "^6.1.0",
     "lodash.range": "^3.2.0",
     "mdi-material-ui": "^6.22.0",
-    "npm": "^7.7.5",
+    "npm": "^7.8.0",
     "opml-generator": "^1.1.1",
     "opml-to-json": "^1.0.1",
     "qrcode.react": "^1.0.1",
