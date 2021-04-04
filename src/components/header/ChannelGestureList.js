@@ -171,15 +171,15 @@ class ChannelGestureList extends Component {
                                     <div 
                                     className={classes.listItem}
                                     style={{
-                                        boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
-                                        transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
+                                        boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow.get()}px ${2 * shadow.get()}px 0px`,
+                                        transform: `translate3d(0, ${y.get()}px, 0) scale(${scale.get()})`,
                                         zIndex: i === originalPosOfLastPressed ? 99 : i,
                                     }}>
                                         <ChannelGestureListItem
                                                 channel = {channel}
                                                 isSorting = {active}
-                                                onMouseDown={this.handleMouseDown.bind(null, i, y)}
-                                                onTouchStart={this.handleTouchStart.bind(null, i, y)}
+                                                onMouseDown={this.handleMouseDown.bind(null, i, y.get())}
+                                                onTouchStart={this.handleTouchStart.bind(null, i, y.get())}
                                                 deleteItem={() => this.openDeleteChannelConfirm(channel.id)}
                                                 editItem={() => this.handleEditClick(channel)} />
                                     </div>

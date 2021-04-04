@@ -133,14 +133,14 @@ const ChannelGestureListItem = props => {
         }
     }
 
-    const [ { x } , set ] = useSpring(() => ({ x: 0, movement: [0, 0] }))
+    const [ { x } , api ] = useSpring(() => ({ x: 0, movement: [0, 0] }))
     
-    const bind = useDrag(({ down, movement }) => set({x: down ? getOffSet(movement[0]) : (getEditorMode(movement[0]) ? actionPanelWidth : 0)}))
+    const bind = useDrag(({ down, movement }) => api.start({x: down ? getOffSet(movement[0]) : (getEditorMode(movement[0]) ? actionPanelWidth : 0)}))
 
     useEffect(() => {
         setEditMode(props.editMode)
-        set({x: props.editMode ? actionPanelWidth : 0})
-    }, [props.editMode, actionPanelWidth, set])
+        api.start({x: props.editMode ? actionPanelWidth : 0})
+    }, [props.editMode, actionPanelWidth, api])
     return (
         <div className={classes.root}>
             <ListItem className={classes.actionPanel}>
@@ -151,7 +151,7 @@ const ChannelGestureListItem = props => {
                     <RemoveIcon fontSize="small" />
                 </Fab>
             </ListItem>
-            <animated.div {...bind()} className={classes.ListItemPanel} style={{ transform: x.interpolate(x => `translate3d(${x}px,0,0)`), width: x.interpolate(x => `calc(100% - ${x}px)`) }}>
+            <animated.div {...bind()} className={classes.ListItemPanel} style={{ transform: x.to(x => `translate3d(${x}px,0,0)`), width: x.to(x => `calc(100% - ${x}px)`) }}>
                 <ListItem button
                     key={channel.id}
                     className={classes.listItem}
@@ -161,8 +161,8 @@ const ChannelGestureListItem = props => {
                 >
                     <animated.div
                         style={{
-                            transform: x.interpolate(x => `scale(${x / actionPanelWidth})`),
-                            width: x.interpolate(x => `${x * 2 / actionPanelWidth}em`),
+                            transform: x.to(x => `scale(${x / actionPanelWidth})`),
+                            width: x.to(x => `${x * 2 / actionPanelWidth}em`),
                             height: '2em'
                         }}
                     >

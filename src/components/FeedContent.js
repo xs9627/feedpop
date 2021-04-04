@@ -164,7 +164,7 @@ const FeedContent = props => {
         }
     }, [link])
 
-    const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
+    const [{ x, opacity }, api] = useSpring(() => ({ x: 0, opacity: 0 }))
     let xMove = 0
     const onBackGesture = (xDelta, xDirection, active) => {
         const backTriggerX = 100, xDirectionThreshold = -.8
@@ -173,14 +173,14 @@ const FeedContent = props => {
             if (xMove >= backTriggerX) {
                 xMove = backTriggerX
             }
-            set({x: xMove, opacity: xMove / backTriggerX * (xMove < backTriggerX / 2 ? .5 : 1)})
+            api.start({x: xMove, opacity: xMove / backTriggerX * (xMove < backTriggerX / 2 ? .5 : 1)})
             if (xMove === backTriggerX) {
                 props.closeFeed()
             }
         }
         if (!active) {
             xMove = 0
-            set({x: 0})
+            api.start({x: 0})
         }
     }
     const bind = useGesture({
@@ -287,7 +287,7 @@ const FeedContent = props => {
             </div>
             <animated.div className={classes.gestureClose}
                 style={{
-                    transform: x.interpolate((x) => `translate3D(${x}px, 0, 0)`),
+                    transform: x.to((x) => `translate3D(${x}px, 0, 0)`),
                     opacity
                 }}
             >

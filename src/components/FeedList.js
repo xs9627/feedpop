@@ -452,12 +452,12 @@ const FeedList = props => {
     }
 
     const headerHeight = 48
-    const [{ headerTop }, set] = useSpring(() => ({headerTop: 0}))
+    const [{ headerTop }, api] = useSpring(() => ({headerTop: 0}))
     const onListScroll = (yDirection) => {
         if (yDirection === 1 || yDirection === -1) {
             const scrollDown = yDirection > 0 || feedList.current.scrollTop === 0
             setScrollDown(scrollDown)
-            set({headerTop: scrollDown ? -1 * headerHeight : 0})
+            api.start({headerTop: scrollDown ? -1 * headerHeight : 0})
         }
     }
     const listScrollBind = useGesture({
@@ -536,7 +536,7 @@ const FeedList = props => {
                         <ul className={classes.ul}>
                             <animated.div className={classes.stickyTitle}
                                 style={{
-                                    top: headerTop.interpolate((top) => top + headerHeight),
+                                    top: headerTop.to((top) => top + headerHeight),
                                     zIndex: 1,
                                 }}
                                 // data-id={i}
