@@ -194,9 +194,9 @@ const FeedContent = props => {
         const ttitleOpacity = calTop > 0 ? 1 : 0
         return {titleOpacity: ttitleOpacity, titleCursor: ttitleOpacity === 1 ? 'auto': 'default'}
     }
-    const [{ titleOpacity, titleCursor }, contentScrollSet] = useSpring(() => (getTitleOpacity(0)))
+    const [{ titleOpacity, titleCursor }, contentScrollApi] = useSpring(() => (getTitleOpacity(0)))
     const onContentScroll = (top) => {
-        contentScrollSet(getTitleOpacity(top))
+        contentScrollApi.start(getTitleOpacity(top))
     }
     const contentContainerBind = useGesture({
         onScroll: ({xy: [, y], offset: [, yOffSet], vxvy: [, vy], distance}) => {
