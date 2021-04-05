@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Spring } from 'react-spring/renderprops.cjs.js'
+import { Spring, animated, to } from 'react-spring'
 import range from 'lodash/range'
 import { connect } from "react-redux"
 import Button from '@material-ui/core/Button';
@@ -168,21 +168,21 @@ class ChannelGestureList extends Component {
                         return (
                             <Spring immediate={name => active && name === 'y'} to={style} key={channel.id}>
                                 {({ scale, shadow, y }) => (
-                                    <div 
-                                    className={classes.listItem}
-                                    style={{
-                                        boxShadow: `rgba(0, 0, 0, 0.2) 0px ${shadow}px ${2 * shadow}px 0px`,
-                                        transform: `translate3d(0, ${y}px, 0) scale(${scale})`,
-                                        zIndex: i === originalPosOfLastPressed ? 99 : i,
-                                    }}>
-                                        <ChannelGestureListItem
+                                    <animated.div 
+                                        className={classes.listItem}
+                                        style={{
+                                            boxShadow: shadow.to(s => `rgba(0, 0, 0, 0.2) 0px ${s}px ${2 * s}px 0px`),
+                                            transform: to([y, scale], (y, s) => `translate3d(0, ${y}px, 0) scale(${s})`),
+                                            zIndex: i === originalPosOfLastPressed ? 99 : i,
+                                        }}>
+                                            <ChannelGestureListItem
                                                 channel = {channel}
                                                 isSorting = {active}
-                                                onMouseDown={this.handleMouseDown.bind(null, i, y)}
-                                                onTouchStart={this.handleTouchStart.bind(null, i, y)}
+                                                onMouseDown={this.handleMouseDown.bind(null, i, y.get())}
+                                                onTouchStart={this.handleTouchStart.bind(null, i, y.get())}
                                                 deleteItem={() => this.openDeleteChannelConfirm(channel.id)}
                                                 editItem={() => this.handleEditClick(channel)} />
-                                    </div>
+                                    </animated.div>
                                 )}
                             </Spring>
                         )

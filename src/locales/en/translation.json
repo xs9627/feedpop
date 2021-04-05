@@ -47,11 +47,13 @@
     "Restore failed": "Restore failed. Please check the backup file.",
     "Import completed": "Import completed",
     "Import failed": "Import failed. Please check the backup file.",
+    "Popout": "Popout",
 
     "Open in new tab": "Open in new tab",
     "Enter expand view": "Enter expand view",
     "Exit expand view": "Exit expand view",
     "Feed has been deleted": "Feed has been deleted",
+    "Pop out to a new window": "Pop out to a new window",
 
     "No feeds loaded": "No feeds loaded",
     "Mark all as read": "Mark all as read",

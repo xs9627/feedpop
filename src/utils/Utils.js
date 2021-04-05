@@ -1,4 +1,4 @@
-import opmlToJSON from 'opml-to-json';
+import { opmlToJSON } from 'opml-to-json';
 import opml from 'opml-generator'
 
 export default {
@@ -17,15 +17,7 @@ export default {
 }
 
 export const opmlToJson = xmlString => {
-    return new Promise((resolve, reject) => {
-        opmlToJSON(xmlString, (error, json) => {
-            if (error) {
-                reject()
-            } else {
-                resolve(json)
-            }
-        })
-    })
+    return opmlToJSON(xmlString)
 }
 
 export const objectToOpml = (header, outlines) => (opml(header, outlines))

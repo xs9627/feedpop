@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import OpenIcon from '@material-ui/icons/OpenInBrowser';
+import LaunchIcon from '@material-ui/icons/Launch';
 import {ArrowExpand as ArrowExpandIcon} from 'mdi-material-ui';
 import {ArrowCollapse as ArrowCollapseIcon} from 'mdi-material-ui';
 import {Qrcode as QRCodeIcon} from 'mdi-material-ui';
@@ -164,7 +165,7 @@ const FeedContent = props => {
         }
     }, [link])
 
-    const [{ x, opacity }, set] = useSpring(() => ({ x: 0, opacity: 0 }))
+    const [{ x, opacity }, api] = useSpring(() => ({ x: 0, opacity: 0 }))
     let xMove = 0
     const onBackGesture = (xDelta, xDirection, active) => {
         const backTriggerX = 100, xDirectionThreshold = -.8
@@ -173,14 +174,14 @@ const FeedContent = props => {
             if (xMove >= backTriggerX) {
                 xMove = backTriggerX
             }
-            set({x: xMove, opacity: xMove / backTriggerX * (xMove < backTriggerX / 2 ? .5 : 1)})
+            api.start({x: xMove, opacity: xMove / backTriggerX * (xMove < backTriggerX / 2 ? .5 : 1)})
             if (xMove === backTriggerX) {
                 props.closeFeed()
             }
         }
         if (!active) {
             xMove = 0
-            set({x: 0})
+            api.start({x: 0})
         }
     }
     const bind = useGesture({
@@ -194,9 +195,9 @@ const FeedContent = props => {
         const ttitleOpacity = calTop > 0 ? 1 : 0
         return {titleOpacity: ttitleOpacity, titleCursor: ttitleOpacity === 1 ? 'auto': 'default'}
     }
-    const [{ titleOpacity, titleCursor }, contentScrollSet] = useSpring(() => (getTitleOpacity(0)))
+    const [{ titleOpacity, titleCursor }, contentScrollApi] = useSpring(() => (getTitleOpacity(0)))
     const onContentScroll = (top) => {
-        contentScrollSet(getTitleOpacity(top))
+        contentScrollApi.start(getTitleOpacity(top))
     }
     const contentContainerBind = useGesture({
         onScroll: ({xy: [, y], offset: [, yOffSet], vxvy: [, vy], distance}) => {
@@ -233,6 +234,11 @@ const FeedContent = props => {
                         </Grid>
                     </Grid>
                     <Grid item>
+                        <Tooltip title={t("Pop out to a new window")}>
+                            <IconButton key="launch" className={classes.icon} onClick={() => ChromeUtil.popOut(props.expandView)}>
+                                <LaunchIcon />
+                            </IconButton>
+                        </Tooltip>
                         <Tooltip classes={{tooltip: classes.qrCodeTip}} title={
                             <React.Fragment>
                                 <QRCode value={props.feed.link} />
@@ -248,7 +254,11 @@ const FeedContent = props => {
                             </IconButton>
                         </Tooltip>
                         <Tooltip title={!props.expandView ? t("Enter expand view") : t("Exit expand view")}>
-                            <IconButton key="open" className={classes.icon} onClick={ () => props.setSettins({ expandView: !props.expandView })}>
+                            <IconButton key="open" className={classes.icon} onClick={() => {
+                                const expandView = !props.expandView
+                                props.setSettins({ expandView })
+                                ChromeUtil.updatePopoutSize(expandView)
+                            }}>
                                 {!props.expandView ? <ArrowExpandIcon /> : <ArrowCollapseIcon />}
                             </IconButton>
                         </Tooltip>
@@ -287,7 +297,7 @@ const FeedContent = props => {
             </div>
             <animated.div className={classes.gestureClose}
                 style={{
-                    transform: x.interpolate((x) => `translate3D(${x}px, 0, 0)`),
+                    transform: x.to((x) => `translate3D(${x}px, 0, 0)`),
                     opacity
                 }}
             >

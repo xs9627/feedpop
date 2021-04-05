@@ -1,3 +1,6 @@
+## [1.2.6] - 2021-04-05
+### Added
+- Pop out to a new window
 ## [1.2.5] - 2020-11-28
 ### Changed
 - Optimize back to read
