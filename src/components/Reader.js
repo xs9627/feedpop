@@ -50,7 +50,8 @@ const useStyles = makeStyles(theme => ({
         },
     },
     root: props => ({
-        height: 600,
+        minHeight: 600,
+        height: '100vh',
         minWidth: `${props.expandView ? '640px' : '320px'}`,
         display: 'flex',
         flexFlow: `${props.expandView ? 'row' : 'column'}`,

@@ -11,6 +11,7 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import OpenIcon from '@material-ui/icons/OpenInBrowser';
+import LaunchIcon from '@material-ui/icons/Launch';
 import {ArrowExpand as ArrowExpandIcon} from 'mdi-material-ui';
 import {ArrowCollapse as ArrowCollapseIcon} from 'mdi-material-ui';
 import {Qrcode as QRCodeIcon} from 'mdi-material-ui';
@@ -233,6 +234,11 @@ const FeedContent = props => {
                         </Grid>
                     </Grid>
                     <Grid item>
+                        <Tooltip title={t("Pop out to a new window")}>
+                            <IconButton key="launch" className={classes.icon} onClick={() => ChromeUtil.popOut(props.expandView)}>
+                                <LaunchIcon />
+                            </IconButton>
+                        </Tooltip>
                         <Tooltip classes={{tooltip: classes.qrCodeTip}} title={
                             <React.Fragment>
                                 <QRCode value={props.feed.link} />
@@ -248,7 +254,11 @@ const FeedContent = props => {
                             </IconButton>
                         </Tooltip>
                         <Tooltip title={!props.expandView ? t("Enter expand view") : t("Exit expand view")}>
-                            <IconButton key="open" className={classes.icon} onClick={ () => props.setSettins({ expandView: !props.expandView })}>
+                            <IconButton key="open" className={classes.icon} onClick={() => {
+                                const expandView = !props.expandView
+                                props.setSettins({ expandView })
+                                ChromeUtil.updatePopoutSize(expandView)
+                            }}>
                                 {!props.expandView ? <ArrowExpandIcon /> : <ArrowCollapseIcon />}
                             </IconButton>
                         </Tooltip>

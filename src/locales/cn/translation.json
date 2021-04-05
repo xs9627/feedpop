@@ -47,11 +47,13 @@
     "Restore failed": "恢复失败，请检查备份文件",
     "Import completed": "导入完成",
     "Import failed": "导入失败，请检查备份文件",
+    "Popout": "新窗口",
 
     "Open in new tab": "在新标签页打开",
     "Enter expand view": "进入宽屏模式",
     "Exit expand view": "退出宽屏模式",
     "Feed has been deleted": "内容已经被删除",
+    "Pop out to a new window": "打开新窗口",
 
     "No feeds loaded": "无更新内容",
     "Mark all as read": "标记全部为已读",

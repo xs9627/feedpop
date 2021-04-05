@@ -22,9 +22,10 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import LaunchIcon from '@material-ui/icons/Launch';
+import NotificationsIcon from '@material-ui/icons/Notifications';
 
 import { connect } from "react-redux";
-import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult, showTestNotification, importOPML, exportOPML } from "../../actions/index"
+import { setSettins, cleanCache, toggleShowRecentUpdate, downloadConfig, restoreConfig, closeRestoreResult, showTestNotification, importOPML, exportOPML, closeActionMenu } from "../../actions/index"
 import { withTranslation } from 'react-i18next';
 
 const mapStateToProps = state => {
@@ -49,6 +50,7 @@ const mapDispatchToProps = dispatch => {
         showTestNotification: () => dispatch(showTestNotification()),
         importOPML: file => dispatch(importOPML(file)),
         exportOPML: () => dispatch(exportOPML()),
+        closeActionMenu: () => dispatch(closeActionMenu()),
     };
 };
 
@@ -88,6 +90,7 @@ class Settings extends Component {
     handleChangeexpandView = event => {
         const expandView = event.target.checked;
         this.props.setSettins({ expandView });
+        ChromeUtil.updatePopoutSize(expandView);
     }
 
     handleChangeKeepHistoricFeeds = event => {
@@ -288,11 +291,20 @@ class Settings extends Component {
                                     <MenuItem value={'detail'}>{t("Each new feed")}</MenuItem>
                                 </Select>
                                 <IconButton size="small" onClick={this.props.showTestNotification}>
-                                    <LaunchIcon />
+                                    <NotificationsIcon />
                                 </IconButton>
                             </ListItemSecondaryAction>
                         </ListItem>
                     </Collapse>
+                    <ListItem button onClick={() => {
+                        this.props.closeActionMenu()
+                        ChromeUtil.popOut(this.props.config.expandView)
+                    }}>
+                        <ListItemText primary={t("Popout")}></ListItemText>
+                        <Typography>
+                            <LaunchIcon />
+                        </Typography>
+                    </ListItem>
                     <ListItem button onClick={this.openCleanCacheConfirm}>
                         <ListItemText primary={t("Clean Cache")}></ListItemText>
                     </ListItem>

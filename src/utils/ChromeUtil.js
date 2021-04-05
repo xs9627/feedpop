@@ -60,6 +60,7 @@ let ChromeUtil = {
     },
     openTab: (url, active = true) => {
         chrome.tabs.create({url, active});
+        window.close();
     },
     connect: (state, receiveMessage) => {
         port = chrome.runtime.connect({name: "reader"});
@@ -117,6 +118,19 @@ let ChromeUtil = {
     sendMessageToBackground: message => {
         if (port) {
             port.postMessage(message)
+        }
+    },
+    popOut: (extendView) => {
+        const config = {'url': '/index.html', 'type': 'popup'}
+        const size = extendView ? {width: 800, height: 650} : {width: 340, height: 650}
+        chrome.windows.create({...config, ...size})
+        window.close()
+    },
+    updatePopoutSize: (extendView) => {
+        const views = chrome.extension.getViews({ type: "popup" });
+        if (views.length === 0) {
+            const size = extendView ? {width: 800, height: 650} : {width: 340, height: 650}
+            chrome.windows.update(-2, size)
         }
     }
 };
