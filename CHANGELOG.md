@@ -1,6 +1,6 @@
 ## [1.2.7] - 2021-06-19
 ### Changed
-- Fix one in new tab
+- Fix open in new tab
 ## [1.2.6] - 2021-04-05
 ### Added
 - Pop out to a new window
