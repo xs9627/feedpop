@@ -1,3 +1,6 @@
+## [1.2.7] - 2021-06-19
+### Changed
+- Fix one in new tab
 ## [1.2.6] - 2021-04-05
 ### Added
 - Pop out to a new window
@@ -88,6 +91,8 @@
 - Optimize channel list sorting
 - Handle feeds with no publish date
 
+[1.2.7]:https://github.com/xs9627/feedpop/compare/v1.2.6...v1.2.7
+[1.2.6]:https://github.com/xs9627/feedpop/compare/v1.2.5...v1.2.6
 [1.2.5]:https://github.com/xs9627/feedpop/compare/v1.2.4...v1.2.5
 [1.2.4]:https://github.com/xs9627/feedpop/compare/v1.2.3...v1.2.4
 [1.2.3]:https://github.com/xs9627/feedpop/compare/v1.2.2...v1.2.3
