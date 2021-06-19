@@ -60,7 +60,7 @@ let ChromeUtil = {
     },
     openTab: (url, active = true) => {
         chrome.tabs.create({url, active});
-        window.close();
+        active && window.close();
     },
     connect: (state, receiveMessage) => {
         port = chrome.runtime.connect({name: "reader"});
