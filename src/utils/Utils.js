@@ -3,7 +3,7 @@ import opml from 'opml-generator'
 
 export default {
     replaceXmlCharacter: raw => {
-        return raw.replace(/&(lt|gt|quot|#xA);/g, function(a, b){
+        return raw && raw.replace(/&(lt|gt|quot|#xA);/g, function(a, b){
             return {
                 lt: '<',
                 gt: '>',
